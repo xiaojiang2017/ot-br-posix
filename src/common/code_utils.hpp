@@ -52,6 +52,7 @@
  *  @param[in] aAlignType  The type to align with and convert the pointer to this type.
  *
  *  @returns A pointer to aligned memory.
+ *
  */
 #define OTBR_ALIGNED(aMem, aAlignType) \
     reinterpret_cast<aAlignType>(      \
@@ -73,6 +74,7 @@
  *  the status is unsuccessful.
  *
  *  @param[in] aStatus  A scalar status to be evaluated against zero (0).
+ *
  */
 #define SuccessOrExit(aStatus, ...) \
     do                              \
@@ -90,6 +92,7 @@
  *
  * @param[in] aStatus   A scalar error status to be evaluated against zero (0).
  * @param[in] aMessage  A message (text string) to print on failure.
+ *
  */
 #define SuccessOrDie(aStatus, aMessage)                                                   \
     do                                                                                    \
@@ -109,6 +112,7 @@
  *  @param[in] aCondition  A Boolean expression to be evaluated.
  *  @param[in] ...         An expression or block to execute when the
  *                         assertion fails.
+ *
  */
 #define VerifyOrExit(aCondition, ...) \
     do                                \
@@ -126,6 +130,7 @@
  *
  * @param[in] aCondition  The condition to verify
  * @param[in] aMessage    A message (text string) to print on failure.
+ *
  */
 #define VerifyOrDie(aCondition, aMessage)                                    \
     do                                                                       \
@@ -138,18 +143,6 @@
     } while (false)
 
 /**
- * This macro prints the message and terminates the program.
- *
- * @param[in] aMessage    A message (text string) to print.
- */
-#define DieNow(aMessage)                                                 \
-    do                                                                   \
-    {                                                                    \
-        otbrLogEmerg("FAILED %s:%d - %s", __FILE__, __LINE__, aMessage); \
-        exit(-1);                                                        \
-    } while (false)
-
-/**
  *  This unconditionally executes @a ... and branches to the local
  *  label 'exit'.
  *
@@ -159,6 +152,7 @@
  *
  *  @param[in] ...  An optional expression or block to execute
  *                  when the assertion fails.
+ *
  */
 #define ExitNow(...) \
     do               \
@@ -185,6 +179,7 @@ uint64_t ConvertOpenThreadUint64(const uint8_t *aValue);
 
 /**
  * This class makes any class that derives from it non-copyable. It is intended to be used as a private base class.
+ *
  */
 class NonCopyable
 {

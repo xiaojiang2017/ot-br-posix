@@ -30,6 +30,7 @@
  * @file
  * @brief
  *   This file defines extensions to the OpenThread TCP API.
+ *
  */
 
 #ifndef OPENTHREAD_TCP_EXT_H_
@@ -48,6 +49,7 @@ extern "C" {
  *   This module includes easy-to-use abstractions on top of the base TCP API.
  *
  * @{
+ *
  */
 
 /**
@@ -82,6 +84,7 @@ extern "C" {
  * The application should not inspect the fields of this structure directly; it
  * should only interact with it via the TCP Circular Send Buffer API functions
  * whose signature are provided in this file.
+ *
  */
 typedef struct otTcpCircularSendBuffer
 {
@@ -106,6 +109,7 @@ void otTcpCircularSendBufferInitialize(otTcpCircularSendBuffer *aSendBuffer, voi
 
 /**
  * Defines flags passed to @p otTcpCircularSendBufferWrite.
+ *
  */
 enum
 {
@@ -244,6 +248,7 @@ int otTcpMbedTlsSslRecvCallback(void *aCtx, unsigned char *aBuf, size_t aLen);
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

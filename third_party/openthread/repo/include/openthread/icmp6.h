@@ -49,10 +49,12 @@ extern "C" {
  *   This module includes functions that control ICMPv6 communication.
  *
  * @{
+ *
  */
 
 /**
  * ICMPv6 Message Types
+ *
  */
 typedef enum otIcmp6Type
 {
@@ -70,12 +72,12 @@ typedef enum otIcmp6Type
 
 /**
  * ICMPv6 Message Codes
+ *
  */
 typedef enum otIcmp6Code
 {
-    OT_ICMP6_CODE_DST_UNREACH_NO_ROUTE   = 0, ///< Destination Unreachable (Type 1) - No Route
-    OT_ICMP6_CODE_DST_UNREACH_PROHIBITED = 1, ///< Destination Unreachable (Type 1) - Administratively Prohibited
-    OT_ICMP6_CODE_FRAGM_REAS_TIME_EX     = 1, ///< Time Exceeded (Type 3) - Fragment Reassembly
+    OT_ICMP6_CODE_DST_UNREACH_NO_ROUTE = 0, ///< Destination Unreachable No Route
+    OT_ICMP6_CODE_FRAGM_REAS_TIME_EX   = 1, ///< Fragment Reassembly Time Exceeded
 } otIcmp6Code;
 
 #define OT_ICMP6_HEADER_DATA_SIZE 4        ///< Size of ICMPv6 Header.
@@ -85,6 +87,7 @@ typedef enum otIcmp6Code
  * @struct otIcmp6Header
  *
  * Represents an ICMPv6 header.
+ *
  */
 OT_TOOL_PACKED_BEGIN
 struct otIcmp6Header
@@ -102,6 +105,7 @@ struct otIcmp6Header
 
 /**
  * Represents an ICMPv6 header.
+ *
  */
 typedef struct otIcmp6Header otIcmp6Header;
 
@@ -112,6 +116,7 @@ typedef struct otIcmp6Header otIcmp6Header;
  * @param[in]  aMessage      A pointer to the received message.
  * @param[in]  aMessageInfo  A pointer to message information associated with @p aMessage.
  * @param[in]  aIcmpHeader   A pointer to the received ICMPv6 header.
+ *
  */
 typedef void (*otIcmp6ReceiveCallback)(void                *aContext,
                                        otMessage           *aMessage,
@@ -120,6 +125,7 @@ typedef void (*otIcmp6ReceiveCallback)(void                *aContext,
 
 /**
  * Implements ICMPv6 message handler.
+ *
  */
 typedef struct otIcmp6Handler
 {
@@ -130,6 +136,7 @@ typedef struct otIcmp6Handler
 
 /**
  * ICMPv6 Echo Reply Modes
+ *
  */
 typedef enum otIcmp6EchoMode
 {
@@ -149,6 +156,7 @@ typedef enum otIcmp6EchoMode
  * @retval OT_ICMP6_ECHO_HANDLER_UNICAST_ONLY    ICMPv6 Echo processing enabled for unicast requests only
  * @retval OT_ICMP6_ECHO_HANDLER_MULTICAST_ONLY  ICMPv6 Echo processing enabled for multicast requests only
  * @retval OT_ICMP6_ECHO_HANDLER_ALL             ICMPv6 Echo processing enabled for unicast and multicast requests
+ *
  */
 otIcmp6EchoMode otIcmp6GetEchoMode(otInstance *aInstance);
 
@@ -157,6 +165,7 @@ otIcmp6EchoMode otIcmp6GetEchoMode(otInstance *aInstance);
  *
  * @param[in]  aInstance A pointer to an OpenThread instance.
  * @param[in]  aMode     The ICMPv6 Echo processing mode.
+ *
  */
 void otIcmp6SetEchoMode(otInstance *aInstance, otIcmp6EchoMode aMode);
 
@@ -169,6 +178,7 @@ void otIcmp6SetEchoMode(otInstance *aInstance, otIcmp6EchoMode aMode);
  * @param[in]  aInstance A pointer to an OpenThread instance.
  * @param[in]  aHandler  A pointer to a handler containing callback that is called when
  *                       an ICMPv6 message is received.
+ *
  */
 otError otIcmp6RegisterHandler(otInstance *aInstance, otIcmp6Handler *aHandler);
 
@@ -180,6 +190,7 @@ otError otIcmp6RegisterHandler(otInstance *aInstance, otIcmp6Handler *aHandler);
  * @param[in]  aMessageInfo  A reference to message information associated with @p aMessage.
  * @param[in]  aIdentifier   An identifier to aid in matching Echo Replies to this Echo Request.
  *                           May be zero.
+ *
  */
 otError otIcmp6SendEchoRequest(otInstance          *aInstance,
                                otMessage           *aMessage,
@@ -188,6 +199,7 @@ otError otIcmp6SendEchoRequest(otInstance          *aInstance,
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

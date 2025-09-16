@@ -51,6 +51,7 @@ namespace ot {
 
 /**
  * Implements handling PANID Query Requests.
+ *
  */
 class EnergyScanClient : public InstanceLocator
 {
@@ -59,6 +60,7 @@ class EnergyScanClient : public InstanceLocator
 public:
     /**
      * Initializes the object.
+     *
      */
     explicit EnergyScanClient(Instance &aInstance);
 
@@ -75,6 +77,7 @@ public:
      *
      * @retval kErrorNone     Successfully enqueued the Energy Scan Query message.
      * @retval kErrorNoBufs   Insufficient buffers to generate an Energy Scan Query message.
+     *
      */
     Error SendQuery(uint32_t                           aChannelMask,
                     uint8_t                            aCount,

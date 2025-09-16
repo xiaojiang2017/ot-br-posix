@@ -50,6 +50,7 @@ namespace ot {
 
 /**
  * Implements handling PANID Query Requests.
+ *
  */
 class PanIdQueryClient : public InstanceLocator
 {
@@ -58,6 +59,7 @@ class PanIdQueryClient : public InstanceLocator
 public:
     /**
      * Initializes the object.
+     *
      */
     explicit PanIdQueryClient(Instance &aInstance);
 
@@ -72,6 +74,7 @@ public:
      *
      * @retval kErrorNone    Successfully enqueued the PAN ID Query message.
      * @retval kErrorNoBufs  Insufficient buffers to generate a PAN ID Query message.
+     *
      */
     Error SendQuery(uint16_t                            aPanId,
                     uint32_t                            aChannelMask,

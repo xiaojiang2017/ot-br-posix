@@ -29,6 +29,7 @@
 /**
  * @file
  * This file includes DNS utilities.
+ *
  */
 #ifndef OTBR_COMMON_DNS_UTILS_HPP_
 #define OTBR_COMMON_DNS_UTILS_HPP_
@@ -41,6 +42,7 @@
  * This structure represents DNS Name information.
  *
  * @sa SplitFullDnsName
+ *
  */
 struct DnsNameInfo
 {
@@ -53,6 +55,7 @@ struct DnsNameInfo
      * This method returns if the DNS name is a service instance.
      *
      * @returns Whether the DNS name is a service instance.
+     *
      */
     bool IsServiceInstance(void) const { return !mInstanceName.empty(); };
 
@@ -60,6 +63,7 @@ struct DnsNameInfo
      * This method returns if the DNS name is a service.
      *
      * @returns Whether the DNS name is a service.
+     *
      */
     bool IsService(void) const { return !mServiceName.empty() && mInstanceName.empty(); }
 
@@ -67,6 +71,7 @@ struct DnsNameInfo
      * This method returns if the DNS name is a host.
      *
      * @returns Whether the DNS name is a host.
+     *
      */
     bool IsHost(void) const { return mServiceName.empty(); }
 };
@@ -79,6 +84,7 @@ struct DnsNameInfo
  * @returns A `DnsNameInfo` structure containing DNS name information.
  *
  * @sa DnsNameInfo
+ *
  */
 DnsNameInfo SplitFullDnsName(const std::string &aName);
 
@@ -91,6 +97,7 @@ DnsNameInfo SplitFullDnsName(const std::string &aName);
  *
  * @retval OTBR_ERROR_NONE          Successfully split the full service name.
  * @retval OTBR_ERROR_INVALID_ARGS  If the full service name is not valid.
+ *
  */
 otbrError SplitFullServiceName(const std::string &aFullName, std::string &aType, std::string &aDomain);
 
@@ -104,6 +111,7 @@ otbrError SplitFullServiceName(const std::string &aFullName, std::string &aType,
  *
  * @retval OTBR_ERROR_NONE          Successfully split the full service instance name.
  * @retval OTBR_ERROR_INVALID_ARGS  If the full service instance name is not valid.
+ *
  */
 otbrError SplitFullServiceInstanceName(const std::string &aFullName,
                                        std::string       &aInstanceName,
@@ -119,6 +127,7 @@ otbrError SplitFullServiceInstanceName(const std::string &aFullName,
  *
  * @retval OTBR_ERROR_NONE          Successfully split the full host name.
  * @retval OTBR_ERROR_INVALID_ARGS  If the full host name is not valid.
+ *
  */
 otbrError SplitFullHostName(const std::string &aFullName, std::string &aHostName, std::string &aDomain);
 

@@ -52,6 +52,7 @@ namespace DBus {
  * @param[in] aError  The otError value.
  *
  * @returns The string representation of an otError.
+ *
  */
 const char *ConvertToDBusErrorName(otError aError);
 

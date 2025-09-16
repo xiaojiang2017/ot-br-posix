@@ -33,7 +33,24 @@
 
 #include "network_diagnostic.hpp"
 
+#include "coap/coap_message.hpp"
+#include "common/array.hpp"
+#include "common/as_core_type.hpp"
+#include "common/code_utils.hpp"
+#include "common/debug.hpp"
+#include "common/encoding.hpp"
+#include "common/locator_getters.hpp"
+#include "common/log.hpp"
+#include "common/numeric_limits.hpp"
+#include "common/random.hpp"
 #include "instance/instance.hpp"
+#include "mac/mac.hpp"
+#include "net/netif.hpp"
+#include "thread/mesh_forwarder.hpp"
+#include "thread/mle_router.hpp"
+#include "thread/thread_netif.hpp"
+#include "thread/thread_tlvs.hpp"
+#include "thread/version.hpp"
 
 namespace ot {
 
@@ -96,7 +113,7 @@ void Server::PrepareMessageInfoForDest(const Ip6::Address &aDestination, Tmf::Me
         aMessageInfo.SetMulticastLoop(true);
     }
 
-    if (aDestination.IsLinkLocalUnicastOrMulticast())
+    if (aDestination.IsLinkLocal() || aDestination.IsLinkLocalMulticast())
     {
         aMessageInfo.SetSockAddr(Get<Mle::MleRouter>().GetLinkLocalAddress());
     }
@@ -222,17 +239,17 @@ Error Server::AppendMacCounters(Message &aMessage)
 
 Error Server::AppendRequestedTlvs(const Message &aRequest, Message &aResponse)
 {
-    Error       error;
-    OffsetRange offsetRange;
+    Error    error;
+    uint16_t offset;
+    uint16_t endOffset;
 
-    SuccessOrExit(error = Tlv::FindTlvValueOffsetRange(aRequest, Tlv::kTypeList, offsetRange));
+    SuccessOrExit(error = Tlv::FindTlvValueStartEndOffsets(aRequest, Tlv::kTypeList, offset, endOffset));
 
-    while (!offsetRange.IsEmpty())
+    for (; offset < endOffset; offset++)
     {
         uint8_t tlvType;
 
-        SuccessOrExit(error = aRequest.Read(offsetRange, tlvType));
-        offsetRange.AdvanceOffset(sizeof(tlvType));
+        SuccessOrExit(error = aRequest.Read(offset, tlvType));
         SuccessOrExit(error = AppendDiagTlv(tlvType, aResponse));
     }
 
@@ -519,7 +536,9 @@ void Server::PrepareAndSendAnswers(const Ip6::Address &aDestination, const Messa
     Coap::Message *answer;
     Error          error;
     AnswerInfo     info;
-    OffsetRange    offsetRange;
+    uint16_t       offset;
+    uint16_t       length;
+    uint16_t       endOffset;
     AnswerTlv      answerTlv;
 
     if (Tlv::Find<QueryIdTlv>(aRequest, info.mQueryId) == kErrorNone)
@@ -531,14 +550,14 @@ void Server::PrepareAndSendAnswers(const Ip6::Address &aDestination, const Messa
 
     SuccessOrExit(error = AllocateAnswer(answer, info));
 
-    SuccessOrExit(error = Tlv::FindTlvValueOffsetRange(aRequest, Tlv::kTypeList, offsetRange));
+    SuccessOrExit(error = Tlv::FindTlvValueOffset(aRequest, Tlv::kTypeList, offset, length));
+    endOffset = offset + length;
 
-    while (!offsetRange.IsEmpty())
+    for (; offset < endOffset; offset++)
     {
         uint8_t tlvType;
 
-        SuccessOrExit(error = aRequest.Read(offsetRange, tlvType));
-        offsetRange.AdvanceOffset(sizeof(tlvType));
+        SuccessOrExit(error = aRequest.Read(offset, tlvType));
 
         switch (tlvType)
         {
@@ -625,10 +644,7 @@ void Server::SendNextAnswer(Coap::Message &aAnswer, const Ip6::Address &aDestina
     }
 }
 
-void Server::HandleAnswerResponse(void                *aContext,
-                                  otMessage           *aMessage,
-                                  const otMessageInfo *aMessageInfo,
-                                  otError              aResult)
+void Server::HandleAnswerResponse(void *aContext, otMessage *aMessage, const otMessageInfo *aMessageInfo, Error aResult)
 {
     Coap::Message *nextAnswer = static_cast<Coap::Message *>(aContext);
 
@@ -734,17 +750,13 @@ exit:
 Error Server::AppendChildIp6AddressListTlv(Coap::Message &aAnswer, const Child &aChild)
 {
     Error                       error      = kErrorNone;
-    uint16_t                    numIp6Addr = aChild.GetIp6Addresses().GetLength();
+    uint16_t                    numIp6Addr = 0;
     ChildIp6AddressListTlvValue tlvValue;
-    Ip6::Address                mlEid;
 
-    if (aChild.GetMeshLocalIp6Address(mlEid) == kErrorNone)
+    for (const Ip6::Address &address : aChild.IterateIp6Addresses())
     {
+        OT_UNUSED_VARIABLE(address);
         numIp6Addr++;
-    }
-    else
-    {
-        mlEid.Clear();
     }
 
     VerifyOrExit(numIp6Addr > 0);
@@ -770,12 +782,7 @@ Error Server::AppendChildIp6AddressListTlv(Coap::Message &aAnswer, const Child &
 
     SuccessOrExit(error = aAnswer.Append(tlvValue));
 
-    if (!mlEid.IsUnspecified())
-    {
-        SuccessOrExit(error = aAnswer.Append(mlEid));
-    }
-
-    for (const Ip6::Address &address : aChild.GetIp6Addresses())
+    for (const Ip6::Address &address : aChild.IterateIp6Addresses())
     {
         SuccessOrExit(error = aAnswer.Append(address));
     }
@@ -938,7 +945,7 @@ exit:
     return error;
 }
 
-void Client::HandleGetResponse(void *aContext, otMessage *aMessage, const otMessageInfo *aMessageInfo, otError aResult)
+void Client::HandleGetResponse(void *aContext, otMessage *aMessage, const otMessageInfo *aMessageInfo, Error aResult)
 {
     static_cast<Client *>(aContext)->HandleGetResponse(AsCoapMessagePtr(aMessage), AsCoreTypePtr(aMessageInfo),
                                                        aResult);

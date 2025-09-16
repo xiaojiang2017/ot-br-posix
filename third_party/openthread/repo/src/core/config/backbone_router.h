@@ -29,6 +29,7 @@
 /**
  * @file
  *   This file includes compile-time configurations for Backbone Router services.
+ *
  */
 
 #ifndef CONFIG_BACKBONE_ROUTER_H_
@@ -41,12 +42,14 @@
  *   This module includes configuration variables for Backbone Router services.
  *
  * @{
+ *
  */
 
 /**
  * @def OPENTHREAD_CONFIG_BACKBONE_ROUTER_ENABLE
  *
  * Define to 1 to enable Backbone Router support.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_BACKBONE_ROUTER_ENABLE
 #define OPENTHREAD_CONFIG_BACKBONE_ROUTER_ENABLE 0
@@ -57,6 +60,7 @@
  *
  * Define to 1 to enable Backbone Router ND Proxying for Thread 1.2 DUA feature.
  * It's turned on by default for Thread 1.2 Backbone Router.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_BACKBONE_ROUTER_DUA_NDPROXYING_ENABLE
 #define OPENTHREAD_CONFIG_BACKBONE_ROUTER_DUA_NDPROXYING_ENABLE OPENTHREAD_CONFIG_BACKBONE_ROUTER_ENABLE
@@ -72,6 +76,7 @@
  *
  * Define to 1 to enable Backbone Router Multicast Routing for Thread 1.2 MLR feature.
  * It's turned on by default for Thread 1.2 Backbone Router.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_BACKBONE_ROUTER_MULTICAST_ROUTING_ENABLE
 #define OPENTHREAD_CONFIG_BACKBONE_ROUTER_MULTICAST_ROUTING_ENABLE OPENTHREAD_CONFIG_BACKBONE_ROUTER_ENABLE
@@ -99,6 +104,7 @@
  * in memory with at least seventy five (75) entries.
  *
  * @sa MulticastListenersTable
+ *
  */
 #ifndef OPENTHREAD_CONFIG_MAX_MULTICAST_LISTENERS
 #define OPENTHREAD_CONFIG_MAX_MULTICAST_LISTENERS 75
@@ -111,6 +117,7 @@
  *
  * Note: According to Thread Conformance v1.2.0, a Thread Border Router MUST be able to hold a DUA Devices Table in
  * memory with at least two hundred and fifty (250) entries.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_NDPROXY_TABLE_ENTRY_NUM
 #define OPENTHREAD_CONFIG_NDPROXY_TABLE_ENTRY_NUM 250
@@ -118,6 +125,7 @@
 
 /**
  * @}
+ *
  */
 
 #endif // CONFIG_BACKBONE_ROUTER_H_

@@ -1,33 +1,22 @@
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 #include "mbedtls/pk.h"
-#include "mbedtls/entropy.h"
-#include "mbedtls/ctr_drbg.h"
-#include "common.h"
 
 //4 Kb should be enough for every bug ;-)
 #define MAX_LEN 0x1000
 
-#if defined(MBEDTLS_PK_PARSE_C) && defined(MBEDTLS_CTR_DRBG_C) && defined(MBEDTLS_ENTROPY_C)
-const char *pers = "fuzz_privkey";
-#endif // MBEDTLS_PK_PARSE_C && MBEDTLS_CTR_DRBG_C && MBEDTLS_ENTROPY_C
 
 int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
 {
-#if defined(MBEDTLS_PK_PARSE_C) && defined(MBEDTLS_CTR_DRBG_C) && defined(MBEDTLS_ENTROPY_C)
+#ifdef MBEDTLS_PK_PARSE_C
     int ret;
     mbedtls_pk_context pk;
-    mbedtls_ctr_drbg_context ctr_drbg;
-    mbedtls_entropy_context entropy;
 
     if (Size > MAX_LEN) {
         //only work on small inputs
         Size = MAX_LEN;
     }
 
-    mbedtls_ctr_drbg_init(&ctr_drbg);
-    mbedtls_entropy_init(&entropy);
     mbedtls_pk_init(&pk);
 
 #if defined(MBEDTLS_USE_PSA_CRYPTO)
@@ -37,13 +26,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
     }
 #endif /* MBEDTLS_USE_PSA_CRYPTO */
 
-    if (mbedtls_ctr_drbg_seed(&ctr_drbg, dummy_entropy, &entropy,
-                              (const unsigned char *) pers, strlen(pers)) != 0) {
-        goto exit;
-    }
-
-    ret = mbedtls_pk_parse_key(&pk, Data, Size, NULL, 0,
-                               dummy_random, &ctr_drbg);
+    ret = mbedtls_pk_parse_key(&pk, Data, Size, NULL, 0);
     if (ret == 0) {
 #if defined(MBEDTLS_RSA_C)
         if (mbedtls_pk_get_type(&pk) == MBEDTLS_PK_RSA) {
@@ -71,7 +54,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
         if (mbedtls_pk_get_type(&pk) == MBEDTLS_PK_ECKEY ||
             mbedtls_pk_get_type(&pk) == MBEDTLS_PK_ECKEY_DH) {
             mbedtls_ecp_keypair *ecp = mbedtls_pk_ec(pk);
-            mbedtls_ecp_group_id grp_id = mbedtls_ecp_keypair_get_group_id(ecp);
+            mbedtls_ecp_group_id grp_id = ecp->grp.id;
             const mbedtls_ecp_curve_info *curve_info =
                 mbedtls_ecp_curve_info_from_grp_id(grp_id);
 
@@ -88,17 +71,15 @@ int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
             abort();
         }
     }
-exit:
-    mbedtls_entropy_free(&entropy);
-    mbedtls_ctr_drbg_free(&ctr_drbg);
-    mbedtls_pk_free(&pk);
 #if defined(MBEDTLS_USE_PSA_CRYPTO)
+exit:
     mbedtls_psa_crypto_free();
 #endif /* MBEDTLS_USE_PSA_CRYPTO */
+    mbedtls_pk_free(&pk);
 #else
     (void) Data;
     (void) Size;
-#endif // MBEDTLS_PK_PARSE_C && MBEDTLS_CTR_DRBG_C && MBEDTLS_ENTROPY_C
+#endif //MBEDTLS_PK_PARSE_C
 
     return 0;
 }

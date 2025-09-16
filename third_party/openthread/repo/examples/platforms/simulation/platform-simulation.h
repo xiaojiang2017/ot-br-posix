@@ -86,11 +86,13 @@ enum
 
 /**
  * Unique node ID.
+ *
  */
 extern uint32_t gNodeId;
 
 /**
  * Initializes the alarm service used by OpenThread.
+ *
  */
 void platformAlarmInit(uint32_t aSpeedUpFactor);
 
@@ -98,6 +100,7 @@ void platformAlarmInit(uint32_t aSpeedUpFactor);
  * Retrieves the time remaining until the alarm fires.
  *
  * @param[out]  aTimeout  A pointer to the timeval struct.
+ *
  */
 void platformAlarmUpdateTimeout(struct timeval *aTimeout);
 
@@ -105,6 +108,7 @@ void platformAlarmUpdateTimeout(struct timeval *aTimeout);
  * Performs alarm driver processing.
  *
  * @param[in]  aInstance  The OpenThread instance structure.
+ *
  */
 void platformAlarmProcess(otInstance *aInstance);
 
@@ -112,6 +116,7 @@ void platformAlarmProcess(otInstance *aInstance);
  * Returns the duration to the next alarm event time (in micro seconds)
  *
  * @returns The duration (in micro seconds) to the next alarm event.
+ *
  */
 uint64_t platformAlarmGetNext(void);
 
@@ -119,6 +124,7 @@ uint64_t platformAlarmGetNext(void);
  * Returns the current alarm time.
  *
  * @returns The current alarm time.
+ *
  */
 uint64_t platformAlarmGetNow(void);
 
@@ -126,16 +132,19 @@ uint64_t platformAlarmGetNow(void);
  * Advances the alarm time by @p aDelta.
  *
  * @param[in]  aDelta  The amount of time to advance.
+ *
  */
 void platformAlarmAdvanceNow(uint64_t aDelta);
 
 /**
  * Initializes the radio service used by OpenThread.
+ *
  */
 void platformRadioInit(void);
 
 /**
  * Shuts down the radio service used by OpenThread.
+ *
  */
 void platformRadioDeinit(void);
 
@@ -145,6 +154,7 @@ void platformRadioDeinit(void);
  * @param[in]  aInstance   A pointer to the OpenThread instance.
  * @param[in]  aBuf        A pointer to the received radio frame.
  * @param[in]  aBufLength  The size of the received radio frame.
+ *
  */
 void platformRadioReceive(otInstance *aInstance, uint8_t *aBuf, uint16_t aBufLength);
 
@@ -155,6 +165,7 @@ void platformRadioReceive(otInstance *aInstance, uint8_t *aBuf, uint16_t aBufLen
  * @param[in,out]  aWriteFdSet  A pointer to the write file descriptors.
  * @param[in,out]  aTimeout     A pointer to the timeout.
  * @param[in,out]  aMaxFd       A pointer to the max file descriptor.
+ *
  */
 void platformRadioUpdateFdSet(fd_set *aReadFdSet, fd_set *aWriteFdSet, struct timeval *aTimeout, int *aMaxFd);
 
@@ -164,11 +175,13 @@ void platformRadioUpdateFdSet(fd_set *aReadFdSet, fd_set *aWriteFdSet, struct ti
  * @param[in]  aInstance    The OpenThread instance structure.
  * @param[in]  aReadFdSet   A pointer to the read file descriptors.
  * @param[in]  aWriteFdSet  A pointer to the write file descriptors.
+ *
  */
 void platformRadioProcess(otInstance *aInstance, const fd_set *aReadFdSet, const fd_set *aWriteFdSet);
 
 /**
  * Initializes the random number service used by OpenThread.
+ *
  */
 void platformRandomInit(void);
 
@@ -176,6 +189,7 @@ void platformRandomInit(void);
  * This functions set the file name to use for logging.
  *
  * @param[in] aName  The file name.
+ *
  */
 void platformLoggingSetFileName(const char *aName);
 
@@ -183,11 +197,13 @@ void platformLoggingSetFileName(const char *aName);
  * Initializes the platform logging service.
  *
  * @param[in] aName    The log module name to set with syslog.
+ *
  */
 void platformLoggingInit(const char *aName);
 
 /**
  * Finalizes the platform logging service.
+ *
  */
 void platformLoggingDeinit(void);
 
@@ -197,16 +213,19 @@ void platformLoggingDeinit(void);
  * @param[in,out]  aReadFdSet   A pointer to the read file descriptors.
  * @param[in,out]  aWriteFdSet  A pointer to the write file descriptors.
  * @param[in,out]  aMaxFd       A pointer to the max file descriptor.
+ *
  */
 void platformUartUpdateFdSet(fd_set *aReadFdSet, fd_set *aWriteFdSet, fd_set *aErrorFdSet, int *aMaxFd);
 
 /**
  * Performs radio driver processing.
+ *
  */
 void platformUartProcess(void);
 
 /**
  * Restores the Uart.
+ *
  */
 void platformUartRestore(void);
 
@@ -214,6 +233,7 @@ void platformUartRestore(void);
  * Sends a simulation event.
  *
  * @param[in]   aEvent  A pointer to the simulation event to send
+ *
  */
 void otSimSendEvent(const struct Event *aEvent);
 
@@ -222,6 +242,7 @@ void otSimSendEvent(const struct Event *aEvent);
  *
  * @param[in]   aData       A pointer to the UART data.
  * @param[in]   aLength     Length of UART data.
+ *
  */
 void otSimSendUartWriteEvent(const uint8_t *aData, uint16_t aLength);
 
@@ -229,6 +250,7 @@ void otSimSendUartWriteEvent(const uint8_t *aData, uint16_t aLength);
  * Checks if radio transmitting is pending.
  *
  * @returns Whether radio transmitting is pending.
+ *
  */
 bool platformRadioIsTransmitPending(void);
 
@@ -240,6 +262,7 @@ bool platformRadioIsTransmitPending(void);
  *
  * @param[in]   aEnvName  The name of the environment variable.
  * @param[out]  aValue    A pointer to the unsigned 16-bit integer.
+ *
  */
 void parseFromEnvAsUint16(const char *aEnvName, uint16_t *aValue);
 
@@ -249,11 +272,13 @@ void parseFromEnvAsUint16(const char *aEnvName, uint16_t *aValue);
  * Initializes the TREL service.
  *
  * @param[in] aSpeedUpFactor   The time speed-up factor.
+ *
  */
 void platformTrelInit(uint32_t aSpeedUpFactor);
 
 /**
  * Shuts down the TREL service.
+ *
  */
 void platformTrelDeinit(void);
 
@@ -264,6 +289,7 @@ void platformTrelDeinit(void);
  * @param[in,out]  aWriteFdSet  A pointer to the write file descriptors.
  * @param[in,out]  aTimeout     A pointer to the timeout.
  * @param[in,out]  aMaxFd       A pointer to the max file descriptor.
+ *
  */
 void platformTrelUpdateFdSet(fd_set *aReadFdSet, fd_set *aWriteFdSet, struct timeval *aTimeout, int *aMaxFd);
 
@@ -273,20 +299,23 @@ void platformTrelUpdateFdSet(fd_set *aReadFdSet, fd_set *aWriteFdSet, struct tim
  * @param[in]  aInstance    The OpenThread instance structure.
  * @param[in]  aReadFdSet   A pointer to the read file descriptors.
  * @param[in]  aWriteFdSet  A pointer to the write file descriptors.
+ *
  */
 void platformTrelProcess(otInstance *aInstance, const fd_set *aReadFdSet, const fd_set *aWriteFdSet);
 
 #endif // OPENTHREAD_CONFIG_RADIO_LINK_TREL_ENABLE
 
-#if OPENTHREAD_SIMULATION_IMPLEMENT_INFRA_IF && OPENTHREAD_CONFIG_BORDER_ROUTING_ENABLE
+#if OPENTHREAD_CONFIG_BORDER_ROUTING_ENABLE
 
 /**
  * Initializes the platform infra-if module.
+ *
  */
 void platformInfraIfInit(void);
 
 /**
  * Shuts down the platform infra-if module.
+ *
  */
 void platformInfraIfDeinit(void);
 
@@ -296,6 +325,7 @@ void platformInfraIfDeinit(void);
  * @param[in,out]  aReadFdSet   A pointer to the read file descriptors.
  * @param[in,out]  aWriteFdSet  A pointer to the write file descriptors.
  * @param[in,out]  aMaxFd       A pointer to the max file descriptor.
+ *
  */
 void platformInfraIfUpdateFdSet(fd_set *aReadFdSet, fd_set *aWriteFdSet, int *aMaxFd);
 
@@ -305,10 +335,11 @@ void platformInfraIfUpdateFdSet(fd_set *aReadFdSet, fd_set *aWriteFdSet, int *aM
  * @param[in]  aInstance    The OpenThread instance structure.
  * @param[in]  aReadFdSet   A pointer to the read file descriptors.
  * @param[in]  aWriteFdSet  A pointer to the write file descriptors.
+ *
  */
 void platformInfraIfProcess(otInstance *aInstance, const fd_set *aReadFdSet, const fd_set *aWriteFdSet);
 
-#endif // OPENTHREAD_SIMULATION_IMPLEMENT_INFRA_IF && OPENTHREAD_CONFIG_BORDER_ROUTING_ENABLE
+#endif // OPENTHREAD_CONFIG_BORDER_ROUTING_ENABLE
 
 #if OPENTHREAD_CONFIG_MULTICAST_DNS_ENABLE && OPENTHREAD_SIMULATION_MDNS_SOCKET_IMPLEMENT_POSIX
 
@@ -317,6 +348,7 @@ void platformInfraIfProcess(otInstance *aInstance, const fd_set *aReadFdSet, con
  *
  * @param[in,out]  aReadFdSet   A pointer to the read file descriptors.
  * @param[in,out]  aMaxFd       A pointer to the max file descriptor.
+ *
  */
 void platformMdnsSocketUpdateFdSet(fd_set *aReadFdSet, int *aMaxFd);
 
@@ -325,6 +357,7 @@ void platformMdnsSocketUpdateFdSet(fd_set *aReadFdSet, int *aMaxFd);
  *
  * @param[in]  aInstance    The OpenThread instance structure.
  * @param[in]  aReadFdSet   A pointer to the read file descriptors.
+ *
  */
 void platformMdnsSocketProcess(otInstance *aInstance, const fd_set *aReadFdSet);
 
@@ -332,6 +365,7 @@ void platformMdnsSocketProcess(otInstance *aInstance, const fd_set *aReadFdSet);
 
 /**
  * Shuts down the BLE service used by OpenThread.
+ *
  */
 void platformBleDeinit(void);
 
@@ -342,6 +376,7 @@ void platformBleDeinit(void);
  * @param[in,out]  aWriteFdSet  A pointer to the write file descriptors.
  * @param[in,out]  aTimeout     A pointer to the timeout.
  * @param[in,out]  aMaxFd       A pointer to the max file descriptor.
+ *
  */
 void platformBleUpdateFdSet(fd_set *aReadFdSet, fd_set *aWriteFdSet, struct timeval *aTimeout, int *aMaxFd);
 
@@ -351,6 +386,7 @@ void platformBleUpdateFdSet(fd_set *aReadFdSet, fd_set *aWriteFdSet, struct time
  * @param[in]  aInstance    The OpenThread instance structure.
  * @param[in]  aReadFdSet   A pointer to the read file descriptors.
  * @param[in]  aWriteFdSet  A pointer to the write file descriptors.
+ *
  */
 void platformBleProcess(otInstance *aInstance, const fd_set *aReadFdSet, const fd_set *aWriteFdSet);
 

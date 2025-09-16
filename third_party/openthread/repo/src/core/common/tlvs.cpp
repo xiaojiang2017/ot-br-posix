@@ -70,21 +70,43 @@ Error Tlv::FindTlv(const Message &aMessage, uint8_t aType, uint16_t aMaxSize, Tl
 
     SuccessOrExit(error = info.FindIn(aMessage, aType));
 
-    info.mTlvOffsetRange.ShrinkLength(aMaxSize);
-    aMessage.ReadBytes(info.mTlvOffsetRange, &aTlv);
-    aOffset = info.mTlvOffsetRange.GetOffset();
+    if (aMaxSize > info.mSize)
+    {
+        aMaxSize = info.mSize;
+    }
+
+    aMessage.ReadBytes(info.mOffset, &aTlv, aMaxSize);
+    aOffset = info.mOffset;
 
 exit:
     return error;
 }
-
-Error Tlv::FindTlvValueOffsetRange(const Message &aMessage, uint8_t aType, OffsetRange &aOffsetRange)
+Error Tlv::FindTlvValueOffset(const Message &aMessage, uint8_t aType, uint16_t &aValueOffset, uint16_t &aLength)
 {
     Error      error;
     ParsedInfo info;
 
     SuccessOrExit(error = info.FindIn(aMessage, aType));
-    aOffsetRange = info.mValueOffsetRange;
+
+    aValueOffset = info.mValueOffset;
+    aLength      = info.mLength;
+
+exit:
+    return error;
+}
+
+Error Tlv::FindTlvValueStartEndOffsets(const Message &aMessage,
+                                       uint8_t        aType,
+                                       uint16_t      &aValueStartOffset,
+                                       uint16_t      &aValueEndOffset)
+{
+    Error      error;
+    ParsedInfo info;
+
+    SuccessOrExit(error = info.FindIn(aMessage, aType));
+
+    aValueStartOffset = info.mValueOffset;
+    aValueEndOffset   = info.mValueOffset + info.mLength;
 
 exit:
     return error;
@@ -92,47 +114,49 @@ exit:
 
 Error Tlv::ParsedInfo::ParseFrom(const Message &aMessage, uint16_t aOffset)
 {
-    OffsetRange offsetRange;
+    // This method reads and parses the TLV info from `aMessage` at
+    // `aOffset`. This can be used independent of whether the TLV is
+    // extended or not. It validates that the entire TLV can be read
+    // from `aMessage`.  Returns `kErrorNone` when successfully parsed,
+    // otherwise `kErrorParse`.
 
-    offsetRange.InitFromRange(aOffset, aMessage.GetLength());
-    return ParseFrom(aMessage, offsetRange);
-}
-
-Error Tlv::ParsedInfo::ParseFrom(const Message &aMessage, const OffsetRange &aOffsetRange)
-{
     Error       error;
     Tlv         tlv;
     ExtendedTlv extTlv;
-    uint32_t    headerSize;
-    uint32_t    size;
+    uint16_t    headerSize;
 
-    SuccessOrExit(error = aMessage.Read(aOffsetRange, tlv));
-
-    mType = tlv.GetType();
+    SuccessOrExit(error = aMessage.Read(aOffset, tlv));
 
     if (!tlv.IsExtended())
     {
-        mIsExtended = false;
-        headerSize  = sizeof(Tlv);
-        size        = headerSize + tlv.GetLength();
+        mType      = tlv.GetType();
+        mLength    = tlv.GetLength();
+        headerSize = sizeof(Tlv);
     }
     else
     {
-        SuccessOrExit(error = aMessage.Read(aOffsetRange, extTlv));
+        SuccessOrExit(error = aMessage.Read(aOffset, extTlv));
 
-        mIsExtended = true;
-        headerSize  = sizeof(ExtendedTlv);
-        size        = headerSize + extTlv.GetLength();
+        mType      = extTlv.GetType();
+        mLength    = extTlv.GetLength();
+        headerSize = sizeof(ExtendedTlv);
     }
 
-    mTlvOffsetRange = aOffsetRange;
-    VerifyOrExit(mTlvOffsetRange.Contains(size), error = kErrorParse);
-    mTlvOffsetRange.ShrinkLength(static_cast<uint16_t>(size));
+    // We know that we could successfully read `tlv` or `extTlv`
+    // (`headerSize` bytes) from the message, so the calculation of the
+    // remaining length as `aMessage.GetLength() - aOffset - headerSize`
+    // cannot underflow.
 
-    VerifyOrExit(mTlvOffsetRange.GetEndOffset() <= aMessage.GetLength(), error = kErrorParse);
+    VerifyOrExit(mLength <= aMessage.GetLength() - aOffset - headerSize, error = kErrorParse);
 
-    mValueOffsetRange = mTlvOffsetRange;
-    mValueOffsetRange.AdvanceOffset(headerSize);
+    // Now that we know the entire TLV is contained within the
+    // `aMessage`, we can safely calculate `mValueOffset` and `mSize`
+    // as `uint16_t` and know that there will be no overflow.
+
+    mType        = tlv.GetType();
+    mOffset      = aOffset;
+    mValueOffset = aOffset + headerSize;
+    mSize        = mLength + headerSize;
 
 exit:
     return error;
@@ -140,14 +164,18 @@ exit:
 
 Error Tlv::ParsedInfo::FindIn(const Message &aMessage, uint8_t aType)
 {
-    Error       error = kErrorNotFound;
-    OffsetRange offsetRange;
+    // This  method searches within `aMessage` starting from
+    // `aMessage.GetOffset()` for a TLV type `aType` and parsed its
+    // info and validates that the entire TLV can be read from
+    // `aMessage`. Returns `kErrorNone` when found, otherwise
+    // `kErrorNotFound`.
 
-    offsetRange.InitFromMessageOffsetToEnd(aMessage);
+    Error    error  = kErrorNotFound;
+    uint16_t offset = aMessage.GetOffset();
 
     while (true)
     {
-        SuccessOrExit(ParseFrom(aMessage, offsetRange));
+        SuccessOrExit(ParseFrom(aMessage, offset));
 
         if (mType == aType)
         {
@@ -155,7 +183,11 @@ Error Tlv::ParsedInfo::FindIn(const Message &aMessage, uint8_t aType)
             ExitNow();
         }
 
-        offsetRange.AdvanceOffset(mTlvOffsetRange.GetLength());
+        // `ParseFrom()` already validated that `offset + mSize` is
+        // less than `aMessage.GetLength()` and therefore we can not
+        // have an overflow here.
+
+        offset += mSize;
     }
 
 exit:
@@ -166,12 +198,14 @@ Error Tlv::ReadStringTlv(const Message &aMessage, uint16_t aOffset, uint8_t aMax
 {
     Error      error = kErrorNone;
     ParsedInfo info;
+    uint16_t   length;
 
     SuccessOrExit(error = info.ParseFrom(aMessage, aOffset));
 
-    info.mValueOffsetRange.ShrinkLength(aMaxStringLength);
-    aMessage.ReadBytes(info.mValueOffsetRange, aValue);
-    aValue[info.mValueOffsetRange.GetLength()] = kNullChar;
+    length = Min(info.mLength, static_cast<uint16_t>(aMaxStringLength));
+
+    aMessage.ReadBytes(info.mValueOffset, aValue, length);
+    aValue[length] = '\0';
 
 exit:
     return error;
@@ -200,10 +234,9 @@ Error Tlv::ReadTlvValue(const Message &aMessage, uint16_t aOffset, void *aValue,
 
     SuccessOrExit(error = info.ParseFrom(aMessage, aOffset));
 
-    VerifyOrExit(info.mValueOffsetRange.Contains(aMinLength), error = kErrorParse);
-    info.mValueOffsetRange.ShrinkLength(aMinLength);
+    VerifyOrExit(info.mLength >= aMinLength, error = kErrorParse);
 
-    aMessage.ReadBytes(info.mValueOffsetRange, aValue);
+    aMessage.ReadBytes(info.mValueOffset, aValue, aMinLength);
 
 exit:
     return error;
@@ -215,7 +248,7 @@ Error Tlv::FindStringTlv(const Message &aMessage, uint8_t aType, uint8_t aMaxStr
     ParsedInfo info;
 
     SuccessOrExit(error = info.FindIn(aMessage, aType));
-    error = ReadStringTlv(aMessage, info.mTlvOffsetRange.GetOffset(), aMaxStringLength, aValue);
+    error = ReadStringTlv(aMessage, info.mOffset, aMaxStringLength, aValue);
 
 exit:
     return error;
@@ -227,7 +260,7 @@ template <typename UintType> Error Tlv::FindUintTlv(const Message &aMessage, uin
     ParsedInfo info;
 
     SuccessOrExit(error = info.FindIn(aMessage, aType));
-    error = ReadUintTlv<UintType>(aMessage, info.mTlvOffsetRange.GetOffset(), aValue);
+    error = ReadUintTlv<UintType>(aMessage, info.mOffset, aValue);
 
 exit:
     return error;
@@ -240,11 +273,13 @@ template Error Tlv::FindUintTlv<uint32_t>(const Message &aMessage, uint8_t aType
 
 Error Tlv::FindTlv(const Message &aMessage, uint8_t aType, void *aValue, uint16_t aLength)
 {
-    Error       error;
-    OffsetRange offsetRange;
+    Error    error;
+    uint16_t offset;
+    uint16_t length;
 
-    SuccessOrExit(error = FindTlvValueOffsetRange(aMessage, aType, offsetRange));
-    error = aMessage.Read(offsetRange, aValue, aLength);
+    SuccessOrExit(error = FindTlvValueOffset(aMessage, aType, offset, length));
+    VerifyOrExit(length >= aLength, error = kErrorParse);
+    aMessage.ReadBytes(offset, aValue, aLength);
 
 exit:
     return error;
@@ -269,24 +304,16 @@ template Error Tlv::AppendUintTlv<uint8_t>(Message &aMessage, uint8_t aType, uin
 template Error Tlv::AppendUintTlv<uint16_t>(Message &aMessage, uint8_t aType, uint16_t aValue);
 template Error Tlv::AppendUintTlv<uint32_t>(Message &aMessage, uint8_t aType, uint32_t aValue);
 
-Error Tlv::AppendTlv(Message &aMessage, uint8_t aType, const void *aValue, uint16_t aLength)
+Error Tlv::AppendTlv(Message &aMessage, uint8_t aType, const void *aValue, uint8_t aLength)
 {
-    Error       error = kErrorNone;
-    ExtendedTlv extTlv;
-    Tlv         tlv;
+    Error error = kErrorNone;
+    Tlv   tlv;
 
-    if (aLength > kBaseTlvMaxLength)
-    {
-        extTlv.SetType(aType);
-        extTlv.SetLength(aLength);
-        SuccessOrExit(error = aMessage.Append(extTlv));
-    }
-    else
-    {
-        tlv.SetType(aType);
-        tlv.SetLength(static_cast<uint8_t>(aLength));
-        SuccessOrExit(error = aMessage.Append(tlv));
-    }
+    OT_ASSERT(aLength <= Tlv::kBaseTlvMaxLength);
+
+    tlv.SetType(aType);
+    tlv.SetLength(aLength);
+    SuccessOrExit(error = aMessage.Append(tlv));
 
     VerifyOrExit(aLength > 0);
     error = aMessage.AppendBytes(aValue, aLength);

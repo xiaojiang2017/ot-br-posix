@@ -46,15 +46,17 @@ namespace Heap {
 /**
  * Represents a heap allocated string.
  *
- * The buffer to store the string is allocated from heap and is managed by the `Heap::String` class itself, e.g., it may
+ * The buffer to store the string is allocated from heap and is manged by the `Heap::String` class itself, e.g., it may
  * be reused and/or freed and reallocated when the string is set. The `Heap::String` destructor will always free the
  * allocated buffer.
+ *
  */
 class String : public Unequatable<String>
 {
 public:
     /**
      * Initializes the `String` as null (or empty).
+     *
      */
     String(void)
         : mStringBuffer(nullptr)
@@ -66,6 +68,7 @@ public:
      *
      * `String` is non-copyable (copy constructor is deleted) but move constructor is provided to allow it to to be
      * used as return type (return by value) from functions/methods (which will then use move semantics).
+     *
      */
     String(String &&aString)
         : mStringBuffer(aString.mStringBuffer)
@@ -75,6 +78,7 @@ public:
 
     /**
      * This is the destructor for `HealString` object
+     *
      */
     ~String(void) { Free(); }
 
@@ -84,6 +88,7 @@ public:
      *
      * @retval TRUE  The `String` is null.
      * @retval FALSE The `String` is not null.
+     *
      */
     bool IsNull(void) const { return (mStringBuffer == nullptr); }
 
@@ -91,6 +96,7 @@ public:
      * Returns the `String` as a C string.
      *
      * @returns A pointer to C string buffer or `nullptr` if the `String` is null (never set or freed).
+     *
      */
     const char *AsCString(void) const { return mStringBuffer; }
 
@@ -101,6 +107,7 @@ public:
      *
      * @retval kErrorNone     Successfully set the string.
      * @retval kErrorNoBufs   Failed to allocate buffer for string.
+     *
      */
     Error Set(const char *aCString);
 
@@ -111,6 +118,7 @@ public:
      *
      * @retval kErrorNone     Successfully set the string.
      * @retval kErrorNoBufs   Failed to allocate buffer for string.
+     *
      */
     Error Set(const String &aString) { return Set(aString.AsCString()); }
 
@@ -121,6 +129,7 @@ public:
      *
      * @retval kErrorNone     Successfully set the string.
      * @retval kErrorNoBufs   Failed to allocate buffer for string.
+     *
      */
     Error Set(String &&aString);
 
@@ -129,6 +138,7 @@ public:
      *
      * The `String` destructor will automatically call `Free()`. This method allows caller to free buffer
      * explicitly.
+     *
      */
     void Free(void);
 
@@ -139,6 +149,7 @@ public:
      *
      * @retval TRUE   If the two strings are equal.
      * @retval FALSE  If the two strings are not equal.
+     *
      */
     bool operator==(const char *aCString) const;
 
@@ -149,6 +160,7 @@ public:
      *
      * @retval TRUE   If the two strings are not equal.
      * @retval FALSE  If the two strings are equal.
+     *
      */
     bool operator!=(const char *aCString) const { return !(*this == aCString); }
 
@@ -159,6 +171,7 @@ public:
      *
      * @retval TRUE   If the two strings are equal.
      * @retval FALSE  If the two strings are not equal.
+     *
      */
     bool operator==(const String &aString) const { return (*this == aString.AsCString()); }
 

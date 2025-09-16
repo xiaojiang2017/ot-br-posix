@@ -51,10 +51,12 @@ extern "C" {
  * @{
  *
  * Functions in this module are only available when feature OPENTHREAD_CONFIG_SRP_CLIENT_BUFFERS_ENABLE is enabled.
+ *
  */
 
 /**
  * Represents a SRP client service pool entry.
+ *
  */
 typedef struct otSrpClientBuffersServiceEntry
 {
@@ -70,6 +72,7 @@ typedef struct otSrpClientBuffersServiceEntry
  *                        NULL).
  *
  * @returns A pointer to char buffer to use for SRP client host name.
+ *
  */
 char *otSrpClientBuffersGetHostNameString(otInstance *aInstance, uint16_t *aSize);
 
@@ -81,6 +84,7 @@ char *otSrpClientBuffersGetHostNameString(otInstance *aInstance, uint16_t *aSize
  *                           the array (MUST NOT be NULL).
  *
  * @returns A pointer to an array of `otIp6Address` entries (number of entries is returned in @p aArrayLength).
+ *
  */
 otIp6Address *otSrpClientBuffersGetHostAddressesArray(otInstance *aInstance, uint8_t *aArrayLength);
 
@@ -106,6 +110,7 @@ otIp6Address *otSrpClientBuffersGetHostAddressesArray(otInstance *aInstance, uin
  * @param[in] aInstance   A pointer to the OpenThread instance.
  *
  * @returns A pointer to the newly allocated service entry or NULL if not more entry available in the pool.
+ *
  */
 otSrpClientBuffersServiceEntry *otSrpClientBuffersAllocateService(otInstance *aInstance);
 
@@ -117,6 +122,7 @@ otSrpClientBuffersServiceEntry *otSrpClientBuffersAllocateService(otInstance *aI
  *
  * @param[in] aInstance   A pointer to the OpenThread instance.
  * @param[in] aService    A pointer to the service entry to free (MUST NOT be NULL).
+ *
  */
 void otSrpClientBuffersFreeService(otInstance *aInstance, otSrpClientBuffersServiceEntry *aService);
 
@@ -124,6 +130,7 @@ void otSrpClientBuffersFreeService(otInstance *aInstance, otSrpClientBuffersServ
  * Frees all previously allocated service entries.
  *
  * @param[in] aInstance   A pointer to the OpenThread instance.
+ *
  */
 void otSrpClientBuffersFreeAllServices(otInstance *aInstance);
 
@@ -135,6 +142,7 @@ void otSrpClientBuffersFreeAllServices(otInstance *aInstance);
  *                      NULL).
  *
  * @returns A pointer to the string buffer.
+ *
  */
 char *otSrpClientBuffersGetServiceEntryServiceNameString(otSrpClientBuffersServiceEntry *aEntry, uint16_t *aSize);
 
@@ -146,6 +154,7 @@ char *otSrpClientBuffersGetServiceEntryServiceNameString(otSrpClientBuffersServi
  *                      NULL).
  *
  * @returns A pointer to the string buffer.
+ *
  */
 char *otSrpClientBuffersGetServiceEntryInstanceNameString(otSrpClientBuffersServiceEntry *aEntry, uint16_t *aSize);
 
@@ -156,6 +165,7 @@ char *otSrpClientBuffersGetServiceEntryInstanceNameString(otSrpClientBuffersServ
  * @param[out] aSize    A pointer to a variable to return the size (number of bytes) of the buffer (MUST NOT be NULL).
  *
  * @returns A pointer to the buffer.
+ *
  */
 uint8_t *otSrpClientBuffersGetServiceEntryTxtBuffer(otSrpClientBuffersServiceEntry *aEntry, uint16_t *aSize);
 
@@ -166,11 +176,13 @@ uint8_t *otSrpClientBuffersGetServiceEntryTxtBuffer(otSrpClientBuffersServiceEnt
  * @param[out] aArrayLength    A pointer to a variable to return the array length (MUST NOT be NULL).
  *
  * @returns A pointer to the array.
+ *
  */
 const char **otSrpClientBuffersGetSubTypeLabelsArray(otSrpClientBuffersServiceEntry *aEntry, uint16_t *aArrayLength);
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

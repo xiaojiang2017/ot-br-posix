@@ -29,6 +29,7 @@
 /**
  * @file
  *   This file includes compile-time configurations for the Commissioner.
+ *
  */
 
 #ifndef CONFIG_COMMISSIONER_H_
@@ -41,12 +42,14 @@
  *   This module includes configuration variables for the Commissioner.
  *
  * @{
+ *
  */
 
 /**
  * @def OPENTHREAD_CONFIG_COMMISSIONER_ENABLE
  *
  * Define to 1 to enable Commissioner support.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_COMMISSIONER_ENABLE
 #define OPENTHREAD_CONFIG_COMMISSIONER_ENABLE 0
@@ -56,6 +59,7 @@
  * @def OPENTHREAD_CONFIG_COMMISSIONER_MAX_JOINER_ENTRIES
  *
  * The maximum number of Joiner entries maintained by the Commissioner.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_COMMISSIONER_MAX_JOINER_ENTRIES
 #define OPENTHREAD_CONFIG_COMMISSIONER_MAX_JOINER_ENTRIES 2
@@ -66,6 +70,7 @@
  *
  * The timeout for the Joiner's session, in seconds. After this timeout,
  * the Commissioner tears down the session.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_COMMISSIONER_JOINER_SESSION_TIMEOUT
 #define OPENTHREAD_CONFIG_COMMISSIONER_JOINER_SESSION_TIMEOUT 30
@@ -73,6 +78,7 @@
 
 /**
  * @}
+ *
  */
 
 #endif // CONFIG_COMMISSIONER_H_

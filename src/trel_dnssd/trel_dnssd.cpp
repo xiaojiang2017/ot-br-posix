@@ -81,9 +81,9 @@ namespace otbr {
 
 namespace TrelDnssd {
 
-TrelDnssd::TrelDnssd(Host::RcpHost &aHost, Mdns::Publisher &aPublisher)
+TrelDnssd::TrelDnssd(Ncp::ControllerOpenThread &aNcp, Mdns::Publisher &aPublisher)
     : mPublisher(aPublisher)
-    , mHost(aHost)
+    , mNcp(aNcp)
 {
     sTrelDnssd = this;
 }
@@ -91,9 +91,6 @@ TrelDnssd::TrelDnssd(Host::RcpHost &aHost, Mdns::Publisher &aPublisher)
 void TrelDnssd::Initialize(std::string aTrelNetif)
 {
     mTrelNetif = std::move(aTrelNetif);
-    // Reset mTrelNetifIndex to 0 so that when this function is called with a different aTrelNetif
-    // than the current mTrelNetif, CheckTrelNetifReady() will update mTrelNetifIndex accordingly.
-    mTrelNetifIndex = 0;
 
     if (IsInitialized())
     {
@@ -193,6 +190,7 @@ exit:
 
 void TrelDnssd::HandleMdnsState(Mdns::Publisher::State aState)
 {
+    VerifyOrExit(IsInitialized());
     VerifyOrExit(aState == Mdns::Publisher::State::kReady);
 
     otbrLogDebug("mDNS Publisher is Ready");
@@ -204,7 +202,6 @@ void TrelDnssd::HandleMdnsState(Mdns::Publisher::State aState)
         mRegisterInfo.mInstanceName = "";
     }
 
-    VerifyOrExit(IsInitialized());
     OnBecomeReady();
 
 exit:
@@ -232,7 +229,7 @@ exit:
 
 std::string TrelDnssd::GetTrelInstanceName(void)
 {
-    const otExtAddress *extaddr = otLinkGetExtendedAddress(mHost.GetInstance());
+    const otExtAddress *extaddr = otLinkGetExtendedAddress(mNcp.GetInstance());
     std::string         name;
     char                nameBuf[sizeof(otExtAddress) * 2 + 1];
 
@@ -334,7 +331,7 @@ void TrelDnssd::OnTrelServiceInstanceAdded(const Mdns::Publisher::DiscoveredInst
 
         VerifyOrExit(peer.mValid, otbrLogWarning("Peer %s is invalid", aInstanceInfo.mName.c_str()));
 
-        otPlatTrelHandleDiscoveredPeerInfo(mHost.GetInstance(), &peerInfo);
+        otPlatTrelHandleDiscoveredPeerInfo(mNcp.GetInstance(), &peerInfo);
 
         mPeers.emplace(instanceName, peer);
         CheckPeersNumLimit();
@@ -395,7 +392,7 @@ void TrelDnssd::NotifyRemovePeer(const Peer &aPeer)
     peerInfo.mTxtLength = aPeer.mTxtData.size();
     peerInfo.mSockAddr  = aPeer.mSockAddr;
 
-    otPlatTrelHandleDiscoveredPeerInfo(mHost.GetInstance(), &peerInfo);
+    otPlatTrelHandleDiscoveredPeerInfo(mNcp.GetInstance(), &peerInfo);
 }
 
 void TrelDnssd::RemoveAllPeers(void)

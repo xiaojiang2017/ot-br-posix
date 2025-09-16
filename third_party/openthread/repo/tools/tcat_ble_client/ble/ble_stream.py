@@ -27,13 +27,12 @@
 """
 
 from itertools import count, takewhile
-from typing import Iterator, Union
+from typing import Iterator
 import logging
 import time
 from asyncio import sleep
 
 from bleak import BleakClient
-from bleak.backends.device import BLEDevice
 from bleak.backends.characteristic import BleakGATTCharacteristic
 
 logger = logging.getLogger(__name__)
@@ -66,8 +65,8 @@ class BleStream:
         return takewhile(len, (data[i:i + n] for i in count(0, n)))
 
     @classmethod
-    async def create(cls, address_or_ble_device: Union[BLEDevice, str], service_uuid, tx_char_uuid, rx_char_uuid):
-        client = BleakClient(address_or_ble_device)
+    async def create(cls, address, service_uuid, tx_char_uuid, rx_char_uuid):
+        client = BleakClient(address)
         await client.connect()
         self = cls(client, service_uuid, tx_char_uuid, rx_char_uuid)
         await client.start_notify(self.tx_char_uuid, self.__handle_rx)
@@ -92,7 +91,3 @@ class BleStream:
         self.__receive_buffer = self.__receive_buffer[bufsize:]
         logger.debug(f'retrieved {message}')
         return message
-
-    async def disconnect(self):
-        if self.client.is_connected:
-            await self.client.disconnect()

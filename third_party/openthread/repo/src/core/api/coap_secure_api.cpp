@@ -35,19 +35,19 @@
 
 #if OPENTHREAD_CONFIG_COAP_SECURE_API_ENABLE
 
-#include "instance/instance.hpp"
+#include <openthread/coap_secure.h>
+#include <openthread/ip6.h>
+
+#include "coap/coap_message.hpp"
+#include "coap/coap_secure.hpp"
+#include "common/as_core_type.hpp"
+#include "common/locator_getters.hpp"
 
 using namespace ot;
 
 otError otCoapSecureStart(otInstance *aInstance, uint16_t aPort)
 {
-    otError error;
-
-    SuccessOrExit(error = AsCoreType(aInstance).GetApplicationCoapSecure().Open());
-    error = AsCoreType(aInstance).GetApplicationCoapSecure().Bind(aPort);
-
-exit:
-    return error;
+    return AsCoreType(aInstance).GetApplicationCoapSecure().Start(aPort);
 }
 
 otError otCoapSecureStartWithMaxConnAttempts(otInstance                  *aInstance,
@@ -56,14 +56,7 @@ otError otCoapSecureStartWithMaxConnAttempts(otInstance                  *aInsta
                                              otCoapSecureAutoStopCallback aCallback,
                                              void                        *aContext)
 {
-    Error error = kErrorAlready;
-
-    SuccessOrExit(
-        AsCoreType(aInstance).GetApplicationCoapSecure().SetMaxConnectionAttempts(aMaxAttempts, aCallback, aContext));
-    error = otCoapSecureStart(aInstance, aPort);
-
-exit:
-    return error;
+    return AsCoreType(aInstance).GetApplicationCoapSecure().Start(aPort, aMaxAttempts, aCallback, aContext);
 }
 
 #ifdef MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED
@@ -123,9 +116,7 @@ otError otCoapSecureConnect(otInstance                     *aInstance,
                             otHandleCoapSecureClientConnect aHandler,
                             void                           *aContext)
 {
-    AsCoreType(aInstance).GetApplicationCoapSecure().SetConnectCallback(aHandler, aContext);
-
-    return AsCoreType(aInstance).GetApplicationCoapSecure().Connect(AsCoreType(aSockAddr));
+    return AsCoreType(aInstance).GetApplicationCoapSecure().Connect(AsCoreType(aSockAddr), aHandler, aContext);
 }
 
 void otCoapSecureDisconnect(otInstance *aInstance) { AsCoreType(aInstance).GetApplicationCoapSecure().Disconnect(); }
@@ -142,7 +133,7 @@ bool otCoapSecureIsConnectionActive(otInstance *aInstance)
 
 bool otCoapSecureIsClosed(otInstance *aInstance) { return AsCoreType(aInstance).GetApplicationCoapSecure().IsClosed(); }
 
-void otCoapSecureStop(otInstance *aInstance) { AsCoreType(aInstance).GetApplicationCoapSecure().Close(); }
+void otCoapSecureStop(otInstance *aInstance) { AsCoreType(aInstance).GetApplicationCoapSecure().Stop(); }
 
 #if OPENTHREAD_CONFIG_COAP_BLOCKWISE_TRANSFER_ENABLE
 otError otCoapSecureSendRequestBlockWise(otInstance                 *aInstance,
@@ -187,11 +178,11 @@ void otCoapSecureRemoveResource(otInstance *aInstance, otCoapResource *aResource
     AsCoreType(aInstance).GetApplicationCoapSecure().RemoveResource(AsCoreType(aResource));
 }
 
-void otCoapSecureSetClientConnectEventCallback(otInstance                     *aInstance,
-                                               otHandleCoapSecureClientConnect aHandler,
-                                               void                           *aContext)
+void otCoapSecureSetClientConnectedCallback(otInstance                     *aInstance,
+                                            otHandleCoapSecureClientConnect aHandler,
+                                            void                           *aContext)
 {
-    AsCoreType(aInstance).GetApplicationCoapSecure().SetConnectCallback(aHandler, aContext);
+    AsCoreType(aInstance).GetApplicationCoapSecure().SetConnectedCallback(aHandler, aContext);
 }
 
 void otCoapSecureSetDefaultHandler(otInstance *aInstance, otCoapRequestHandler aHandler, void *aContext)
@@ -206,18 +197,15 @@ otError otCoapSecureSendResponseBlockWise(otInstance                 *aInstance,
                                           void                       *aContext,
                                           otCoapBlockwiseTransmitHook aTransmitHook)
 {
-    OT_UNUSED_VARIABLE(aMessageInfo);
-
-    return AsCoreType(aInstance).GetApplicationCoapSecure().SendMessage(AsCoapMessage(aMessage), nullptr, aContext,
-                                                                        aTransmitHook);
+    return AsCoreType(aInstance).GetApplicationCoapSecure().SendMessage(
+        AsCoapMessage(aMessage), AsCoreType(aMessageInfo), nullptr, aContext, aTransmitHook);
 }
 #endif
 
 otError otCoapSecureSendResponse(otInstance *aInstance, otMessage *aMessage, const otMessageInfo *aMessageInfo)
 {
-    OT_UNUSED_VARIABLE(aMessageInfo);
-
-    return AsCoreType(aInstance).GetApplicationCoapSecure().SendMessage(AsCoapMessage(aMessage));
+    return AsCoreType(aInstance).GetApplicationCoapSecure().SendMessage(AsCoapMessage(aMessage),
+                                                                        AsCoreType(aMessageInfo));
 }
 
 #endif // OPENTHREAD_CONFIG_COAP_SECURE_API_ENABLE

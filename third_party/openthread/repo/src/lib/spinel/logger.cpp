@@ -28,8 +28,6 @@
 
 #include "logger.hpp"
 
-#include "openthread-spinel-config.h"
-
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,14 +37,11 @@
 #include <openthread/platform/radio.h>
 
 #include "common/code_utils.hpp"
+#include "common/num_utils.hpp"
 #include "lib/spinel/spinel.h"
-#include "lib/utils/math.hpp"
 
 namespace ot {
 namespace Spinel {
-
-using Lib::Utils::Min;
-using Lib::Utils::ToUlong;
 
 Logger::Logger(const char *aModuleName)
     : mModuleName(aModuleName)
@@ -122,8 +117,8 @@ uint32_t Logger::Snprintf(char *aDest, uint32_t aSize, const char *aFormat, ...)
 
 void Logger::LogSpinelFrame(const uint8_t *aFrame, uint16_t aLength, bool aTx)
 {
-    otError           error                                   = OT_ERROR_NONE;
-    char              buf[OPENTHREAD_LIB_SPINEL_LOG_MAX_SIZE] = {0};
+    otError           error                               = OT_ERROR_NONE;
+    char              buf[OPENTHREAD_CONFIG_LOG_MAX_SIZE] = {0};
     spinel_ssize_t    unpacked;
     uint8_t           header;
     uint32_t          cmd;
@@ -515,7 +510,7 @@ void Logger::LogSpinelFrame(const uint8_t *aFrame, uint16_t aLength, bool aTx)
 
     case SPINEL_PROP_STREAM_DEBUG:
     {
-        char          debugString[OPENTHREAD_LIB_SPINEL_NCP_LOG_MAX_SIZE + 1];
+        char          debugString[OPENTHREAD_CONFIG_NCP_SPINEL_LOG_MAX_SIZE + 1];
         spinel_size_t stringLength = sizeof(debugString);
 
         unpacked = spinel_datatype_unpack_in_place(data, len, SPINEL_DATATYPE_DATA_S, debugString, &stringLength);

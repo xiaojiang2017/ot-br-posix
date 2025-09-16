@@ -39,9 +39,12 @@ namespace ot {
 
 void TestMessage(void)
 {
-    static constexpr uint16_t kMaxSize    = (kBufferSize * 3 + 24);
-    static constexpr uint16_t kOffsetStep = 101;
-    static constexpr uint16_t kLengthStep = 21;
+    enum : uint16_t
+    {
+        kMaxSize    = (kBufferSize * 3 + 24),
+        kOffsetStep = 101,
+        kLengthStep = 21,
+    };
 
     Instance    *instance;
     MessagePool *messagePool;
@@ -64,10 +67,10 @@ void TestMessage(void)
     Random::NonCrypto::FillBuffer(writeBuffer, kMaxSize);
 
     VerifyOrQuit((message = messagePool->Allocate(Message::kTypeIp6)) != nullptr);
-    message->SetLinkSecurityEnabled(kWithLinkSecurity);
+    message->SetLinkSecurityEnabled(Message::kWithLinkSecurity);
     SuccessOrQuit(message->SetPriority(Message::Priority::kPriorityNet));
     message->SetType(Message::Type::kType6lowpan);
-    message->SetSubType(Message::SubType::kSubTypeJoinerEntrust);
+    message->SetSubType(Message::SubType::kSubTypeMleChildIdRequest);
     message->SetLoopbackToHostAllowed(true);
     message->SetOrigin(Message::kOriginHostUntrusted);
     SuccessOrQuit(message->SetLength(kMaxSize));
@@ -153,32 +156,6 @@ void TestMessage(void)
 
             VerifyOrQuit(!message->CompareBytes(offset, readBuffer, length));
             VerifyOrQuit(message->CompareBytes(offset, readBuffer, readLength));
-        }
-
-        // Verify `Read()` behavior when requested read length goes beyond available bytes in the message.
-
-        for (uint16_t length = kMaxSize - offset + 1; length <= kMaxSize + 1; length++)
-        {
-            Error error;
-
-            memset(readBuffer, 0, sizeof(readBuffer));
-
-            error = message->Read(offset, readBuffer, length);
-
-            if (length < kMaxSize - offset)
-            {
-                uint16_t readLength = kMaxSize - offset;
-
-                SuccessOrQuit(error);
-                VerifyOrQuit(memcmp(readBuffer, &writeBuffer[offset], readLength) == 0);
-                VerifyOrQuit(memcmp(&readBuffer[readLength], zeroBuffer, kMaxSize - readLength) == 0,
-                             "read after length");
-            }
-            else
-            {
-                VerifyOrQuit(error == kErrorParse);
-                VerifyOrQuit(memcmp(readBuffer, zeroBuffer, sizeof(readBuffer)) == 0, "Read() updated buffer on error");
-            }
         }
     }
 

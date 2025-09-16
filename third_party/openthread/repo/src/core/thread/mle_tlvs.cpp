@@ -59,7 +59,7 @@ bool RouteTlv::IsValid(void) const
     VerifyOrExit(GetLength() >= sizeof(mRouterIdSequence) + sizeof(mRouterIdMask));
 
     numAllocatedIds = mRouterIdMask.GetNumberOfAllocatedIds();
-    VerifyOrExit(numAllocatedIds <= kMaxRouters);
+    VerifyOrExit(numAllocatedIds <= Mle::kMaxRouters);
 
     isValid = (GetRouteDataLength() >= numAllocatedIds);
 

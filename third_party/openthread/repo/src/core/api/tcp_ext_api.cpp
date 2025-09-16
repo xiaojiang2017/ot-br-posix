@@ -37,7 +37,8 @@
 
 #include <openthread/tcp_ext.h>
 
-#include "instance/instance.hpp"
+#include "common/as_core_type.hpp"
+#include "common/locator_getters.hpp"
 #include "net/tcp6_ext.hpp"
 
 #if OPENTHREAD_CONFIG_TLS_ENABLE

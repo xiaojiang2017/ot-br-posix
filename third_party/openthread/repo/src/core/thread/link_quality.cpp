@@ -33,6 +33,12 @@
 
 #include "link_quality.hpp"
 
+#include <stdio.h>
+
+#include "common/code_utils.hpp"
+#include "common/locator_getters.hpp"
+#include "common/num_utils.hpp"
+#include "common/numeric_limits.hpp"
 #include "instance/instance.hpp"
 
 namespace ot {
@@ -130,8 +136,7 @@ void LqiAverager::Add(uint8_t aLqi)
 void LinkQualityInfo::Clear(void)
 {
     mRssAverager.Clear();
-    SetLinkQualityIn(kLinkQuality0);
-    SetLinkQualityOut(kLinkQuality0);
+    SetLinkQuality(kLinkQuality0);
     mLastRss = Radio::kInvalidRssi;
 
     mFrameErrorRate.Clear();
@@ -148,12 +153,12 @@ void LinkQualityInfo::AddRss(int8_t aRss)
 
     if (mRssAverager.HasAverage())
     {
-        oldLinkQuality = GetLinkQualityIn();
+        oldLinkQuality = GetLinkQuality();
     }
 
     SuccessOrExit(mRssAverager.Add(aRss));
 
-    SetLinkQualityIn(CalculateLinkQuality(GetLinkMargin(), oldLinkQuality));
+    SetLinkQuality(CalculateLinkQuality(GetLinkMargin(), oldLinkQuality));
 
 exit:
     return;
@@ -169,7 +174,7 @@ LinkQualityInfo::InfoString LinkQualityInfo::ToInfoString(void) const
     InfoString string;
 
     string.Append("aveRss:%s, lastRss:%d, linkQuality:%d", mRssAverager.ToString().AsCString(), GetLastRss(),
-                  GetLinkQualityIn());
+                  GetLinkQuality());
 
     return string;
 }
@@ -226,14 +231,10 @@ uint8_t CostForLinkQuality(LinkQuality aLinkQuality)
         kCostForLinkQuality3, // Link cost for `kLinkQuality3` (3).
     };
 
-    struct EnumCheck
-    {
-        InitEnumValidatorCounter();
-        ValidateNextEnum(kLinkQuality0);
-        ValidateNextEnum(kLinkQuality1);
-        ValidateNextEnum(kLinkQuality2);
-        ValidateNextEnum(kLinkQuality3);
-    };
+    static_assert(kLinkQuality0 == 0, "kLinkQuality0 is invalid");
+    static_assert(kLinkQuality1 == 1, "kLinkQuality1 is invalid");
+    static_assert(kLinkQuality2 == 2, "kLinkQuality2 is invalid");
+    static_assert(kLinkQuality3 == 3, "kLinkQuality3 is invalid");
 
     uint8_t cost = Mle::kMaxRouteCost;
 

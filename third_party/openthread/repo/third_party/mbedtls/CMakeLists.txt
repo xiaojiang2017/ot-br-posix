@@ -74,7 +74,7 @@ else()
     configure_file(mbedtls-config.h openthread-mbedtls-config.h COPYONLY)
 endif()
 
-target_include_directories(ot-config SYSTEM
+target_include_directories(ot-config
     INTERFACE
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/repo/include)

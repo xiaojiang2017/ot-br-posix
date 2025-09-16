@@ -49,6 +49,7 @@ extern "C" {
  *   This module includes the platform abstraction for the debug log service.
  *
  * @{
+ *
  */
 
 /**
@@ -56,6 +57,7 @@ extern "C" {
  *
  * @note Log Levels are defines so that embedded implementations can eliminate code at compile time via
  * #if/#else/#endif.
+ *
  */
 #define OT_LOG_LEVEL_NONE 0
 
@@ -64,6 +66,7 @@ extern "C" {
  *
  * @note Log Levels are defines so that embedded implementations can eliminate code at compile time via
  * #if/#else/#endif.
+ *
  */
 #define OT_LOG_LEVEL_CRIT 1
 
@@ -72,6 +75,7 @@ extern "C" {
  *
  * @note Log Levels are defines so that embedded implementations can eliminate code at compile time via
  * #if/#else/#endif.
+ *
  */
 #define OT_LOG_LEVEL_WARN 2
 
@@ -80,6 +84,7 @@ extern "C" {
  *
  * @note Log Levels are defines so that embedded implementations can eliminate code at compile time via
  * #if/#else/#endif.
+ *
  */
 #define OT_LOG_LEVEL_NOTE 3
 
@@ -88,6 +93,7 @@ extern "C" {
  *
  * @note Log Levels are defines so that embedded implementations can eliminate code at compile time via
  * #if/#else/#endif.
+ *
  */
 #define OT_LOG_LEVEL_INFO 4
 
@@ -96,11 +102,13 @@ extern "C" {
  *
  * @note Log Levels are defines so that embedded implementations can eliminate code at compile time via
  * #if/#else/#endif.
+ *
  */
 #define OT_LOG_LEVEL_DEBG 5
 
 /**
  * Represents the log level.
+ *
  */
 typedef int otLogLevel;
 
@@ -110,6 +118,7 @@ typedef int otLogLevel;
  * The support for log region is removed and instead each core module can define its own name to appended to the logs.
  * However, the `otLogRegion` enumeration is still defined as before to help with platforms which we may be using it
  * in their `otPlatLog()` implementation. The OT core will always emit all logs with `OT_LOG_REGION_CORE`.
+ *
  */
 typedef enum otLogRegion
 {
@@ -148,6 +157,7 @@ typedef enum otLogRegion
  * @param[in]  aLogRegion  The log region.
  * @param[in]  aFormat     A pointer to the format string.
  * @param[in]  ...         Arguments for the format specification.
+ *
  */
 void otPlatLog(otLogLevel aLogLevel, otLogRegion aLogRegion, const char *aFormat, ...);
 
@@ -160,11 +170,13 @@ void otPlatLog(otLogLevel aLogLevel, otLogRegion aLogRegion, const char *aFormat
  * @note Only applicable when `OPENTHREAD_CONFIG_LOG_LEVEL_DYNAMIC_ENABLE=1`.
  *
  * @param[in]  aLogLevel  The new OpenThread log level.
+ *
  */
 void otPlatLogHandleLevelChanged(otLogLevel aLogLevel);
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

@@ -48,6 +48,7 @@ extern "C" {
  *   This module includes functions for Child Supervision feature.
  *
  * @{
+ *
  */
 
 /**
@@ -60,6 +61,7 @@ extern "C" {
  * @param[in]  aInstance       A pointer to an OpenThread instance.
  *
  * @returns  The child supervision interval. Zero indicates that supervision is disabled.
+ *
  */
 uint16_t otChildSupervisionGetInterval(otInstance *aInstance);
 
@@ -68,6 +70,7 @@ uint16_t otChildSupervisionGetInterval(otInstance *aInstance);
  *
  * @param[in]  aInstance       A pointer to an OpenThread instance.
  * @param[in]  aInterval       The supervision interval (in seconds). Zero to disable supervision.
+ *
  */
 void otChildSupervisionSetInterval(otInstance *aInstance, uint16_t aInterval);
 
@@ -80,6 +83,7 @@ void otChildSupervisionSetInterval(otInstance *aInstance, uint16_t aInterval);
  * @param[in]  aInstance       A pointer to an OpenThread instance.
  *
  * @returns  The supervision check timeout. Zero indicates that supervision check on the child is disabled.
+ *
  */
 uint16_t otChildSupervisionGetCheckTimeout(otInstance *aInstance);
 
@@ -88,6 +92,7 @@ uint16_t otChildSupervisionGetCheckTimeout(otInstance *aInstance);
  *
  * @param[in]  aInstance       A pointer to an OpenThread instance.
  * @param[in]  aTimeout        The check timeout (in seconds). Zero to disable supervision check on the child.
+ *
  */
 void otChildSupervisionSetCheckTimeout(otInstance *aInstance, uint16_t aTimeout);
 
@@ -96,16 +101,19 @@ void otChildSupervisionSetCheckTimeout(otInstance *aInstance, uint16_t aTimeout)
  *
  * The counter tracks the number of supervision check failures on the child. It is incremented when the child does
  * not hear from its parent within the specified check timeout interval.
+ *
  */
 uint16_t otChildSupervisionGetCheckFailureCounter(otInstance *aInstance);
 
 /**
  * Reset the supervision check timeout failure counter to zero.
+ *
  */
 void otChildSupervisionResetCheckFailureCounter(otInstance *aInstance);
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

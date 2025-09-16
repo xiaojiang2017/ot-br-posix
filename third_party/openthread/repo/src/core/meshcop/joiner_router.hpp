@@ -64,6 +64,7 @@ public:
      * Initializes the Joiner Router object.
      *
      * @param[in]  aInstance     A reference to the OpenThread instance.
+     *
      */
     explicit JoinerRouter(Instance &aInstance);
 
@@ -71,6 +72,7 @@ public:
      * Returns the Joiner UDP Port.
      *
      * @returns The Joiner UDP Port number.
+     *
      */
     uint16_t GetJoinerUdpPort(void) const;
 
@@ -78,6 +80,7 @@ public:
      * Sets the Joiner UDP Port.
      *
      * @param[in]  aJoinerUdpPort  The Joiner UDP Port number.
+     *
      */
     void SetJoinerUdpPort(uint16_t aJoinerUdpPort);
 
@@ -85,8 +88,11 @@ private:
     static constexpr uint16_t kDefaultJoinerUdpPort = OPENTHREAD_CONFIG_JOINER_UDP_PORT;
     static constexpr uint32_t kJoinerEntrustTxDelay = 50; // in msec
 
-    struct JoinerEntrustMetadata : public Message::FooterData<JoinerEntrustMetadata>
+    struct JoinerEntrustMetadata
     {
+        Error AppendTo(Message &aMessage) const { return aMessage.Append(*this); }
+        void  ReadFrom(const Message &aMessage);
+
         Ip6::MessageInfo mMessageInfo; // Message info of the message to send.
         TimeMilli        mSendTime;    // Time when the message shall be sent.
         Kek              mKek;         // KEK used by MAC layer to encode this message.
@@ -94,14 +100,15 @@ private:
 
     void HandleNotifierEvents(Events aEvents);
 
-    void HandleUdpReceive(Message &aMessage, const Ip6::MessageInfo &aMessageInfo);
+    static void HandleUdpReceive(void *aContext, otMessage *aMessage, const otMessageInfo *aMessageInfo);
+    void        HandleUdpReceive(Message &aMessage, const Ip6::MessageInfo &aMessageInfo);
 
     template <Uri kUri> void HandleTmf(Coap::Message &aMessage, const Ip6::MessageInfo &aMessageInfo);
 
     static void HandleJoinerEntrustResponse(void                *aContext,
                                             otMessage           *aMessage,
                                             const otMessageInfo *aMessageInfo,
-                                            otError              aResult);
+                                            Error                aResult);
     void HandleJoinerEntrustResponse(Coap::Message *aMessage, const Ip6::MessageInfo *aMessageInfo, Error aResult);
 
     void HandleTimer(void);
@@ -113,9 +120,8 @@ private:
     Coap::Message *PrepareJoinerEntrustMessage(void);
 
     using JoinerRouterTimer = TimerMilliIn<JoinerRouter, &JoinerRouter::HandleTimer>;
-    using JoinerSocket      = Ip6::Udp::SocketIn<JoinerRouter, &JoinerRouter::HandleUdpReceive>;
 
-    JoinerSocket mSocket;
+    Ip6::Udp::Socket mSocket;
 
     JoinerRouterTimer mTimer;
     MessageQueue      mDelayedJoinEnts;

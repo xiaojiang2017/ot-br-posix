@@ -41,11 +41,6 @@
 extern "C" {
 #endif
 
-#define OT_MS_PER_S 1000    ///< Number of milliseconds per second
-#define OT_US_PER_MS 1000   ///< Number of microseconds per millisecond
-#define OT_US_PER_S 1000000 ///< Number of microseconds per second
-#define OT_NS_PER_US 1000   ///< Number of nanoseconds per microsecond
-
 /**
  * @addtogroup plat-time
  *
@@ -53,6 +48,7 @@ extern "C" {
  *   This module includes the platform abstraction for the time service.
  *
  * @{
+ *
  */
 
 /**
@@ -72,6 +68,7 @@ extern "C" {
  * accuracy limits announced by @ref otPlatTimeGetXtalAccuracy.
  *
  * @returns The current time in microseconds.
+ *
  */
 uint64_t otPlatTimeGet(void);
 
@@ -88,11 +85,13 @@ uint64_t otPlatTimeGet(void);
  * implementation.
  *
  * @returns The current platform clock accuracy, in PPM.
+ *
  */
 uint16_t otPlatTimeGetXtalAccuracy(void);
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

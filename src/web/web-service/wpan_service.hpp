@@ -52,6 +52,7 @@
 
 /**
  * WPAN parameter constants
+ *
  */
 
 #define OT_EXTENDED_PANID_LENGTH 8
@@ -67,6 +68,7 @@ namespace Web {
 
 /**
  * This class provides web service to manage WPAN.
+ *
  */
 class WpanService
 {
@@ -75,6 +77,7 @@ public:
      * This method handles http request to get information to generate QR code.
      *
      * @returns The string to the http response of getting QR code.
+     *
      */
     std::string HandleGetQRCodeRequest(void);
 
@@ -84,6 +87,7 @@ public:
      * @param[in]  aJoinRequest  A reference to the http request of joining network.
      *
      * @returns The string to the http response of joining network.
+     *
      */
     std::string HandleJoinNetworkRequest(const std::string &aJoinRequest);
 
@@ -93,6 +97,7 @@ public:
      * @param[in]  aFormRequest  A reference to the http request of forming network.
      *
      * @returns The string to the http response of forming network.
+     *
      */
     std::string HandleFormNetworkRequest(const std::string &aFormRequest);
 
@@ -102,6 +107,7 @@ public:
      * @param[in]  aAddPrefixRequest  A reference to the http request of adding on-mesh prefix.
      *
      * @returns The string to the http response of adding on-mesh prefix.
+     *
      */
     std::string HandleAddPrefixRequest(const std::string &aAddPrefixRequest);
 
@@ -111,6 +117,7 @@ public:
      * @param[in]  aDeleteRequest  A reference to the http request of deleting on-mesh prefix.
      *
      * @returns The string to the http response of deleting on-mesh prefix.
+     *
      */
     std::string HandleDeletePrefixRequest(const std::string &aDeleteRequest);
 
@@ -118,6 +125,7 @@ public:
      * This method handles http request to get netowrk status.
      *
      * @returns The string to the http response of getting status.
+     *
      */
     std::string HandleStatusRequest(void);
 
@@ -125,6 +133,7 @@ public:
      * This method handles http request to get available networks.
      *
      * @returns The string to the http response of getting available networks.
+     *
      */
     std::string HandleAvailableNetworkRequest(void);
 
@@ -132,6 +141,7 @@ public:
      * This method handles http request to commission device
      *
      * @returns The string to the http response of commissioning
+     *
      */
     std::string HandleCommission(const std::string &aCommissionRequest);
 
@@ -139,6 +149,7 @@ public:
      * This method sets the Thread interface name.
      *
      * @param[in] aIfName  The pointer to the Thread interface name.
+     *
      */
     void SetInterfaceName(const char *aIfName)
     {
@@ -155,6 +166,7 @@ public:
      * @retval kWpanStatus_OK       Successfully started the Thread service.
      * @retval kWpanStatus_Offline  Not started the Thread service.
      * @retval kWpanStatus_Down     The Thread service was down.
+     *
      */
     int GetWpanServiceStatus(std::string &aNetworkName, std::string &aExtPanId) const;
 
@@ -165,6 +177,7 @@ public:
      * @param[in] aNetworkPassword  Network password
      *
      * @returns The string to the http response of getting available networks.
+     *
      */
     std::string CommissionDevice(const char *aPskd, const char *aNetworkPassword);
 

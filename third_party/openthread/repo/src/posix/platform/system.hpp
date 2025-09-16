@@ -36,5 +36,6 @@
  * Returns if the system will run in dry-run mode.
  *
  * @returns  If the system runs in dry-run mode.
+ *
  */
 bool IsSystemDryRun(void);

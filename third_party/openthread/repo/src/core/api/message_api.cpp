@@ -33,7 +33,10 @@
 
 #include "openthread-core-config.h"
 
-#include "instance/instance.hpp"
+#include <openthread/message.h>
+
+#include "common/as_core_type.hpp"
+#include "common/locator_getters.hpp"
 
 using namespace ot;
 

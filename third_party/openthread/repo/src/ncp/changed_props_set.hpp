@@ -48,12 +48,14 @@ namespace Ncp {
  * Defines a class to track a set of property/status changes that require update to host. The properties that can
  * be added to this set must support sending unsolicited updates. This class also provides mechanism for user
  * to block certain filterable properties disallowing the unsolicited update from them.
+ *
  */
 class ChangedPropsSet
 {
 public:
     /**
      * Defines an entry in the set/list.
+     *
      */
     struct Entry
     {
@@ -64,6 +66,7 @@ public:
 
     /**
      * Initializes the set.
+     *
      */
     ChangedPropsSet(void)
         : mChangedSet(0)
@@ -73,6 +76,7 @@ public:
 
     /**
      * Clears the set.
+     *
      */
     void Clear(void) { mChangedSet = 0; }
 
@@ -80,6 +84,7 @@ public:
      * Indicates if the set is empty or not.
      *
      * @returns TRUE if the set if empty, FALSE otherwise.
+     *
      */
     bool IsEmpty(void) const { return (mChangedSet == 0); }
 
@@ -90,6 +95,7 @@ public:
      * Note that if the property is already in the set, adding it again does not change the set.
      *
      * @param[in] aPropKey    The spinel property key to be added to the set
+     *
      */
     void AddProperty(spinel_prop_key_t aPropKey) { Add(aPropKey, SPINEL_STATUS_OK); }
 
@@ -97,6 +103,7 @@ public:
      * Adds a `LAST_STATUS` update to the set. The update must be in list of supported entries.
      *
      * @param[in] aStatus     The spinel status update to be added to set.
+     *
      */
     void AddLastStatus(spinel_status_t aStatus) { Add(SPINEL_PROP_LAST_STATUS, aStatus); }
 
@@ -107,6 +114,7 @@ public:
      * @param[out]  aNumEntries  A reference to output the number of entries in the list.
      *
      * @returns A pointer to the supported entries array.
+     *
      */
     const Entry *GetSupportedEntries(uint8_t &aNumEntries) const
     {
@@ -120,6 +128,7 @@ public:
      * @param[in] aIndex     The index to an entry.
      *
      * @returns A pointer to the entry associated with @p aIndex, or nullptr if the index is beyond end of array.
+     *
      */
     const Entry *GetEntry(uint8_t aIndex) const
     {
@@ -133,6 +142,7 @@ public:
      * @param[in] aIndex     The index to an entry.
      *
      * @returns TRUE if the entry is in the set, FALSE otherwise.
+     *
      */
     bool IsEntryChanged(uint8_t aIndex) const { return IsBitSet(mChangedSet, aIndex); }
 
@@ -142,6 +152,7 @@ public:
      * Note that if the property/entry is not in the set, removing it simply does nothing.
      *
      * @param[in] aIndex               Index of entry to be removed.
+     *
      */
     void RemoveEntry(uint8_t aIndex) { ClearBit(mChangedSet, aIndex); }
 
@@ -153,6 +164,7 @@ public:
      *
      * @retval OT_ERROR_NONE           Filter state for given property updated successfully.
      * @retval OT_ERROR_INVALID_ARGS   The given property is not valid (i.e., not capable of unsolicited update).
+     *
      */
     otError EnablePropertyFilter(spinel_prop_key_t aPropKey, bool aEnable);
 
@@ -162,6 +174,7 @@ public:
      * @param[in] aIndex               Index of entry to be checked.
      *
      * @returns TRUE if the filter is enabled for the given entry, FALSE otherwise.
+     *
      */
     bool IsEntryFiltered(uint8_t aIndex) const { return IsBitSet(mFilterSet, aIndex); }
 
@@ -172,11 +185,13 @@ public:
      *
      * @returns TRUE if the filter is enabled for the given property, FALSE if the property is not filtered or if
      *          it is not filterable.
+     *
      */
     bool IsPropertyFiltered(spinel_prop_key_t aPropKey) const;
 
     /**
      * Clears the filter.
+     *
      */
     void ClearFilter(void) { mFilterSet = 0; }
 

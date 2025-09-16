@@ -59,10 +59,12 @@ namespace NetworkData {
  *   This module includes definitions for manipulating Thread Network Data managed by the Thread Leader.
  *
  * @{
+ *
  */
 
 /**
  * Implements the Thread Network Data maintained by the Leader.
+ *
  */
 class Leader : public MutableNetworkData, private NonCopyable
 {
@@ -74,11 +76,13 @@ public:
      * Initializes the object.
      *
      * @param[in]  aInstance     A reference to the OpenThread instance.
+     *
      */
     explicit Leader(Instance &aInstance);
 
     /**
      * Reset the Thread Network Data.
+     *
      */
     void Reset(void);
 
@@ -87,6 +91,7 @@ public:
      * call to `ResetMaxLength()`.
      *
      * @returns The maximum observed Network Data length (high water mark for Network Data length).
+     *
      */
     uint8_t GetMaxLength(void) const { return mMaxLength; }
 
@@ -94,6 +99,7 @@ public:
      * Resets the tracked maximum Network Data Length.
      *
      * @sa GetMaxLength
+     *
      */
     void ResetMaxLength(void) { mMaxLength = GetLength(); }
 
@@ -103,6 +109,7 @@ public:
      * @param[in] aType   The Network Data type (full set or stable subset).
      *
      * @returns The Data Version value for @p aType.
+     *
      */
     uint8_t GetVersion(Type aType) const { return (aType == kFullSet) ? mVersion : mStableVersion; }
 
@@ -114,6 +121,7 @@ public:
      *
      * @retval kErrorNone       Successfully retrieved 6LoWPAN Context information.
      * @retval kErrorNotFound   Could not find the 6LoWPAN Context information.
+     *
      */
     Error GetContext(const Ip6::Address &aAddress, Lowpan::Context &aContext) const;
 
@@ -125,6 +133,7 @@ public:
      *
      * @retval kErrorNone       Successfully retrieved 6LoWPAN Context information.
      * @retval kErrorNotFound   Could not find the 6LoWPAN Context information.
+     *
      */
     Error GetContext(uint8_t aContextId, Lowpan::Context &aContext) const;
 
@@ -135,6 +144,7 @@ public:
      *
      * @retval TRUE   If @p aAddress is on-link.
      * @retval FALSE  If @p aAddress if not on-link.
+     *
      */
     bool IsOnMesh(const Ip6::Address &aAddress) const;
 
@@ -147,6 +157,7 @@ public:
      *
      * @retval kErrorNone      Successfully found a route. @p aRloc16 is updated.
      * @retval kErrorNoRoute   No valid route was found.
+     *
      */
     Error RouteLookup(const Ip6::Address &aSource, const Ip6::Address &aDestination, uint16_t &aRloc16) const;
 
@@ -157,32 +168,27 @@ public:
      * @param[in]  aStableVersion  The Stable Version value.
      * @param[in]  aType           The Network Data type to set, the full set or stable subset.
      * @param[in]  aMessage        A reference to the message.
-     * @param[in]  aOffsetRange    The offset range in @p aMessage to read from.
+     * @param[in]  aOffset         The offset in @p aMessage pointing to start of Network Data.
+     * @param[in]  aLength         The length of Network Data.
      *
      * @retval kErrorNone   Successfully set the network data.
      * @retval kErrorParse  Network Data in @p aMessage is not valid.
+     *
      */
-    Error SetNetworkData(uint8_t            aVersion,
-                         uint8_t            aStableVersion,
-                         Type               aType,
-                         const Message     &aMessage,
-                         const OffsetRange &aOffsetRange);
+    Error SetNetworkData(uint8_t        aVersion,
+                         uint8_t        aStableVersion,
+                         Type           aType,
+                         const Message &aMessage,
+                         uint16_t       aOffset,
+                         uint16_t       aLength);
 
     /**
      * Gets the Commissioning Dataset from Network Data.
      *
      * @param[out] aDataset    A reference to a `MeshCoP::CommissioningDataset` to populate.
+     *
      */
     void GetCommissioningDataset(MeshCoP::CommissioningDataset &aDataset) const;
-
-    /**
-     * Processes a MGMT_COMMISSIONER_GET request message and prepares the response.
-     *
-     * @param[in] aRequest   The MGMT_COMMISSIONER_GET request message.
-     *
-     * @returns The prepared response, or `nullptr` if fails to parse the request or cannot allocate message.
-     */
-    Coap::Message *ProcessCommissionerGetRequest(const Coap::Message &aMessage) const;
 
     /**
      * Searches for given sub-TLV in Commissioning Data TLV.
@@ -190,6 +196,7 @@ public:
      * @tparam SubTlvType    The sub-TLV type to search for.
      *
      * @returns A pointer to the Commissioning Data Sub-TLV or `nullptr` if no such sub-TLV exists.
+     *
      */
     template <typename SubTlvType> const SubTlvType *FindInCommissioningData(void) const
     {
@@ -202,6 +209,7 @@ public:
      * @tparam SubTlvType    The sub-TLV type to search for.
      *
      * @returns A pointer to the Commissioning Data Sub-TLV or `nullptr` if no such sub-TLV exists.
+     *
      */
     template <typename SubTlvType> SubTlvType *FindInCommissioningData(void)
     {
@@ -216,6 +224,7 @@ public:
      * @retval kErrorNone       Successfully read the session ID, @p aSessionId is updated.
      * @retval kErrorNotFound   Did not find Session ID sub-TLV.
      * @retval kErrorParse      Failed to parse Commissioning Data TLV (invalid format).
+     *
      */
     Error FindCommissioningSessionId(uint16_t &aSessionId) const;
 
@@ -227,6 +236,7 @@ public:
      * @retval kErrorNone       Successfully read the Border Agent RLOC16, @p aRloc16 is updated.
      * @retval kErrorNotFound   Did not find Border Agent RLOC16 sub-TLV.
      * @retval kErrorParse      Failed to parse Commissioning Data TLV (invalid format).
+     *
      */
     Error FindBorderAgentRloc(uint16_t &aRloc16) const;
 
@@ -238,6 +248,7 @@ public:
      * @retval kErrorNone       Successfully read the Joiner UDP port, @p aPort is updated.
      * @retval kErrorNotFound   Did not find Joiner UDP Port sub-TLV.
      * @retval kErrorParse      Failed to parse Commissioning Data TLV (invalid format).
+     *
      */
     Error FindJoinerUdpPort(uint16_t &aPort) const;
 
@@ -248,6 +259,7 @@ public:
      *
      * @retval kErrorNone       Successfully read the Steering Data, @p aSteeringData is updated.
      * @retval kErrorNotFound   Did not find Steering Data sub-TLV.
+     *
      */
     Error FindSteeringData(MeshCoP::SteeringData &aSteeringData) const;
 
@@ -258,6 +270,7 @@ public:
      *
      * @retval TRUE    If joining is allowed.
      * @retval FALSE   If joining is not allowed.
+     *
      */
     bool IsJoiningAllowed(void) const;
 
@@ -269,6 +282,7 @@ public:
      * @retval kErrorNone          @p aEui64 is in the bloom filter.
      * @retval kErrorInvalidState  No steering data present.
      * @retval kErrorNotFound      @p aEui64 is not in the bloom filter.
+     *
      */
     Error SteeringDataCheckJoiner(const Mac::ExtAddress &aEui64) const;
 
@@ -280,6 +294,7 @@ public:
      * @retval kErrorNone          @p aDiscerner is in the bloom filter.
      * @retval kErrorInvalidState  No steering data present.
      * @retval kErrorNotFound      @p aDiscerner is not in the bloom filter.
+     *
      */
     Error SteeringDataCheckJoiner(const MeshCoP::JoinerDiscerner &aDiscerner) const;
 
@@ -293,6 +308,7 @@ public:
      *
      * @retval kErrorNone       Successfully got the Service ID.
      * @retval kErrorNotFound   The specified service was not found.
+     *
      */
     Error GetServiceId(uint32_t           aEnterpriseNumber,
                        const ServiceData &aServiceData,
@@ -309,22 +325,14 @@ public:
      *
      * @retval kErrorNone       Found the NAT64 prefix and updated @p aConfig.
      * @retval kErrorNotFound   Could not find any NAT64 entry.
+     *
      */
     Error GetPreferredNat64Prefix(ExternalRouteConfig &aConfig) const;
-
-    /**
-     * Indicates whether or not the given IPv6 address matches any NAT64 prefixes.
-     *
-     * @param[in]  aAddress  An IPv6 address to check.
-     *
-     * @retval TRUE   If @p aAddress matches a NAT64 prefix.
-     * @retval FALSE  If @p aAddress does not match a NAT64 prefix.
-     */
-    bool IsNat64(const Ip6::Address &aAddress) const;
 
 #if OPENTHREAD_FTD
     /**
      * Defines the match mode constants to compare two RLOC16 values.
+     *
      */
     enum MatchMode : uint8_t
     {
@@ -341,35 +349,27 @@ public:
      * before allowing new Network Data registrations.
      *
      * @param[in] aStartMode   The start mode.
+     *
      */
     void Start(Mle::LeaderStartMode aStartMode);
 
     /**
      * Increments the Thread Network Data version.
+     *
      */
     void IncrementVersion(void);
 
     /**
      * Increments both the Thread Network Data version and stable version.
+     *
      */
     void IncrementVersionAndStableVersion(void);
-
-    /**
-     * Performs anycast ALOC route lookup using the Network Data.
-     *
-     * @param[in]   aAloc16     The ALOC16 destination to lookup.
-     * @param[out]  aRloc16     A reference to return the RLOC16 for the selected route.
-     *
-     * @retval kErrorNone      Successfully lookup best option for @p aAloc16. @p aRloc16 is updated.
-     * @retval kErrorNoRoute   No valid route was found.
-     * @retval kErrorDrop      The @p aAloc16 is not valid.
-     */
-    Error AnycastLookup(uint16_t aAloc16, uint16_t &aRloc16) const;
 
     /**
      * Returns CONTEXT_ID_RESUSE_DELAY value.
      *
      * @returns The CONTEXT_ID_REUSE_DELAY value (in seconds).
+     *
      */
     uint32_t GetContextIdReuseDelay(void) const { return mContextIds.GetReuseDelay(); }
 
@@ -379,6 +379,7 @@ public:
      * @warning This method should only be used for testing.
      *
      * @param[in]  aDelay  The CONTEXT_ID_REUSE_DELAY value (in seconds).
+     *
      */
     void SetContextIdReuseDelay(uint32_t aDelay) { mContextIds.SetReuseDelay(aDelay); }
 
@@ -387,6 +388,7 @@ public:
      *
      * @param[in]  aRloc16    A RLOC16 value.
      * @param[in]  aMatchMode A match mode (@sa MatchMode).
+     *
      */
     void RemoveBorderRouter(uint16_t aRloc16, MatchMode aMatchMode);
 
@@ -398,6 +400,7 @@ public:
      *
      * @retval kErrorNone     Successfully updated the Commissioning Data.
      * @retval kErrorNoBufs   Insufficient space to add the Commissioning Data.
+     *
      */
     Error SetCommissioningData(const void *aData, uint8_t aDataLength);
 
@@ -405,47 +408,47 @@ public:
      * Synchronizes internal 6LoWPAN Context ID Set with recently obtained Thread Network Data.
      *
      * Note that this method should be called only by the Leader once after reset.
+     *
      */
     void HandleNetworkDataRestoredAfterReset(void);
 
-#endif // OPENTHREAD_FTD
-
-#if OPENTHREAD_CONFIG_BORDER_ROUTING_ENABLE
     /**
-     * Indicates whether Network Data contains a valid OMR prefix.
+     * Scans network data for given Service ID and returns pointer to the respective TLV, if present.
      *
-     * If the given @p aPrefix is itself not a valid OMR prefix, this method will return `false`, regardless of
-     * whether the prefix is present in the Network Data.
+     * @param aServiceId Service ID to look for.
+     * @return Pointer to the Service TLV for given Service ID, or nullptr if not present.
+     *
+     */
+    const ServiceTlv *FindServiceById(uint8_t aServiceId) const;
+
+#if OPENTHREAD_FTD && OPENTHREAD_CONFIG_BORDER_ROUTING_ENABLE
+    /**
+     * Indicates whether a given Prefix can act as a valid OMR prefix and exists in the network data.
      *
      * @param[in]  aPrefix   The OMR prefix to check.
      *
-     * @retval TRUE   Network Data contains a valid OMR prefix entry matching @p aPrefix.
-     * @retval FALSE  Network Data does not contain a valid OMR prefix entry matching @p aPrefix.
+     * @retval TRUE  If @p aPrefix is a valid OMR prefix and Network Data contains @p aPrefix.
+     * @retval FALSE Otherwise.
+     *
      */
-    bool ContainsOmrPrefix(const Ip6::Prefix &aPrefix) const;
+    bool ContainsOmrPrefix(const Ip6::Prefix &aPrefix);
 #endif
+
+#endif // OPENTHREAD_FTD
 
 private:
     using FilterIndexes = MeshCoP::SteeringData::HashBitIndexes;
 
-    typedef bool (&EntryChecker)(const BorderRouterEntry &aEntry);
-
     const PrefixTlv *FindNextMatchingPrefixTlv(const Ip6::Address &aAddress, const PrefixTlv *aPrevTlv) const;
-    const PrefixTlv *FindPrefixTlvForContextId(uint8_t aContextId, const ContextTlv *&aContextTlv) const;
 
-    int CompareRouteEntries(const BorderRouterEntry &aFirst, const BorderRouterEntry &aSecond) const;
-    int CompareRouteEntries(const HasRouteEntry &aFirst, const HasRouteEntry &aSecond) const;
-    int CompareRouteEntries(const ServerTlv &aFirst, const ServerTlv &aSecond) const;
-    int CompareRouteEntries(int8_t   aFirstPreference,
-                            uint16_t aFirstRloc,
-                            int8_t   aSecondPreference,
-                            uint16_t aSecondRloc) const;
-
-    static bool IsEntryDefaultRoute(const BorderRouterEntry &aEntry);
+    template <typename EntryType> int CompareRouteEntries(const EntryType &aFirst, const EntryType &aSecond) const;
+    int                               CompareRouteEntries(int8_t   aFirstPreference,
+                                                          uint16_t aFirstRloc,
+                                                          int8_t   aSecondPreference,
+                                                          uint16_t aSecondRloc) const;
 
     Error ExternalRouteLookup(uint8_t aDomainId, const Ip6::Address &aDestination, uint16_t &aRloc16) const;
     Error DefaultRouteLookup(const PrefixTlv &aPrefix, uint16_t &aRloc16) const;
-    Error LookupRouteIn(const PrefixTlv &aPrefixTlv, EntryChecker aEntryChecker, uint16_t &aRloc16) const;
     Error SteeringDataCheck(const FilterIndexes &aFilterIndexes) const;
     void  GetContextForMeshLocalPrefix(Lowpan::Context &aContext) const;
     Error ReadCommissioningDataUint16SubTlv(MeshCoP::Tlv::Type aType, uint16_t &aValue) const;
@@ -547,12 +550,6 @@ private:
 
     void HandleTimer(void);
 
-    static bool IsEntryForDhcp6Agent(const BorderRouterEntry &aEntry);
-    static bool IsEntryForNdAgent(const BorderRouterEntry &aEntry);
-
-    Error LookupRouteForServiceAloc(uint16_t aAloc16, uint16_t &aRloc16) const;
-    Error LookupRouteForAgentAloc(uint8_t aContextId, EntryChecker aEntryChecker, uint16_t &aRloc16) const;
-
     void RegisterNetworkData(uint16_t aRloc16, const NetworkData &aNetworkData);
 
     Error AddPrefix(const PrefixTlv &aPrefix, ChangedFlags &aChangedFlags);
@@ -561,8 +558,7 @@ private:
     Error AddService(const ServiceTlv &aService, ChangedFlags &aChangedFlags);
     Error AddServer(const ServerTlv &aServer, ServiceTlv &aDstService, ChangedFlags &aChangedFlags);
 
-    Error             AllocateServiceId(uint8_t &aServiceId) const;
-    const ServiceTlv *FindServiceById(uint8_t aServiceId) const;
+    Error AllocateServiceId(uint8_t &aServiceId) const;
 
     void RemoveContext(uint8_t aContextId);
     void RemoveContext(PrefixTlv &aPrefix, uint8_t aContextId);

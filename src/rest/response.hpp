@@ -53,12 +53,15 @@ namespace rest {
 /**
  * This class implements a response class for OTBR_REST, it could be manipulated by connection instance and resource
  * handler.
+ *
  */
 class Response
 {
 public:
     /**
      * The constructor to initialize a response instance.
+     *
+     *
      */
     Response(void);
 
@@ -66,6 +69,7 @@ public:
      * This method set the response body.
      *
      * @param[in] aBody  A string to be set as response body.
+     *
      */
     void SetBody(std::string &aBody);
 
@@ -80,6 +84,7 @@ public:
      * This method set the response code.
      *
      * @param[in] aCode  A string representing response code such as "404 not found".
+     *
      */
     void SetResponsCode(std::string &aCode);
 
@@ -87,11 +92,14 @@ public:
      * This method sets the content type.
      *
      * @param[in] aCode  A string representing response content type such as text/plain.
+     *
      */
     void SetContentType(const std::string &aContentType);
 
     /**
      * This method labels the response as need callback.
+     *
+     *
      */
     void SetCallback(void);
 
@@ -104,6 +112,7 @@ public:
 
     /**
      * This method labels the response as complete which means all fields has been successfully set.
+     *
      */
     void SetComplete();
 

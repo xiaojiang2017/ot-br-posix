@@ -43,6 +43,7 @@ namespace otbr {
 
 /**
  * This class implements TMF Tlv functionality.
+ *
  */
 class Tlv
 {
@@ -56,11 +57,13 @@ public:
      * This method returns the Tlv type.
      *
      * @returns The Tlv type.
+     *
      */
     uint8_t GetType(void) const { return mType; }
 
     /**
      * This method sets the Tlv type.
+     *
      */
     void SetType(uint8_t aType) { mType = aType; }
 
@@ -68,6 +71,7 @@ public:
      * This method returns the Tlv length.
      *
      * @returns The Tlv length.
+     *
      */
     uint16_t GetLength(void) const
     {
@@ -95,6 +99,7 @@ public:
      * This method returns a pointer to the value.
      *
      * @returns The Tlv value.
+     *
      */
     const void *GetValue(void) const
     {
@@ -106,6 +111,7 @@ public:
      * This method returns the value as a uint16_t.
      *
      * @returns The uint16_t value.
+     *
      */
     uint16_t GetValueUInt16(void) const
     {
@@ -118,6 +124,7 @@ public:
      * This method returns the value as a uint8_t.
      *
      * @returns The uint8_t value.
+     *
      */
     uint8_t GetValueUInt8(void) const { return *static_cast<const uint8_t *>(GetValue()); }
 
@@ -125,6 +132,7 @@ public:
      * This method sets a uint64_t as the value.
      *
      * @param[in] aValue  The uint64_t value.
+     *
      */
     void SetValue(uint64_t aValue)
     {
@@ -142,6 +150,7 @@ public:
      * This method sets a uint32_t as the value.
      *
      * @param[in] aValue  The uint32_t value.
+     *
      */
     void SetValue(uint32_t aValue)
     {
@@ -159,6 +168,7 @@ public:
      * This method sets uint16_t as the value.
      *
      * @param[in] aValue  The uint16_t value.
+     *
      */
     void SetValue(uint16_t aValue)
     {
@@ -174,6 +184,7 @@ public:
      * This method sets uint8_t as the value.
      *
      * @param[in] aValue  The uint8_t value.
+     *
      */
     void SetValue(uint8_t aValue)
     {
@@ -185,6 +196,7 @@ public:
      * This method sets int8_t as the value.
      *
      * @param[in] aValue  The int8_t value.
+     *
      */
     void SetValue(int8_t aValue)
     {
@@ -205,6 +217,7 @@ public:
      * This method returns the pointer to the next Tlv.
      *
      * @returns A pointer to the next Tlv.
+     *
      */
     const Tlv *GetNext(void) const
     {
@@ -215,6 +228,7 @@ public:
      * This method returns the pointer to the next Tlv.
      *
      * @returns A pointer to the next Tlv.
+     *
      */
     Tlv *GetNext(void) { return reinterpret_cast<Tlv *>(static_cast<uint8_t *>(GetValue()) + GetLength()); }
 

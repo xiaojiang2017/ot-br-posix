@@ -64,16 +64,19 @@ namespace Crypto {
  * @addtogroup core-security
  *
  * @{
+ *
  */
 
 /**
  * Implements mbedTLS memory.
+ *
  */
 class MbedTls : private NonCopyable
 {
 public:
     /**
      * Initializes the object.
+     *
      */
     MbedTls(void);
 
@@ -83,10 +86,11 @@ public:
      * @param[in] aMbedTlsError  The mbed TLS error.
      *
      * @returns The mapped Error.
+     *
      */
     static Error MapError(int aMbedTlsError);
 
-#if OPENTHREAD_FTD || OPENTHREAD_MTD
+#if !OPENTHREAD_RADIO
     /**
      * Fills a given buffer with cryptographically secure random bytes.
      *
@@ -95,6 +99,7 @@ public:
      * @param[in]  aSize    Size of buffer (number of bytes to fill).
      *
      * @retval kErrorNone   Successfully filled buffer with random values.
+     *
      */
     static int CryptoSecurePrng(void *aContext, unsigned char *aBuffer, size_t aSize);
 #endif
@@ -102,6 +107,7 @@ public:
 
 /**
  * @}
+ *
  */
 
 } // namespace Crypto

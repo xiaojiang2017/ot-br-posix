@@ -48,6 +48,7 @@ extern "C" {
  *
  * @retval  OT_ERROR_NONE   Successfully initialized UDP socket by platform.
  * @retval  OT_ERROR_FAILED Failed to initialize UDP Socket.
+ *
  */
 otError otPlatUdpSocket(otUdpSocket *aUdpSocket);
 
@@ -58,6 +59,7 @@ otError otPlatUdpSocket(otUdpSocket *aUdpSocket);
  *
  * @retval  OT_ERROR_NONE   Successfully closed UDP socket by platform.
  * @retval  OT_ERROR_FAILED Failed to close UDP Socket.
+ *
  */
 otError otPlatUdpClose(otUdpSocket *aUdpSocket);
 
@@ -68,6 +70,7 @@ otError otPlatUdpClose(otUdpSocket *aUdpSocket);
  *
  * @retval  OT_ERROR_NONE   Successfully bound UDP socket by platform.
  * @retval  OT_ERROR_FAILED Failed to bind UDP socket.
+ *
  */
 otError otPlatUdpBind(otUdpSocket *aUdpSocket);
 
@@ -81,6 +84,7 @@ otError otPlatUdpBind(otUdpSocket *aUdpSocket);
  *
  * @retval  OT_ERROR_NONE   Successfully bound UDP socket.
  * @retval  OT_ERROR_FAILED Failed to bind UDP.
+ *
  */
 otError otPlatUdpBindToNetif(otUdpSocket *aUdpSocket, otNetifIdentifier aNetifIdentifier);
 
@@ -91,6 +95,7 @@ otError otPlatUdpBindToNetif(otUdpSocket *aUdpSocket, otNetifIdentifier aNetifId
  *
  * @retval  OT_ERROR_NONE   Successfully connected by platform.
  * @retval  OT_ERROR_FAILED Failed to connect UDP socket.
+ *
  */
 otError otPlatUdpConnect(otUdpSocket *aUdpSocket);
 
@@ -103,6 +108,7 @@ otError otPlatUdpConnect(otUdpSocket *aUdpSocket);
  *
  * @retval  OT_ERROR_NONE   Successfully sent by platform, and @p aMessage is freed.
  * @retval  OT_ERROR_FAILED Failed to bind UDP socket.
+ *
  */
 otError otPlatUdpSend(otUdpSocket *aUdpSocket, otMessage *aMessage, const otMessageInfo *aMessageInfo);
 
@@ -117,6 +123,7 @@ otError otPlatUdpSend(otUdpSocket *aUdpSocket, otMessage *aMessage, const otMess
  *
  * @retval  OT_ERROR_NONE   Successfully joined the multicast group.
  * @retval  OT_ERROR_FAILED Failed to join the multicast group.
+ *
  */
 otError otPlatUdpJoinMulticastGroup(otUdpSocket        *aUdpSocket,
                                     otNetifIdentifier   aNetifIdentifier,
@@ -133,6 +140,7 @@ otError otPlatUdpJoinMulticastGroup(otUdpSocket        *aUdpSocket,
  *
  * @retval  OT_ERROR_NONE   Successfully left the multicast group.
  * @retval  OT_ERROR_FAILED Failed to leave the multicast group.
+ *
  */
 otError otPlatUdpLeaveMulticastGroup(otUdpSocket        *aUdpSocket,
                                      otNetifIdentifier   aNetifIdentifier,

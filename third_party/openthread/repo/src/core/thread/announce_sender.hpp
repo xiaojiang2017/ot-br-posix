@@ -56,6 +56,7 @@ class AnnounceSenderBase : public InstanceLocator, private NonCopyable
 protected:
     /**
      * This constant defines the special channel value to start from the first channel in the channel mask.
+     *
      */
     static constexpr uint8_t kChannelIteratorFirst = Mac::ChannelMask::kChannelIteratorFirst;
 
@@ -64,6 +65,7 @@ protected:
      *
      * @param[in]  aInstance   A reference to the OpenThread instance.
      * @param[in]  aHandler    A timer handler provided by sub-class.
+     *
      */
     AnnounceSenderBase(Instance &aInstance, Timer::Handler aHandler);
 
@@ -86,11 +88,13 @@ protected:
      * transmission happens within a short random interval selected from range `[0, jitter]`.
      *
      * @param[in]  aCount     The number of cycles to schedule.
+     *
      */
     void SendAnnounce(uint8_t aCount);
 
     /**
      * Stops the ongoing MLE Announce transmissions.
+     *
      */
     void Stop(void);
 
@@ -99,6 +103,7 @@ protected:
      * finished.
      *
      * @returns TRUE if the MLE Announce transmission is in progress, FALSE otherwise.
+     *
      */
     bool IsRunning(void) const { return mTimer.IsRunning(); }
 
@@ -106,6 +111,7 @@ protected:
      * Gets the period interval.
      *
      * @returns The period interval (in milliseconds).
+     *
      */
     uint32_t GetPeriod(void) const { return mPeriod; }
 
@@ -116,6 +122,7 @@ protected:
      * Announcement transmissions (possibly) on different channels from the specified channel mask.
      *
      * @param[in] aPeriod   The period interval (in milliseconds).
+     *
      */
     void SetPeriod(uint32_t aPeriod) { mPeriod = aPeriod; }
 
@@ -123,6 +130,7 @@ protected:
      * Gets the current jitter interval.
      *
      * @returns The jitter interval (in milliseconds).
+     *
      */
     uint16_t GetJitter(void) const { return mJitter; }
 
@@ -130,6 +138,7 @@ protected:
      * Sets the jitter interval.
      *
      * @param[in] aJitter  The jitter interval (in milliseconds).
+     *
      */
     void SetJitter(uint16_t aJitter) { mJitter = aJitter; }
 
@@ -137,6 +146,7 @@ protected:
      * Gets the channel mask.
      *
      * @returns The channel mask.
+     *
      */
     const Mac::ChannelMask GetChannelMask(void) const { return mChannelMask; }
 
@@ -144,6 +154,7 @@ protected:
      * Sets the channel mask.
      *
      * @param[in] aChannelMask   The channel mask.
+     *
      */
     void SetChannelMask(Mac::ChannelMask aChannelMask);
 
@@ -151,6 +162,7 @@ protected:
      * Gets the starting channel, i.e., the first channel in a TX cycle to send MLE Announcement on.
      *
      * @returns The current starting channel.
+     *
      */
     uint8_t GetStartingChannel(void) const { return mStartingChannel; }
 
@@ -162,12 +174,14 @@ protected:
      * mask.
      *
      * @param[in] aStartingChannel  The starting channel.
+     *
      */
     void SetStartingChannel(uint8_t aStartingChannel);
 
     /**
      * Is the timer handler and must be invoked by sub-class when the timer expires from the `aHandler`
      * callback function provided in the constructor.
+     *
      */
     void HandleTimer(void);
 
@@ -187,6 +201,7 @@ private:
 
 /**
  * Implements an AnnounceSender.
+ *
  */
 class AnnounceSender : public AnnounceSenderBase
 {
@@ -197,12 +212,14 @@ public:
      * Initializes the object.
      *
      * @param[in]  aInstance   A reference to the OpenThread instance.
+     *
      */
     explicit AnnounceSender(Instance &aInstance);
 
     /**
      * Notifies the `AnnounceSender` that a MLE Announcement message was received with a current timestamp
      * to update its internal state (decide whether or not to skip transmission of MLE Announcement in this cycle).
+     *
      */
     void UpdateOnReceivedAnnounce(void);
 

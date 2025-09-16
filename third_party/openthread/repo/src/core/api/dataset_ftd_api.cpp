@@ -37,7 +37,8 @@
 
 #include <openthread/dataset_ftd.h>
 
-#include "instance/instance.hpp"
+#include "common/as_core_type.hpp"
+#include "common/locator_getters.hpp"
 
 using namespace ot;
 

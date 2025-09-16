@@ -121,12 +121,14 @@ void NdProxyManager::Update(MainloopContext &aMainloop)
 {
     if (mIcmp6RawSock >= 0)
     {
-        aMainloop.AddFdToReadSet(mIcmp6RawSock);
+        FD_SET(mIcmp6RawSock, &aMainloop.mReadFdSet);
+        aMainloop.mMaxFd = std::max(aMainloop.mMaxFd, mIcmp6RawSock);
     }
 
     if (mUnicastNsQueueSock >= 0)
     {
-        aMainloop.AddFdToReadSet(mUnicastNsQueueSock);
+        FD_SET(mUnicastNsQueueSock, &aMainloop.mReadFdSet);
+        aMainloop.mMaxFd = std::max(aMainloop.mMaxFd, mUnicastNsQueueSock);
     }
 }
 
@@ -309,7 +311,7 @@ void NdProxyManager::SendNeighborAdvertisement(const Ip6Address &aTarget, const 
     otbrError                  error = OTBR_ERROR_NONE;
     otBackboneRouterNdProxyInfo aNdProxyInfo;
 
-    VerifyOrExit(otBackboneRouterGetNdProxyInfo(mHost.GetInstance(), reinterpret_cast<const otIp6Address *>(&aTarget),
+    VerifyOrExit(otBackboneRouterGetNdProxyInfo(mNcp.GetInstance(), reinterpret_cast<const otIp6Address *>(&aTarget),
                                                 &aNdProxyInfo) == OT_ERROR_NONE,
                  error = OTBR_ERROR_OPENTHREAD);
 

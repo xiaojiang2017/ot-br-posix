@@ -29,6 +29,7 @@
 /**
  * @file
  *   This file defines the configuration options for platform abstraction of non-volatile storage of settings.
+ *
  */
 
 #ifndef UTILS_SETTINGS_H_
@@ -40,6 +41,7 @@
  * @def OPENTHREAD_SETTINGS_RAM
  *
  * Define as 1 to enable saving the settings in RAM instead of flash.
+ *
  */
 #ifndef OPENTHREAD_SETTINGS_RAM
 #define OPENTHREAD_SETTINGS_RAM 0

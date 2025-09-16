@@ -53,18 +53,21 @@ namespace Mac {
  *   This module includes definitions for MAC Channel Mask.
  *
  * @{
+ *
  */
 
 /**
  * Defines a channel mask.
  *
  * It is a wrapper class around a `uint32_t` bit vector representing a set of channels.
+ *
  */
 class ChannelMask : public Unequatable<ChannelMask>
 {
 public:
     /**
      * This constant specifies the value to pass in `GetNextChannel()` to get the first channel in the mask.
+     *
      */
     static constexpr uint8_t kChannelIteratorFirst = 0xff;
 
@@ -72,11 +75,13 @@ public:
 
     /**
      * Defines the fixed-length `String` object returned from `ToString()`.
+     *
      */
     typedef String<kInfoStringSize> InfoString;
 
     /**
      * Initializes a `ChannelMask` instance.
+     *
      */
     ChannelMask(void)
         : mMask(0)
@@ -87,6 +92,7 @@ public:
      * Initializes a `ChannelMask` instance with a given mask.
      *
      * @param[in]  aMask   A channel mask (as a `uint32_t` bit-vector mask with bit 0 (lsb) -> channel 0, and so on).
+     *
      */
     explicit ChannelMask(uint32_t aMask)
         : mMask(aMask)
@@ -95,6 +101,7 @@ public:
 
     /**
      * Clears the channel mask.
+     *
      */
     void Clear(void) { mMask = 0; }
 
@@ -102,6 +109,7 @@ public:
      * Gets the channel mask (as a `uint32_t` bit-vector mask with bit 0 (lsb) -> channel 0, and so on).
      *
      * @returns The channel mask.
+     *
      */
     uint32_t GetMask(void) const { return mMask; }
 
@@ -109,6 +117,7 @@ public:
      * Sets the channel mask.
      *
      * @param[in]  aMask   A channel mask (as a `uint32_t` bit-vector mask with bit 0 (lsb) -> channel 0, and so on).
+     *
      */
     void SetMask(uint32_t aMask) { mMask = aMask; }
 
@@ -116,6 +125,7 @@ public:
      * Indicates if the mask is empty.
      *
      * @returns TRUE if the mask is empty, FALSE otherwise.
+     *
      */
     bool IsEmpty(void) const { return (mMask == 0); }
 
@@ -123,6 +133,7 @@ public:
      * Indicates if the mask contains only a single channel.
      *
      * @returns TRUE if channel mask contains a single channel, FALSE otherwise
+     *
      */
     bool IsSingleChannel(void) const { return ((mMask != 0) && ((mMask & (mMask - 1)) == 0)); }
 
@@ -132,6 +143,7 @@ public:
      * @param[in]  aChannel  A channel.
      *
      * @returns TRUE if the channel @p aChannel is included in the mask, FALSE otherwise.
+     *
      */
     bool ContainsChannel(uint8_t aChannel) const
     {
@@ -142,6 +154,7 @@ public:
      * Adds a channel to the channel mask.
      *
      * @param[in]  aChannel  A channel
+     *
      */
     void AddChannel(uint8_t aChannel)
     {
@@ -155,6 +168,7 @@ public:
      * Removes a channel from the channel mask.
      *
      * @param[in]  aChannel  A channel
+     *
      */
     void RemoveChannel(uint8_t aChannel)
     {
@@ -168,6 +182,7 @@ public:
      * Updates the channel mask by intersecting it with another mask.
      *
      * @param[in]  aOtherMask  Another channel mask.
+     *
      */
     void Intersect(const ChannelMask &aOtherMask) { mMask &= aOtherMask.mMask; }
 
@@ -175,6 +190,7 @@ public:
      * Returns the number of channels in the mask.
      *
      * @returns Number of channels in the mask.
+     *
      */
     uint8_t GetNumberOfChannels(void) const;
 
@@ -190,6 +206,7 @@ public:
      *
      * @retval  kErrorNone       Got the next channel, @p aChannel updated successfully.
      * @retval  kErrorNotFound   No next channel in the channel mask (note: @p aChannel may be changed).
+     *
      */
     Error GetNextChannel(uint8_t &aChannel) const;
 
@@ -197,6 +214,7 @@ public:
      * Randomly chooses a channel from the channel mask.
      *
      * @returns A randomly chosen channel from the given mask, or `kChannelIteratorFirst` if the mask is empty.
+     *
      */
     uint8_t ChooseRandomChannel(void) const;
 
@@ -206,6 +224,7 @@ public:
      * @param[in] aAnother   A reference to another mask to compare with the current one.
      *
      * @returns TRUE if the two masks are equal, FALSE otherwise.
+     *
      */
     bool operator==(const ChannelMask &aAnother) const { return (mMask == aAnother.mMask); }
 
@@ -220,6 +239,7 @@ public:
      *  -  no range        ->  "{ 14, 21, 26 }"
      *
      * @returns  An `InfoString` object representing the channel mask.
+     *
      */
     InfoString ToString(void) const;
 
@@ -231,6 +251,7 @@ private:
 
 /**
  * @}
+ *
  */
 
 } // namespace Mac

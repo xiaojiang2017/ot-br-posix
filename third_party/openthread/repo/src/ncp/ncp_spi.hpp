@@ -48,6 +48,7 @@ public:
      * Initializes the object.
      *
      * @param[in]  aInstance  A pointer to the OpenThread instance structure.
+     *
      */
     explicit NcpSpi(Instance *aInstance);
 
@@ -56,11 +57,13 @@ private:
     {
         /**
          * SPI tx and rx buffer size (should fit a max length frame + SPI header).
+         *
          */
         kSpiBufferSize = OPENTHREAD_CONFIG_NCP_SPI_BUFFER_SIZE,
 
         /**
          * Size of the SPI header (in bytes).
+         *
          */
         kSpiHeaderSize = Spinel::SpiFrame::kHeaderSize,
     };

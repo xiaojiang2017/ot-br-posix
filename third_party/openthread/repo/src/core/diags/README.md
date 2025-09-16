@@ -10,11 +10,10 @@ The diagnostics module supports common diagnostics features that are listed belo
 - [diag start](#diag-start)
 - [diag channel](#diag-channel)
 - [diag cw](#diag-cw-start)
-- [diag frame](#diag-frame)
 - [diag stream](#diag-stream-start)
 - [diag power](#diag-power)
 - [diag powersettings](#diag-powersettings)
-- [diag send](#diag-send-async-packets-length)
+- [diag send](#diag-send-packets-length)
 - [diag repeat](#diag-repeat-delay-length)
 - [diag radio](#diag-radio-sleep)
 - [diag rawpowersetting](#diag-rawpowersetting)
@@ -37,7 +36,8 @@ Start diagnostics mode.
 
 ```bash
 > diag start
-Done
+start diagnostics mode
+status 0x00
 ```
 
 ### diag channel
@@ -46,8 +46,7 @@ Get the IEEE 802.15.4 Channel value for diagnostics module.
 
 ```bash
 > diag channel
-11
-Done
+channel: 11
 ```
 
 ### diag channel \<channel\>
@@ -56,7 +55,8 @@ Set the IEEE 802.15.4 Channel value for diagnostics module.
 
 ```bash
 > diag channel 11
-Done
+set channel to 11
+status 0x00
 ```
 
 ### diag cw start
@@ -74,26 +74,6 @@ Stop transmitting continuous carrier wave.
 
 ```bash
 > diag cw stop
-Done
-```
-
-### diag frame
-
-Usage: `diag frame [-b MaxCsmaBackoffs] [-c] [-C RxChannelAfterTxDone] [-d TxDelay] [-p TxPower] [-r MaxFrameRetries] [-s] [-u] <frame>`
-
-Set the frame (hex encoded) to be used by `diag send` and `diag repeat`. The frame may be overwritten by `diag send` and `diag repeat`.
-
-- Specify `-b` to specify the `mInfo.mTxInfo.mMaxCsmaBackoffs` field for this frame.
-- Specify `-c` to enable CSMA/CA for this frame in the radio layer.
-- Specify `-C` to specify the `mInfo.mTxInfo.mRxChannelAfterTxDone` field for this frame.
-- Specify `-d` to specify the `mInfo.mTxInfo.mTxDelay` field for this frame and the `mInfo.mTxInfo.mTxDelayBaseTime` field is set to the current radio time.
-- Specify `-p` to specify the tx power in dBm for this frame.
-- Specify `-r` to specify the `mInfo.mTxInfo.mMaxFrameRetries` field for this frame.
-- Specify `-s` to indicate that tx security is already processed thus it should be skipped in the radio layer.
-- Specify `-u` to specify the `mInfo.mTxInfo.mIsHeaderUpdated` field for this frame.
-
-```bash
-> diag frame 0200ffc0ba
 Done
 ```
 
@@ -121,8 +101,7 @@ Get the tx power value(dBm) for diagnostics module.
 
 ```bash
 > diag power
--10
-Done
+tx power: -10 dBm
 ```
 
 ### diag power \<power\>
@@ -131,7 +110,8 @@ Set the tx power value(dBm) for diagnostics module.
 
 ```bash
 > diag power -10
-Done
+set tx power to -10 dBm
+status 0x00
 ```
 
 ### diag powersettings
@@ -163,35 +143,28 @@ RawPowerSetting: 223344
 Done
 ```
 
-### diag send [async] \<packets\> [length]
+### diag send \<packets\> \<length\>
 
-Transmit a fixed number of packets.
+Transmit a fixed number of packets with fixed length.
 
-- async: Use the non-blocking mode.
-- packets: The number of packets to be sent.
-- length: The length of packet. The valid range is [3, 127].
-
-Send the frame set by `diag frame` if length is omitted. Otherwise overwrite the frame set by `diag frame` and send a frame of the given length.
+Length parameter has to be in range [3, 127].
 
 ```bash
 > diag send 20 100
-Done
-> diag send async 20 100
-Done
+sending 0x14 packet(s), length 0x64
+status 0x00
 ```
 
-### diag repeat \<delay\> [length]
+### diag repeat \<delay\> \<length\>
 
 Transmit packets repeatedly with a fixed interval.
 
-- delay: The interval between two consecutive packets in milliseconds.
-- length: The length of packet. The valid range is [3, 127].
-
-Send the frame set by `diag frame` if length is omitted. Otherwise overwrite the frame set by `diag frame` and send a frame of the given length.
+Length parameter has to be in range [3, 127].
 
 ```bash
 > diag repeat 100 100
-Done
+sending packets of length 0x64 at the delay of 0x64 ms
+status 0x00
 ```
 
 ### diag repeat stop
@@ -200,7 +173,8 @@ Stop repeated packet transmission.
 
 ```bash
 > diag repeat stop
-Done
+repeated packet transmission is stopped
+status 0x00
 ```
 
 ### diag radio sleep
@@ -209,7 +183,8 @@ Enter radio sleep mode.
 
 ```bash
 > diag radio sleep
-Done
+set radio from receive to sleep
+status 0x00
 ```
 
 ### diag radio receive
@@ -218,60 +193,8 @@ Set radio from sleep mode to receive mode.
 
 ```bash
 > diag radio receive
-Done
-```
-
-### diag radio receive \[async\] \<number\> \[lpr\]
-
-Set the radio to receive mode and receive a specified number of frames.
-
-- async: Use the non-blocking mode.
-- number: The number of frames expected to be received.
-- l: Show Lqi.
-- p: Show Psdu.
-- r: Show Rssi.
-
-```bash
-> diag radio receive 5 lpr
-0, rssi:-49, lqi:119, len:10, psdu:000102030405060771e
-1, rssi:-51, lqi:112, len:10, psdu:000102030405060771e
-2, rssi:-42, lqi:120, len:10, psdu:000102030405060771e
-3, rssi:-54, lqi:111, len:10, psdu:000102030405060771e
-4, rssi:-56, lqi:108, len:10, psdu:000102030405060771e
-Done
-```
-
-### diag radio receive filter enable
-
-Enable the diag filter module to only receive frames with a specified destination address.
-
-```bash
-> diag radio receive filter enable
-Done
-```
-
-### diag radio receive filter disable
-
-Disable the diag filter module from only receiving frames with a specified destination address.
-
-```bash
-> diag radio receive filter disable
-Done
-```
-
-### diag radio receive filter \<destaddress\>
-
-Set the destination address of the radio receive filter.
-
-- destaddress: The destination mac address. It can be a short, extended or none. Use '-' to specify none.
-
-```bash
-> diag radio receive filter -
-Done
-> diag radio receive filter 0x0a17
-Done
-> diag radio receive filter dead00beef00cafe
-Done
+set radio from sleep to receive on channel 11
+status 0x00
 ```
 
 ### diag radio state
@@ -281,25 +204,6 @@ Return the state of the radio.
 ```bash
 > diag radio state
 sleep
-Done
-```
-
-### diag radio enable
-
-Enable radio interface and put it in receive mode.
-
-```bash
-> diag radio enable
-Done
-```
-
-### diag radio disable
-
-Disable radio interface.
-
-```bash
-> diag radio disable
-Done
 ```
 
 ### diag rawpowersetting
@@ -346,14 +250,9 @@ Print statistics during diagnostics mode.
 ```bash
 > diag stats
 received packets: 10
-sent success packets: 10
-sent error cca packets: 0
-sent error abort packets: 0
-sent error invalid state packets: 0
-sent error others packets: 0
+sent packets: 10
 first received packet: rssi=-65, lqi=101
 last received packet: rssi=-64, lqi=98
-Done
 ```
 
 ### diag stats clear
@@ -362,7 +261,7 @@ Clear statistics during diagnostics mode.
 
 ```bash
 > diag stats clear
-Done
+stats cleared
 ```
 
 ### diag gpio get \<gpio\>
@@ -420,7 +319,13 @@ Stop diagnostics mode and print statistics.
 
 ```bash
 > diag stop
-Done
+received packets: 10
+sent packets: 10
+first received packet: rssi=-65, lqi=101
+last received packet: rssi=-61, lqi=98
+
+stop diagnostics mode
+status 0x00
 ```
 
 ### diag rcp

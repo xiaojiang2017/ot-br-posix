@@ -35,7 +35,11 @@
 
 #if OPENTHREAD_CONFIG_COAP_API_ENABLE
 
-#include "instance/instance.hpp"
+#include <openthread/coap.h>
+
+#include "coap/coap_message.hpp"
+#include "common/as_core_type.hpp"
+#include "common/locator_getters.hpp"
 
 using namespace ot;
 
@@ -93,11 +97,6 @@ otError otCoapMessageAppendObserveOption(otMessage *aMessage, uint32_t aObserve)
 otError otCoapMessageAppendUriPathOptions(otMessage *aMessage, const char *aUriPath)
 {
     return AsCoapMessage(aMessage).AppendUriPathOptions(aUriPath);
-}
-
-otError otCoapMessageAppendUriQueryOptions(otMessage *aMessage, const char *aUriQuery)
-{
-    return AsCoapMessage(aMessage).AppendUriQueryOptions(aUriQuery);
 }
 
 uint16_t otCoapBlockSizeFromExponent(otCoapBlockSzx aSize)

@@ -41,6 +41,7 @@ extern "C" {
 
 /**
  * Represents the radio spinel metrics.
+ *
  */
 typedef struct otRadioSpinelMetrics
 {
@@ -52,6 +53,7 @@ typedef struct otRadioSpinelMetrics
 
 /**
  * Represents RCP interface metrics.
+ *
  */
 typedef struct otRcpInterfaceMetrics
 {

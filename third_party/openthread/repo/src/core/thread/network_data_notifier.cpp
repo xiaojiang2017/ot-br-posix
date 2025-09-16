@@ -35,7 +35,14 @@
 
 #if OPENTHREAD_FTD || OPENTHREAD_CONFIG_BORDER_ROUTER_ENABLE || OPENTHREAD_CONFIG_TMF_NETDATA_SERVICE_ENABLE
 
+#include "common/code_utils.hpp"
+#include "common/locator_getters.hpp"
+#include "common/log.hpp"
 #include "instance/instance.hpp"
+#include "thread/network_data_leader.hpp"
+#include "thread/network_data_local.hpp"
+#include "thread/tmf.hpp"
+#include "thread/uri_paths.hpp"
 
 namespace ot {
 namespace NetworkData {
@@ -50,7 +57,7 @@ Notifier::Notifier(Instance &aInstance)
     , mNetDataFullTask(aInstance)
 #endif
     , mNextDelay(0)
-    , mOldRloc(Mle::kInvalidRloc16)
+    , mOldRloc(Mac::kShortAddrInvalid)
     , mWaitingForResponse(false)
 #if OPENTHREAD_FTD && OPENTHREAD_CONFIG_BORDER_ROUTER_ENABLE && OPENTHREAD_CONFIG_BORDER_ROUTER_REQUEST_ROUTER_ROLE
     , mDidRequestRouterRoleUpgrade(false)
@@ -131,7 +138,7 @@ Error Notifier::RemoveStaleChildEntries(void)
 
     for (uint16_t rloc16 : rlocs)
     {
-        if (Mle::IsChildRloc16(rloc16) && Get<Mle::Mle>().HasMatchingRouterIdWith(rloc16) &&
+        if (!Mle::IsActiveRouter(rloc16) && Mle::RouterIdMatch(Get<Mle::MleRouter>().GetRloc16(), rloc16) &&
             Get<ChildTable>().FindChild(rloc16, Child::kInStateValid) == nullptr)
         {
             error = SendServerDataNotification(rloc16);
@@ -170,7 +177,7 @@ Error Notifier::UpdateInconsistentData(void)
 
     if (mOldRloc == deviceRloc)
     {
-        mOldRloc = Mle::kInvalidRloc16;
+        mOldRloc = Mac::kShortAddrInvalid;
     }
 
     SuccessOrExit(error = SendServerDataNotification(mOldRloc, &Get<Local>()));
@@ -204,12 +211,12 @@ Error Notifier::SendServerDataNotification(uint16_t aOldRloc16, const NetworkDat
 #endif
     }
 
-    if (aOldRloc16 != Mle::kInvalidRloc16)
+    if (aOldRloc16 != Mac::kShortAddrInvalid)
     {
         SuccessOrExit(error = Tlv::Append<ThreadRloc16Tlv>(*message, aOldRloc16));
     }
 
-    messageInfo.SetSockAddrToRlocPeerAddrToLeaderAloc();
+    IgnoreError(messageInfo.SetSockAddrToRlocPeerAddrToLeaderAloc());
     SuccessOrExit(error = Get<Tmf::Agent>().SendMessage(*message, messageInfo, HandleCoapResponse, this));
 
     LogInfo("Sent %s", UriToString<kUriServerData>());
@@ -246,10 +253,7 @@ void Notifier::HandleNotifierEvents(Events aEvents)
 
 void Notifier::HandleTimer(void) { SynchronizeServerData(); }
 
-void Notifier::HandleCoapResponse(void                *aContext,
-                                  otMessage           *aMessage,
-                                  const otMessageInfo *aMessageInfo,
-                                  otError              aResult)
+void Notifier::HandleCoapResponse(void *aContext, otMessage *aMessage, const otMessageInfo *aMessageInfo, Error aResult)
 {
     OT_UNUSED_VARIABLE(aMessage);
     OT_UNUSED_VARIABLE(aMessageInfo);

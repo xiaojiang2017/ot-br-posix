@@ -47,7 +47,7 @@
 #include "backbone_router/dua_routing_manager.hpp"
 #include "backbone_router/nd_proxy.hpp"
 #include "common/code_utils.hpp"
-#include "host/rcp_host.hpp"
+#include "ncp/ncp_openthread.hpp"
 
 namespace otbr {
 namespace BackboneRouter {
@@ -63,6 +63,7 @@ namespace BackboneRouter {
 
 /**
  * This class implements Thread Backbone agent functionality.
+ *
  */
 class BackboneAgent : private NonCopyable
 {
@@ -72,12 +73,16 @@ public:
     /**
      * This constructor intiializes the `BackboneAgent` instance.
      *
-     * @param[in] aHost  The Thread controller instance.
+     * @param[in] aNcp  The Thread instance.
+     *
      */
-    BackboneAgent(otbr::Host::RcpHost &aHost, std::string aInterfaceName, std::string aBackboneInterfaceName);
+    BackboneAgent(otbr::Ncp::ControllerOpenThread &aNcp,
+                  std::string                      aInterfaceName,
+                  std::string                      aBackboneInterfaceName);
 
     /**
      * This method initializes the Backbone agent.
+     *
      */
     void Init(void);
 
@@ -101,9 +106,9 @@ private:
 
     static const char *StateToString(otBackboneRouterState aState);
 
-    otbr::Host::RcpHost  &mHost;
-    otBackboneRouterState mBackboneRouterState;
-    Ip6Prefix             mDomainPrefix;
+    otbr::Ncp::ControllerOpenThread &mNcp;
+    otBackboneRouterState            mBackboneRouterState;
+    Ip6Prefix                        mDomainPrefix;
 #if OTBR_ENABLE_DUA_ROUTING
     NdProxyManager    mNdProxyManager;
     DuaRoutingManager mDuaRoutingManager;

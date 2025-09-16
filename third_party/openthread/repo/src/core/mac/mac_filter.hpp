@@ -55,16 +55,19 @@ namespace Mac {
  * @addtogroup core-mac
  *
  * @{
+ *
  */
 
 /**
  * Implements Mac Filter on IEEE 802.15.4 frames.
+ *
  */
 class Filter : private NonCopyable
 {
 public:
     /**
      * Represents a Mac Filter entry (used during iteration).
+     *
      */
     typedef otMacFilterEntry Entry;
 
@@ -72,11 +75,13 @@ public:
      * Represents an iterator used to iterate through filter entries.
      *
      * See `GetNextAddress()` and `GetNextRssIn()`.
+     *
      */
     typedef otMacFilterIterator Iterator;
 
     /**
      * Type represents the MAC Filter mode.
+     *
      */
     enum Mode : uint8_t
     {
@@ -89,6 +94,7 @@ public:
 
     /**
      * Initializes the filter.
+     *
      */
     Filter(void);
 
@@ -96,6 +102,7 @@ public:
      * Gets the MAC Filter mode.
      *
      * @returns  the Filter mode.
+     *
      */
     Mode GetMode(void) const { return mMode; }
 
@@ -103,6 +110,7 @@ public:
      * Sets the address mode of the filter.
      *
      * @param[in]  aMode  The new Filter mode.
+     *
      */
     void SetMode(Mode aMode) { mMode = aMode; }
 
@@ -113,6 +121,7 @@ public:
      *
      * @retval kErrorNone          Successfully added @p aExtAddress to the filter.
      * @retval kErrorNoBufs        No available entry exists.
+     *
      */
     Error AddAddress(const ExtAddress &aExtAddress);
 
@@ -122,11 +131,13 @@ public:
      * No action is performed if there is no existing entry in the filter list matching the given Extended Address.
      *
      * @param[in]  aExtAddress  A reference to the Extended Address to remove.
+     *
      */
     void RemoveAddress(const ExtAddress &aExtAddress);
 
     /**
      * Clears all Extended Addresses from the filter.
+     *
      */
     void ClearAddresses(void);
 
@@ -139,6 +150,7 @@ public:
      *
      * @retval kErrorNone      Successfully retrieved the next address filter entry.
      * @retval kErrorNotFound  No subsequent entry exists.
+     *
      */
     Error GetNextAddress(Iterator &aIterator, Entry &aEntry) const;
 
@@ -150,6 +162,7 @@ public:
      *
      * @retval kErrorNone    Successfully set @p aRss for @p aExtAddress.
      * @retval kErrorNoBufs  No available entry exists.
+     *
      */
     Error AddRssIn(const ExtAddress &aExtAddress, int8_t aRss);
 
@@ -159,6 +172,7 @@ public:
      * No action is performed if there is no existing entry in the filter list matching the given Extended Address.
      *
      * @param[in]  aExtAddress   A Extended Address.
+     *
      */
     void RemoveRssIn(const ExtAddress &aExtAddress);
 
@@ -169,16 +183,19 @@ public:
      * in the Filter list (added using `AddRssIn()`).
      *
      * @param[in]  aRss  The default received signal strength to set.
+     *
      */
     void SetDefaultRssIn(int8_t aRss) { mDefaultRssIn = aRss; }
 
     /**
      * Clears the default received signal strength.
+     *
      */
     void ClearDefaultRssIn(void) { mDefaultRssIn = kFixedRssDisabled; }
 
     /**
      * Clears all the received signal strength settings (including the default RSS-In).
+     *
      */
     void ClearAllRssIn(void);
 
@@ -193,6 +210,7 @@ public:
      *
      * @retval kErrorNone      Successfully retrieved the next RssIn filter entry.
      * @retval kErrorNotFound  No subsequent entry exists.
+     *
      */
     Error GetNextRssIn(Iterator &aIterator, Entry &aEntry) const;
 
@@ -204,6 +222,7 @@ public:
      *
      * @retval kErrorNone             Successfully applied the filter rules on @p aExtAddress.
      * @retval kErrorAddressFiltered  Address filter (allowlist or denylist) is enabled and @p aExtAddress is filtered.
+     *
      */
     Error Apply(const ExtAddress &aExtAddress, int8_t &aRss) const;
 
@@ -220,6 +239,7 @@ public:
      *
      * @retval kErrorNone             Successfully applied the filter, @p aRxFrame RSS may be updated.
      * @retval kErrorAddressFiltered  Address filter (allowlist or denylist) is enabled and @p aExtAddress is filtered.
+     *
      */
     Error ApplyToRxFrame(RxFrame &aRxFrame, const ExtAddress &aExtAddress, Neighbor *aNeighbor = nullptr) const;
 
@@ -246,6 +266,7 @@ private:
 
 /**
  * @}
+ *
  */
 
 } // namespace Mac

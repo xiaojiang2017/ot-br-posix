@@ -52,6 +52,7 @@ namespace Sntp {
 
 /**
  * Implements SNTP client.
+ *
  */
 class Client : private NonCopyable
 {
@@ -62,6 +63,7 @@ public:
      * Initializes the object.
      *
      * @param[in]  aInstance     A reference to the OpenThread instance.
+     *
      */
     explicit Client(Instance &aInstance);
 
@@ -77,6 +79,7 @@ public:
      * Stops the SNTP client.
      *
      * @retval kErrorNone  Successfully stopped the SNTP client.
+     *
      */
     Error Stop(void);
 
@@ -84,6 +87,7 @@ public:
      * Returns the unix era number.
      *
      * @returns The unix era number.
+     *
      */
     uint32_t GetUnixEra(void) const { return mUnixEra; }
 
@@ -91,6 +95,7 @@ public:
      * Sets the unix era number.
      *
      * @param[in]  aUnixEra  The unix era number.
+     *
      */
     void SetUnixEra(uint32_t aUnixEra) { mUnixEra = aUnixEra; }
 
@@ -104,6 +109,7 @@ public:
      * @retval kErrorNone         Successfully sent SNTP query.
      * @retval kErrorNoBufs       Failed to allocate retransmission data.
      * @retval kErrorInvalidArgs  Invalid arguments supplied.
+     *
      */
     Error Query(const otSntpQuery *aQuery, ResponseHandler aHandler, void *aContext);
 
@@ -236,8 +242,17 @@ private:
         uint32_t mTransmitTimestampFraction;  // Fraction part of above value.
     } OT_TOOL_PACKED_END;
 
-    struct QueryMetadata : public Message::FooterData<QueryMetadata>
+    class QueryMetadata
     {
+    public:
+        Error AppendTo(Message &aMessage) const { return aMessage.Append(*this); }
+        void  ReadFrom(const Message &aMessage)
+        {
+            IgnoreError(aMessage.Read(aMessage.GetLength() - sizeof(*this), *this));
+        }
+
+        void UpdateIn(Message &aMessage) const { aMessage.Write(aMessage.GetLength() - sizeof(*this), *this); }
+
         uint32_t                  mTransmitTimestamp;   // Time at client when request departed for server
         Callback<ResponseHandler> mResponseHandler;     // Response handler callback
         TimeMilli                 mTransmissionTime;    // Time when the timer should shoot for this message
@@ -257,12 +272,14 @@ private:
     void FinalizeSntpTransaction(Message &aQuery, const QueryMetadata &aQueryMetadata, uint64_t aTime, Error aResult);
 
     void HandleRetransmissionTimer(void);
-    void HandleUdpReceive(Message &aMessage, const Ip6::MessageInfo &aMessageInfo);
 
-    using RetxTimer    = TimerMilliIn<Client, &Client::HandleRetransmissionTimer>;
-    using ClientSocket = Ip6::Udp::SocketIn<Client, &Client::HandleUdpReceive>;
+    static void HandleUdpReceive(void *aContext, otMessage *aMessage, const otMessageInfo *aMessageInfo);
+    void        HandleUdpReceive(Message &aMessage, const Ip6::MessageInfo &aMessageInfo);
 
-    ClientSocket mSocket;
+    using RetxTimer = TimerMilliIn<Client, &Client::HandleRetransmissionTimer>;
+
+    Ip6::Udp::Socket mSocket;
+
     MessageQueue mPendingQueries;
     RetxTimer    mRetransmissionTimer;
 

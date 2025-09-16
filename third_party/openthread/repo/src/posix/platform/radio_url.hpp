@@ -41,6 +41,7 @@ namespace Posix {
 
 /**
  * Implements the radio URL processing.
+ *
  */
 class RadioUrl : public ot::Url::Url
 {
@@ -49,6 +50,7 @@ public:
      * Initializes the object.
      *
      * @param[in]   aUrl    The null-terminated URL string.
+     *
      */
     explicit RadioUrl(const char *aUrl) { Init(aUrl); };
 
@@ -56,6 +58,7 @@ public:
      * Initializes the radio URL.
      *
      * @param[in]   aUrl    The null-terminated URL string.
+     *
      */
     void Init(const char *aUrl);
 

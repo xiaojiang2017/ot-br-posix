@@ -63,17 +63,17 @@ class Firewall(thread_cert.TestCase):
             'name': 'BR_1',
             'allowlist': [ROUTER1, ROUTER2],
             'is_otbr': True,
-            'version': '1.4',
+            'version': '1.3',
         },
         ROUTER1: {
             'name': 'Router_1',
             'allowlist': [BR1],
-            'version': '1.4',
+            'version': '1.3',
         },
         ROUTER2: {
             'name': 'Router_2',
             'allowlist': [BR1],
-            'version': '1.4',
+            'version': '1.3',
         },
         HOST: {
             'name': 'Host',

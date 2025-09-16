@@ -48,71 +48,77 @@ extern "C" {
  *   This module includes functions for the Thread Border Agent role.
  *
  * @{
+ *
  */
 
 /**
  * The length of Border Agent/Router ID in bytes.
+ *
  */
 #define OT_BORDER_AGENT_ID_LENGTH (16)
 
 /**
- * Represents a Border Agent Identifier.
- */
-typedef struct otBorderAgentId
-{
-    uint8_t mId[OT_BORDER_AGENT_ID_LENGTH]; ///< Border Agent ID bytes.
-} otBorderAgentId;
-
-/**
- * Defines Border Agent counters.
+ * Minimum length of the ephemeral key string.
  *
- * The `mEpskc` related counters require `OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE`.
  */
-typedef struct otBorderAgentCounters
-{
-    uint32_t mEpskcActivations;              ///< The number of ePSKc activations
-    uint32_t mEpskcDeactivationClears;       ///< The number of ePSKc deactivations via API
-    uint32_t mEpskcDeactivationTimeouts;     ///< The number of ePSKc deactivations due to timeout
-    uint32_t mEpskcDeactivationMaxAttempts;  ///< The number of ePSKc deactivations due to reached max attempts
-    uint32_t mEpskcDeactivationDisconnects;  ///< The number of ePSKc deactivations due to commissioner disconnected
-    uint32_t mEpskcInvalidBaStateErrors;     ///< The number of invalid border agent state errors at ePSKc activation
-    uint32_t mEpskcInvalidArgsErrors;        ///< The number of invalid args errors at ePSKc activation
-    uint32_t mEpskcStartSecureSessionErrors; ///< The number of start secure session errors at ePSKc activation
-    uint32_t mEpskcSecureSessionSuccesses;   ///< The number of established secure sessions with ePSKc
-    uint32_t mEpskcSecureSessionFailures;    ///< The number of failed secure sessions with ePSKc
-    uint32_t mEpskcCommissionerPetitions;    ///< The number of successful commissioner petitions with ePSKc
-    uint32_t mPskcSecureSessionSuccesses;    ///< The number of established secure sessions with PSKc
-    uint32_t mPskcSecureSessionFailures;     ///< The number of failed secure sessions with PSKc
-    uint32_t mPskcCommissionerPetitions;     ///< The number of successful commissioner petitions with PSKc
-    uint32_t mMgmtActiveGets;                ///< The number of MGMT_ACTIVE_GET.req sent over secure sessions
-    uint32_t mMgmtPendingGets;               ///< The number of MGMT_PENDING_GET.req sent over secure sessions
-} otBorderAgentCounters;
+#define OT_BORDER_AGENT_MIN_EPHEMERAL_KEY_LENGTH (6)
 
 /**
- * Gets the counters of the Thread Border Agent.
+ * Maximum length of the ephemeral key string.
+ *
+ */
+#define OT_BORDER_AGENT_MAX_EPHEMERAL_KEY_LENGTH (32)
+
+/**
+ * Default ephemeral key timeout interval in milliseconds.
+ *
+ */
+#define OT_BORDER_AGENT_DEFAULT_EPHEMERAL_KEY_TIMEOUT (2 * 60 * 1000u)
+
+/**
+ * Maximum ephemeral key timeout interval in milliseconds.
+ *
+ */
+#define OT_BORDER_AGENT_MAX_EPHEMERAL_KEY_TIMEOUT (10 * 60 * 1000u)
+
+/**
+ * @struct otBorderAgentId
+ *
+ * Represents a Border Agent ID.
+ *
+ */
+OT_TOOL_PACKED_BEGIN
+struct otBorderAgentId
+{
+    uint8_t mId[OT_BORDER_AGENT_ID_LENGTH];
+} OT_TOOL_PACKED_END;
+
+/**
+ * Represents a Border Agent ID.
+ *
+ */
+typedef struct otBorderAgentId otBorderAgentId;
+
+/**
+ * Defines the Border Agent state.
+ *
+ */
+typedef enum otBorderAgentState
+{
+    OT_BORDER_AGENT_STATE_STOPPED = 0, ///< Border agent role is disabled.
+    OT_BORDER_AGENT_STATE_STARTED = 1, ///< Border agent is started.
+    OT_BORDER_AGENT_STATE_ACTIVE  = 2, ///< Border agent is connected with external commissioner.
+} otBorderAgentState;
+
+/**
+ * Gets the #otBorderAgentState of the Thread Border Agent role.
  *
  * @param[in]  aInstance  A pointer to an OpenThread instance.
  *
- * @returns A pointer to the Border Agent counters.
+ * @returns The current #otBorderAgentState of the Border Agent.
+ *
  */
-const otBorderAgentCounters *otBorderAgentGetCounters(otInstance *aInstance);
-
-/**
- * Indicates whether or not the Border Agent service is active and running.
- *
- * While the Border Agent is active, external commissioner candidates can try to connect to and establish secure DTLS
- * sessions with the Border Agent using PSKc. A connected commissioner can then petition to become a full commissioner.
- *
- * If `OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE` is enabled, independent and separate DTLS transport and
- * sessions are used for the ephemeral key. Therefore, the ephemeral key and Border Agent service can be enabled and
- * used in parallel.
- *
- * @param[in]  aInstance  A pointer to an OpenThread instance.
- *
- * @retval TRUE   The Border Agent is active.
- * @retval FALSE  The Border Agent is not active.
- */
-bool otBorderAgentIsActive(otInstance *aInstance);
+otBorderAgentState otBorderAgentGetState(otInstance *aInstance);
 
 /**
  * Gets the UDP port of the Thread Border Agent service.
@@ -120,6 +126,7 @@ bool otBorderAgentIsActive(otInstance *aInstance);
  * @param[in]  aInstance  A pointer to an OpenThread instance.
  *
  * @returns UDP port of the Border Agent.
+ *
  */
 uint16_t otBorderAgentGetUdpPort(otInstance *aInstance);
 
@@ -139,6 +146,7 @@ uint16_t otBorderAgentGetUdpPort(otInstance *aInstance);
  * @retval ...            If failed to retrieve the Border Agent ID.
  *
  * @sa otBorderAgentSetId
+ *
  */
 otError otBorderAgentGetId(otInstance *aInstance, otBorderAgentId *aId);
 
@@ -158,150 +166,102 @@ otError otBorderAgentGetId(otInstance *aInstance, otBorderAgentId *aId);
  * @retval ...            If failed to set the Border Agent ID.
  *
  * @sa otBorderAgentGetId
+ *
  */
 otError otBorderAgentSetId(otInstance *aInstance, const otBorderAgentId *aId);
 
-/*--------------------------------------------------------------------------------------------------------------------
- * Border Agent Ephemeral Key feature */
-
 /**
- * Minimum length of the ephemeral key string.
- */
-#define OT_BORDER_AGENT_MIN_EPHEMERAL_KEY_LENGTH (6)
-
-/**
- * Maximum length of the ephemeral key string.
- */
-#define OT_BORDER_AGENT_MAX_EPHEMERAL_KEY_LENGTH (32)
-
-/**
- * Default ephemeral key timeout interval in milliseconds.
- */
-#define OT_BORDER_AGENT_DEFAULT_EPHEMERAL_KEY_TIMEOUT (2 * 60 * 1000u)
-
-/**
- * Maximum ephemeral key timeout interval in milliseconds.
- */
-#define OT_BORDER_AGENT_MAX_EPHEMERAL_KEY_TIMEOUT (10 * 60 * 1000u)
-
-/**
- * Represents Border Agent's Ephemeral Key Manager state.
- */
-typedef enum otBorderAgentEphemeralKeyState
-{
-    OT_BORDER_AGENT_STATE_DISABLED  = 0, ///< Ephemeral Key Manager is disabled.
-    OT_BORDER_AGENT_STATE_STOPPED   = 1, ///< Enabled, but no ephemeral key is in use (not set or started).
-    OT_BORDER_AGENT_STATE_STARTED   = 2, ///< Ephemeral key is set. Listening to accept secure connections.
-    OT_BORDER_AGENT_STATE_CONNECTED = 3, ///< Session is established with an external commissioner candidate.
-    OT_BORDER_AGENT_STATE_ACCEPTED  = 4, ///< Session is established and candidate is accepted as full commissioner.
-} otBorderAgentEphemeralKeyState;
-
-/**
- * Gets the state of Border Agent's Ephemeral Key Manager.
+ * Sets the ephemeral key for a given timeout duration.
  *
  * Requires `OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE`.
  *
- * @param[in]  aInstance  A pointer to an OpenThread instance.
+ * The ephemeral key can be set when the Border Agent is already running and is not currently connected to any external
+ * commissioner (i.e., it is in `OT_BORDER_AGENT_STATE_STARTED` state). Otherwise `OT_ERROR_INVALID_STATE` is returned.
  *
- * @returns The current state of Ephemeral Key Manager.
- */
-otBorderAgentEphemeralKeyState otBorderAgentEphemeralKeyGetState(otInstance *aInstance);
-
-/**
- * Enables/disables the Border Agent's Ephemeral Key Manager.
+ * The given @p aKeyString is directly used as the ephemeral PSK (excluding the trailing null `\0` character ).
+ * The @p aKeyString length must be between `OT_BORDER_AGENT_MIN_EPHEMERAL_KEY_LENGTH` and
+ * `OT_BORDER_AGENT_MAX_EPHEMERAL_KEY_LENGTH`, inclusive.
  *
- * Requires `OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE`.
+ * Setting the ephemeral key again before a previously set key has timed out will replace the previously set key and
+ * reset the timeout.
  *
- * If this function is called to disable, while an an ephemeral key is in use, the ephemeral key use will be stopped
- * (as if `otBorderAgentEphemeralKeyStop()` is called).
+ * While the timeout interval is in effect, the ephemeral key can be used only once by an external commissioner to
+ * connect. Once the commissioner disconnects, the ephemeral key is cleared, and the Border Agent reverts to using
+ * PSKc.
  *
  * @param[in] aInstance    The OpenThread instance.
- * @param[in] aEnabled     Whether to enable or disable the Ephemeral Key Manager.
+ * @param[in] aKeyString   The ephemeral key string (used as PSK excluding the trailing null `\0` character).
+ * @param[in] aTimeout     The timeout duration in milliseconds to use the ephemeral key.
+ *                         If zero, the default `OT_BORDER_AGENT_DEFAULT_EPHEMERAL_KEY_TIMEOUT` value will be used.
+ *                         If the given timeout value is larger than `OT_BORDER_AGENT_MAX_EPHEMERAL_KEY_TIMEOUT`, the
+ *                         max value `OT_BORDER_AGENT_MAX_EPHEMERAL_KEY_TIMEOUT` will be used instead.
+ * @param[in] aUdpPort     The UDP port to use with ephemeral key. If zero, an ephemeral port will be used.
+ *                         `otBorderAgentGetUdpPort()` will return the current UDP port being used.
+ *
+ * @retval OT_ERROR_NONE           Successfully set the ephemeral key.
+ * @retval OT_ERROR_INVALID_STATE  Border Agent is not running or it is connected to an external commissioner.
+ * @retval OT_ERROR_INVALID_ARGS   The given @p aKeyString is not valid (too short or too long).
+ * @retval OT_ERROR_FAILED         Failed to set the key (e.g., could not bind to UDP port).
+
+ *
  */
-void otBorderAgentEphemeralKeySetEnabled(otInstance *aInstance, bool aEnabled);
+otError otBorderAgentSetEphemeralKey(otInstance *aInstance,
+                                     const char *aKeyString,
+                                     uint32_t    aTimeout,
+                                     uint16_t    aUdpPort);
 
 /**
- * Starts using an ephemeral key for a given timeout duration.
+ * Cancels the ephemeral key that is in use.
  *
  * Requires `OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE`.
  *
- * An ephemeral key can only be set when `otBorderAgentEphemeralKeyGetState()` is `OT_BORDER_AGENT_STATE_STOPPED`,
- * i.e., enabled but not yet started. Otherwise, `OT_ERROR_INVALID_STATE` is returned. This means that setting the
- * ephemeral key again while a previously set key is still in use will fail. Callers can stop the previous key by
- * calling `otBorderAgentEphemeralKeyStop()` before starting with a new key.
+ * Can be used to cancel a previously set ephemeral key before it times out. If the Border Agent is not running or
+ * there is no ephemeral key in use, calling this function has no effect.
  *
- * The Ephemeral Key Manager and the Border Agent service (which uses PSKc) can be enabled and used in parallel, as
- * they use independent and separate DTLS transport and sessions.
- *
- * The given @p aKeyString is used directly as the ephemeral PSK (excluding the trailing null `\0` character).
- * Its length must be between `OT_BORDER_AGENT_MIN_EPHEMERAL_KEY_LENGTH` and `OT_BORDER_AGENT_MAX_EPHEMERAL_KEY_LENGTH`,
- * inclusive. Otherwise `OT_ERROR_INVALID_ARGS` is returned.
- *
- * When successfully set, the ephemeral key can be used only once by an external commissioner candidate to establish a
- * secure session. After the commissioner candidate disconnects, the use of the ephemeral key is stopped. If the
- * timeout expires, the use of the ephemeral key is stopped, and any connected session using the key is immediately
- * disconnected.
- *
- * The Ephemeral Key Manager limits the number of failed DTLS connections to 10 attempts. After the 10th failed
- * attempt, the use of the ephemeral key is automatically stopped (even if the timeout has not yet expired).
+ * If a commissioner is connected using the ephemeral key and is currently active, calling this function does not
+ * change its state. In this case the `otBorderAgentIsEphemeralKeyActive()` will continue to return `TRUE` until the
+ * commissioner disconnects.
  *
  * @param[in] aInstance    The OpenThread instance.
- * @param[in] aKeyString   The ephemeral key.
- * @param[in] aTimeout     The timeout duration, in milliseconds, to use the ephemeral key.
- *                         If zero, the default `OT_BORDER_AGENT_DEFAULT_EPHEMERAL_KEY_TIMEOUT` value is used. If the
- *                         timeout value is larger than `OT_BORDER_AGENT_MAX_EPHEMERAL_KEY_TIMEOUT`, the maximum value
- *                         is used instead.
- * @param[in] aUdpPort     The UDP port to use with the ephemeral key. If the UDP port is zero, an ephemeral port will
- *                         be used. `otBorderAgentEphemeralKeyGetUdpPort()` returns the current UDP port being used.
  *
- * @retval OT_ERROR_NONE            Successfully started using the ephemeral key.
- * @retval OT_ERROR_INVALID_STATE   A previously set ephemeral key is still in use or the feature is disabled.
- * @retval OT_ERROR_INVALID_ARGS    The given @p aKeyString is not valid.
- * @retval OT_ERROR_FAILED          Failed to start (e.g., it could not bind to the given UDP port).
  */
-otError otBorderAgentEphemeralKeyStart(otInstance *aInstance,
-                                       const char *aKeyString,
-                                       uint32_t    aTimeout,
-                                       uint16_t    aUdpPort);
+void otBorderAgentClearEphemeralKey(otInstance *aInstance);
 
 /**
- * Stops the ephemeral key use and disconnects any session using it.
+ * Indicates whether or not an ephemeral key is currently active.
  *
  * Requires `OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE`.
- *
- * If there is no ephemeral key in use, calling this function has no effect.
  *
  * @param[in] aInstance    The OpenThread instance.
+ *
+ * @retval TRUE    An ephemeral key is active.
+ * @retval FALSE   No ephemeral key is active.
+ *
  */
-void otBorderAgentEphemeralKeyStop(otInstance *aInstance);
+bool otBorderAgentIsEphemeralKeyActive(otInstance *aInstance);
 
 /**
- * Gets the UDP port used by Border Agent's Ephemeral Key Manager.
+ * Callback function pointer to signal changes related to the Border Agent's ephemeral key.
  *
- * Requires `OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE`.
+ * This callback is invoked whenever:
  *
- * The port is applicable if an ephemeral key is in use, i.e., the state is not `OT_BORDER_AGENT_STATE_DISABLED` or
- * `OT_BORDER_AGENT_STATE_STOPPED`.
- *
- * @param[in]  aInstance  A pointer to an OpenThread instance.
- *
- * @returns The UDP port being used by Border Agent's Ephemeral Key Manager (when active).
- */
-uint16_t otBorderAgentEphemeralKeyGetUdpPort(otInstance *aInstance);
-
-/**
- * Callback function pointer to signal state changes to the Border Agent's Ephemeral Key Manager.
- *
- * This callback is invoked whenever the `otBorderAgentEphemeralKeyGetState()` gets changed.
+ * - The Border Agent starts using an ephemeral key.
+ * - Any parameter related to the ephemeral key, such as the port number, changes.
+ * - The Border Agent stops using the ephemeral key due to:
+ *   - A direct call to `otBorderAgentClearEphemeralKey()`.
+ *   - The ephemeral key timing out.
+ *   - An external commissioner successfully using the key to connect and then disconnecting.
+ *   - Reaching the maximum number of allowed failed connection attempts.
  *
  * Any OpenThread API, including `otBorderAgent` APIs, can be safely called from this callback.
  *
  * @param[in] aContext   A pointer to an arbitrary context (provided when callback is set).
+ *
  */
 typedef void (*otBorderAgentEphemeralKeyCallback)(void *aContext);
 
 /**
- * Sets the callback function to notify state changes of Border Agent's Ephemeral Key Manager.
+ * Sets the callback function used by the Border Agent to notify any changes related to use of ephemeral key.
  *
  * Requires `OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE`.
  *
@@ -310,22 +270,15 @@ typedef void (*otBorderAgentEphemeralKeyCallback)(void *aContext);
  * @param[in] aInstance    The OpenThread instance.
  * @param[in] aCallback    The callback function pointer.
  * @param[in] aContext     The arbitrary context to use with callback.
+ *
  */
-void otBorderAgentEphemeralKeySetCallback(otInstance                       *aInstance,
+void otBorderAgentSetEphemeralKeyCallback(otInstance                       *aInstance,
                                           otBorderAgentEphemeralKeyCallback aCallback,
                                           void                             *aContext);
 
 /**
- * Converts a given `otBorderAgentEphemeralKeyState` to a human-readable string.
- *
- * @param[in] aState   The state to convert.
- *
- * @returns Human-readable string corresponding to @p aState.
- */
-const char *otBorderAgentEphemeralKeyStateToString(otBorderAgentEphemeralKeyState aState);
-
-/**
  * @}
+ *
  */
 
 #ifdef __cplusplus

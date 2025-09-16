@@ -81,6 +81,7 @@ struct AvahiWatch
      * @param[in] aCallback  The function to be called when events happened on this file descriptor.
      * @param[in] aContext   A pointer to application-specific context.
      * @param[in] aPoller    The AvahiPoller this watcher belongs to.
+     *
      */
     AvahiWatch(int aFd, AvahiWatchEvent aEvents, AvahiWatchCallback aCallback, void *aContext, AvahiPoller &aPoller)
         : mFd(aFd)
@@ -95,6 +96,7 @@ struct AvahiWatch
 
 /**
  * This structure implements the AvahiTimeout.
+ *
  */
 struct AvahiTimeout
 {
@@ -113,6 +115,7 @@ struct AvahiTimeout
      * @param[in] aCallback  The function to be called after timeout.
      * @param[in] aContext   A pointer to application-specific context.
      * @param[in] aPoller    The AvahiPoller this timeout belongs to.
+     *
      */
     AvahiTimeout(const struct timeval *aTimeout, AvahiTimeoutCallback aCallback, void *aContext, AvahiPoller &aPoller)
         : mCallback(aCallback)

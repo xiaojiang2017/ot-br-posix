@@ -33,7 +33,12 @@
 
 #include "netif.hpp"
 
+#include "common/as_core_type.hpp"
+#include "common/debug.hpp"
+#include "common/locator_getters.hpp"
+#include "common/message.hpp"
 #include "instance/instance.hpp"
+#include "net/ip6.hpp"
 
 namespace ot {
 namespace Ip6 {
@@ -47,6 +52,7 @@ namespace Ip6 {
  * All or a portion of the chain is appended to the end of `mMulticastAddresses` linked-list. If the interface is
  * subscribed to all-routers multicast addresses (using `SubscribeAllRoutersMulticast()`) then all the five entries
  * are appended. Otherwise only the last three are appended.
+ *
  */
 
 // "ff03::fc"
@@ -79,6 +85,7 @@ const otNetifMulticastAddress Netif::kLinkLocalAllRoutersMulticastAddress = {
 
 Netif::Netif(Instance &aInstance)
     : InstanceLocator(aInstance)
+    , mMulticastPromiscuous(false)
 {
 }
 
@@ -327,7 +334,7 @@ Error Netif::UnsubscribeExternalMulticast(const Address &aAddress)
     MulticastAddress *entry;
     MulticastAddress *prev;
 
-    entry = mMulticastAddresses.FindMatchingWithPrev(prev, aAddress);
+    entry = mMulticastAddresses.FindMatching(aAddress, prev);
     VerifyOrExit(entry != nullptr, error = kErrorNotFound);
 
     VerifyOrExit(IsMulticastAddressExternal(*entry), error = kErrorRejected);
@@ -409,10 +416,6 @@ void Netif::SignalUnicastAddressChange(AddressEvent aEvent, const UnicastAddress
 
     Get<Notifier>().Signal(event);
 
-#if OPENTHREAD_CONFIG_SRP_CLIENT_ENABLE
-    Get<Srp::Client>().HandleUnicastAddressEvent(aEvent, aAddress);
-#endif
-
 #if OPENTHREAD_CONFIG_HISTORY_TRACKER_ENABLE
     Get<Utils::HistoryTracker>().RecordAddressEvent(aEvent, aAddress);
 #endif
@@ -451,7 +454,7 @@ Error Netif::AddExternalUnicastAddress(const UnicastAddress &aAddress)
         ExitNow();
     }
 
-    VerifyOrExit(!aAddress.GetAddress().IsLinkLocalUnicast(), error = kErrorInvalidArgs);
+    VerifyOrExit(!aAddress.GetAddress().IsLinkLocal(), error = kErrorInvalidArgs);
 
     entry = mExtUnicastAddressPool.Allocate();
     VerifyOrExit(entry != nullptr, error = kErrorNoBufs);
@@ -474,7 +477,7 @@ Error Netif::RemoveExternalUnicastAddress(const Address &aAddress)
     UnicastAddress *entry;
     UnicastAddress *prev;
 
-    entry = mUnicastAddresses.FindMatchingWithPrev(prev, aAddress);
+    entry = mUnicastAddresses.FindMatching(aAddress, prev);
     VerifyOrExit(entry != nullptr, error = kErrorNotFound);
 
     VerifyOrExit(IsUnicastAddressExternal(*entry), error = kErrorRejected);

@@ -29,6 +29,7 @@
 /**
  * @file
  *   This file implements methods for a signed preference value and its 2-bit unsigned representation.
+ *
  */
 
 #include "preference.hpp"

@@ -55,7 +55,7 @@
 #include "common/code_utils.hpp"
 #include "common/mainloop.hpp"
 #include "common/types.hpp"
-#include "host/rcp_host.hpp"
+#include "ncp/ncp_openthread.hpp"
 
 namespace otbr {
 namespace BackboneRouter {
@@ -71,15 +71,17 @@ namespace BackboneRouter {
 
 /**
  * This class implements ND Proxy manager.
+ *
  */
 class NdProxyManager : public MainloopProcessor, private NonCopyable
 {
 public:
     /**
      * This constructor initializes a NdProxyManager instance.
+     *
      */
-    explicit NdProxyManager(otbr::Host::RcpHost &aHost, std::string aBackboneInterfaceName)
-        : mHost(aHost)
+    explicit NdProxyManager(otbr::Ncp::ControllerOpenThread &aNcp, std::string aBackboneInterfaceName)
+        : mNcp(aNcp)
         , mBackboneInterfaceName(std::move(aBackboneInterfaceName))
         , mIcmp6RawSock(-1)
         , mUnicastNsQueueSock(-1)
@@ -90,6 +92,7 @@ public:
 
     /**
      * This method initializes a ND Proxy manager instance.
+     *
      */
     void Init(void);
 
@@ -97,11 +100,13 @@ public:
      * This method enables the ND Proxy manager.
      *
      * @param[in] aDomainPrefix  The Domain Prefix.
+     *
      */
     void Enable(const Ip6Prefix &aDomainPrefix);
 
     /**
      * This method disables the ND Proxy manager.
+     *
      */
     void Disable(void);
 
@@ -114,6 +119,7 @@ public:
      * @param[in] aEvent  The Backbone Router ND Proxy event type.
      * @param[in] aDua    The Domain Unicast Address of the ND Proxy, or `nullptr` if @p `aEvent` is
      *                    `OT_BACKBONE_ROUTER_NDPROXY_CLEARED`.
+     *
      */
     void HandleBackboneRouterNdProxyEvent(otBackboneRouterNdProxyEvent aEvent, const otIp6Address *aDua);
 
@@ -121,6 +127,7 @@ public:
      * This method returns if the ND Proxy manager is enabled.
      *
      * @returns If the ND Proxy manager is enabled;
+     *
      */
     bool IsEnabled(void) const { return mIcmp6RawSock >= 0; }
 
@@ -146,16 +153,16 @@ private:
                                     void                *aContext);
     int HandleNetfilterQueue(struct nfq_q_handle *aNfQueueHandler, struct nfgenmsg *aNfMsg, struct nfq_data *aNfData);
 
-    otbr::Host::RcpHost &mHost;
-    std::string          mBackboneInterfaceName;
-    std::set<Ip6Address> mNdProxySet;
-    uint32_t             mBackboneIfIndex;
-    int                  mIcmp6RawSock;
-    int                  mUnicastNsQueueSock;
-    struct nfq_handle   *mNfqHandler;      ///< A pointer to an NFQUEUE handler.
-    struct nfq_q_handle *mNfqQueueHandler; ///< A pointer to a newly created queue.
-    MacAddress           mMacAddress;
-    Ip6Prefix            mDomainPrefix;
+    otbr::Ncp::ControllerOpenThread &mNcp;
+    std::string                      mBackboneInterfaceName;
+    std::set<Ip6Address>             mNdProxySet;
+    uint32_t                         mBackboneIfIndex;
+    int                              mIcmp6RawSock;
+    int                              mUnicastNsQueueSock;
+    struct nfq_handle               *mNfqHandler;      ///< A pointer to an NFQUEUE handler.
+    struct nfq_q_handle             *mNfqQueueHandler; ///< A pointer to a newly created queue.
+    MacAddress                       mMacAddress;
+    Ip6Prefix                        mDomainPrefix;
 };
 
 /**

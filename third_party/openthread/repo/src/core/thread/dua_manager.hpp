@@ -73,10 +73,12 @@ namespace ot {
  * @defgroup core-dua Dua
  *
  * @}
+ *
  */
 
 /**
  * Implements managing DUA.
+ *
  */
 class DuaManager : public InstanceLocator, private NonCopyable
 {
@@ -89,6 +91,7 @@ public:
      * Initializes the object.
      *
      * @param[in]  aInstance     A reference to the OpenThread instance.
+     *
      */
     explicit DuaManager(Instance &aInstance);
 
@@ -96,6 +99,7 @@ public:
      * Notifies Domain Prefix changes.
      *
      * @param[in]  aEvent  The Domain Prefix event.
+     *
      */
     void HandleDomainPrefixUpdate(BackboneRouter::DomainPrefixEvent aEvent);
 
@@ -104,6 +108,7 @@ public:
      *
      * @param[in]  aState   The state or state change of Primary Backbone Router.
      * @param[in]  aConfig  The Primary Backbone Router service.
+     *
      */
     void HandleBackboneRouterPrimaryUpdate(BackboneRouter::Leader::State aState, const BackboneRouter::Config &aConfig);
 
@@ -113,6 +118,7 @@ public:
      * Returns a reference to the Domain Unicast Address.
      *
      * @returns A reference to the Domain Unicast Address.
+     *
      */
     const Ip6::Address &GetDomainUnicastAddress(void) const { return mDomainUnicastAddress.GetAddress(); }
 
@@ -123,11 +129,13 @@ public:
      *
      * @retval kErrorNone          Successfully set the Interface Identifier.
      * @retval kErrorInvalidArgs   The specified Interface Identifier is reserved.
+     *
      */
     Error SetFixedDuaInterfaceIdentifier(const Ip6::InterfaceIdentifier &aIid);
 
     /**
      * Clears the Interface Identifier manually specified for the Thread Domain Unicast Address.
+     *
      */
     void ClearFixedDuaInterfaceIdentifier(void);
 
@@ -137,6 +145,7 @@ public:
      *
      * @retval true  If there is Interface Identifier manually specified.
      * @retval false If there is no Interface Identifier manually specified.
+     *
      */
     bool IsFixedDuaInterfaceIdentifierSet(void) { return !mFixedDuaInterfaceIdentifier.IsUnspecified(); }
 
@@ -144,16 +153,19 @@ public:
      * Gets the Interface Identifier for the Thread Domain Unicast Address if manually specified.
      *
      * @returns A reference to the Interface Identifier.
+     *
      */
     const Ip6::InterfaceIdentifier &GetFixedDuaInterfaceIdentifier(void) const { return mFixedDuaInterfaceIdentifier; }
 
     /*
      * Restores duplicate address detection information from non-volatile memory.
+     *
      */
     void Restore(void);
 
     /**
      * Notifies duplicated Domain Unicast Address.
+     *
      */
     void NotifyDuplicateDomainUnicastAddress(void);
 #endif
@@ -161,6 +173,7 @@ public:
 #if OPENTHREAD_FTD && OPENTHREAD_CONFIG_TMF_PROXY_DUA_ENABLE
     /**
      * Events related to a Child DUA address.
+     *
      */
     enum ChildDuaAddressEvent : uint8_t
     {
@@ -175,6 +188,7 @@ public:
      *
      * @param[in] aChild   A child.
      * @param[in] aEvent   The DUA address event for @p aChild.
+     *
      */
     void HandleChildDuaAddressEvent(const Child &aChild, ChildDuaAddressEvent aEvent);
 #endif
@@ -208,7 +222,7 @@ private:
     static void HandleDuaResponse(void                *aContext,
                                   otMessage           *aMessage,
                                   const otMessageInfo *aMessageInfo,
-                                  otError              aResult);
+                                  Error                aResult);
     void        HandleDuaResponse(Coap::Message *aMessage, const Ip6::MessageInfo *aMessageInfo, Error aResult);
 
     template <Uri kUri> void HandleTmf(Coap::Message &aMessage, const Ip6::MessageInfo &aMessageInfo);

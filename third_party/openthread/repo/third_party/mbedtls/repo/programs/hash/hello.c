@@ -5,7 +5,11 @@
  *  SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
  */
 
-#include "mbedtls/build_info.h"
+#if !defined(MBEDTLS_CONFIG_FILE)
+#include "mbedtls/config.h"
+#else
+#include MBEDTLS_CONFIG_FILE
+#endif
 
 #include "mbedtls/platform.h"
 
@@ -30,7 +34,7 @@ int main(void)
 
     mbedtls_printf("\n  MD5('%s') = ", str);
 
-    if ((ret = mbedtls_md5((unsigned char *) str, 13, digest)) != 0) {
+    if ((ret = mbedtls_md5_ret((unsigned char *) str, 13, digest)) != 0) {
         mbedtls_exit(MBEDTLS_EXIT_FAILURE);
     }
 
@@ -39,6 +43,11 @@ int main(void)
     }
 
     mbedtls_printf("\n\n");
+
+#if defined(_WIN32)
+    mbedtls_printf("  Press Enter to exit this program.\n");
+    fflush(stdout); getchar();
+#endif
 
     mbedtls_exit(MBEDTLS_EXIT_SUCCESS);
 }

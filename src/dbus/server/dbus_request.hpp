@@ -53,6 +53,7 @@ namespace DBus {
 
 /**
  * This class represents a incoming call for a d-bus method.
+ *
  */
 class DBusRequest
 {
@@ -62,6 +63,7 @@ public:
      *
      * @param[in] aConnection  The dbus connection.
      * @param[in] aMessage     The incoming dbus message.
+     *
      */
     DBusRequest(DBusConnection *aConnection, DBusMessage *aMessage)
         : mConnection(aConnection)
@@ -75,6 +77,7 @@ public:
      * The copy constructor of dbus request.
      *
      * @param[in] aOther  The object to be copied from.
+     *
      */
     DBusRequest(const DBusRequest &aOther)
         : mConnection(nullptr)
@@ -87,6 +90,7 @@ public:
      * The assignment operator of dbus request.
      *
      * @param[in] aOther  The object to be copied from.
+     *
      */
     DBusRequest &operator=(const DBusRequest &aOther)
     {
@@ -98,6 +102,7 @@ public:
      * This method returns the message sent to call the d-bus method.
      *
      * @returns The dbus message.
+     *
      */
     DBusMessage *GetMessage(void) { return mMessage; }
 
@@ -105,6 +110,7 @@ public:
      * This method returns underlying d-bus connection.
      *
      * @returns The dbus connection.
+     *
      */
     DBusConnection *GetConnection(void) { return mConnection; }
 
@@ -112,6 +118,7 @@ public:
      * This method replies to the d-bus method call.
      *
      * @param[in] aReply  The tuple to be sent.
+     *
      */
     template <typename... Args> void Reply(const std::tuple<Args...> &aReply)
     {
@@ -136,6 +143,7 @@ public:
      *
      * @param[in] aError  The error to be sent.
      * @param[in] aResult The return value of the method call, if any.
+     *
      */
     template <typename ResultType = int>
     void ReplyOtResult(otError aError, Optional<ResultType> aResult = Optional<ResultType>())
@@ -178,6 +186,7 @@ public:
 
     /**
      * The destructor of DBusRequest
+     *
      */
     ~DBusRequest(void)
     {

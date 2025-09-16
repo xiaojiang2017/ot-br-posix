@@ -48,6 +48,7 @@ extern "C" {
  *  This module includes functions to manage local network data with the OpenThread Server.
  *
  * @{
+ *
  */
 
 /**
@@ -58,6 +59,7 @@ extern "C" {
  * @param[out]     aData        A pointer to the data buffer.
  * @param[in,out]  aDataLength  On entry, size of the data buffer pointed to by @p aData.
  *                              On exit, number of copied bytes.
+ *
  */
 otError otServerGetNetDataLocal(otInstance *aInstance, bool aStable, uint8_t *aData, uint8_t *aDataLength);
 
@@ -73,6 +75,7 @@ otError otServerGetNetDataLocal(otInstance *aInstance, bool aStable, uint8_t *aD
  *
  * @sa otServerRemoveService
  * @sa otServerRegister
+ *
  */
 otError otServerAddService(otInstance *aInstance, const otServiceConfig *aConfig);
 
@@ -89,6 +92,7 @@ otError otServerAddService(otInstance *aInstance, const otServiceConfig *aConfig
  *
  * @sa otServerAddService
  * @sa otServerRegister
+ *
  */
 otError otServerRemoveService(otInstance    *aInstance,
                               uint32_t       aEnterpriseNumber,
@@ -105,6 +109,7 @@ otError otServerRemoveService(otInstance    *aInstance,
  *
  * @retval OT_ERROR_NONE       Successfully found the next service.
  * @retval OT_ERROR_NOT_FOUND  No subsequent service exists in the Thread Network Data.
+ *
  */
 otError otServerGetNextService(otInstance *aInstance, otNetworkDataIterator *aIterator, otServiceConfig *aConfig);
 
@@ -117,11 +122,13 @@ otError otServerGetNextService(otInstance *aInstance, otNetworkDataIterator *aIt
  *
  * @sa otServerAddService
  * @sa otServerRemoveService
+ *
  */
 otError otServerRegister(otInstance *aInstance);
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

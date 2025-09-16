@@ -22,6 +22,8 @@
  *
  * See README.txt for usage instructions.
  */
+#ifndef MBEDTLS_CONFIG_H
+#define MBEDTLS_CONFIG_H
 
 /* System support */
 //#define MBEDTLS_HAVE_TIME /* Optionally used in Hello messages */
@@ -47,6 +49,7 @@
 #define MBEDTLS_SSL_PROTO_TLS1_2
 #define MBEDTLS_SSL_PROTO_DTLS
 #define MBEDTLS_SSL_DTLS_ANTI_REPLAY
+#define MBEDTLS_SSL_DTLS_BADMAC_LIMIT
 #define MBEDTLS_SSL_DTLS_CLIENT_PORT_REUSE
 #define MBEDTLS_SSL_DTLS_CONNECTION_ID
 #define MBEDTLS_SSL_DTLS_HELLO_VERIFY
@@ -65,8 +68,7 @@
  * both ends of the connection!  (See comments in "mbedtls/ssl.h".)
  * The optimal size here depends on the typical size of records.
  */
-#define MBEDTLS_SSL_IN_CONTENT_LEN              256
-#define MBEDTLS_SSL_OUT_CONTENT_LEN             256
+#define MBEDTLS_SSL_MAX_CONTENT_LEN             256
 
 /* Save RAM at the expense of ROM */
 #define MBEDTLS_AES_ROM_TABLES
@@ -76,10 +78,10 @@
 
 /*
  * You should adjust this to the exact number of sources you're using: default
- * is the "platform_entropy_poll" source, but you may want to add other ones
- * Minimum is 2 for the entropy test suite.
+ * is the "platform_entropy_poll" source plus a weak clock source, but you may
+ * want to add other ones. Minimum is 3 for the entropy test suite.
  */
-#define MBEDTLS_ENTROPY_MAX_SOURCES 2
+#define MBEDTLS_ENTROPY_MAX_SOURCES 3
 
 /* These defines are present so that the config modifying scripts can enable
  * them during tests/scripts/test-ref-configs.pl */
@@ -90,3 +92,7 @@
  * (huge code size increase, needed for tests/ssl-opt.sh) */
 //#define MBEDTLS_DEBUG_C
 //#define MBEDTLS_ERROR_C
+
+#include "mbedtls/check_config.h"
+
+#endif /* MBEDTLS_CONFIG_H */

@@ -50,6 +50,7 @@ extern "C" {
  *   This module includes the platform abstraction for OTNS.
  *
  * @{
+ *
  */
 
 /**
@@ -66,11 +67,13 @@ extern "C" {
  * Currently, OTNS only supports virtual time simulation.
  *
  * @param[in]  aStatus  The status string.
+ *
  */
 void otPlatOtnsStatus(const char *aStatus);
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

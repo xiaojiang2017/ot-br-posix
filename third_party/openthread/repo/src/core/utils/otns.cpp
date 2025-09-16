@@ -29,13 +29,16 @@
 /**
  * @file
  *   This file implements OTNS utilities.
+ *
  */
 
 #include "otns.hpp"
 
 #if (OPENTHREAD_MTD || OPENTHREAD_FTD) && OPENTHREAD_CONFIG_OTNS_ENABLE
 
-#include "instance/instance.hpp"
+#include "common/debug.hpp"
+#include "common/locator_getters.hpp"
+#include "common/log.hpp"
 
 namespace ot {
 namespace Utils {

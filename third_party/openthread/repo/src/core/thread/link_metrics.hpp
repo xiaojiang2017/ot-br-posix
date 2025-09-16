@@ -44,7 +44,6 @@
 #endif
 
 #include <openthread/link.h>
-#include <openthread/link_metrics.h>
 
 #include "common/as_core_type.hpp"
 #include "common/callback.hpp"
@@ -78,6 +77,7 @@ namespace LinkMetrics {
  * Implements the Thread Link Metrics Initiator.
  *
  * The Initiator makes queries, configures Link Metrics probing at the Subject and generates reports of the results.
+ *
  */
 class Initiator : public InstanceLocator, private NonCopyable
 {
@@ -89,6 +89,7 @@ public:
 
     /**
      * Provides the info used for appending MLE Link Metric Query TLV.
+     *
      */
     struct QueryInfo : public Clearable<QueryInfo>
     {
@@ -101,6 +102,7 @@ public:
      * Initializes an instance of the Initiator class.
      *
      * @param[in]  aInstance  A reference to the OpenThread interface.
+     *
      */
     explicit Initiator(Instance &aInstance);
 
@@ -117,6 +119,7 @@ public:
      * @retval kErrorNoBufs           Insufficient buffers to generate the MLE Data Request message.
      * @retval kErrorInvalidArgs      Type IDs are not valid or exceed the count limit.
      * @retval kErrorUnknownNeighbor  @p aDestination is not link-local or the neighbor is not found.
+     *
      */
     Error Query(const Ip6::Address &aDestination, uint8_t aSeriesId, const Metrics *aMetrics);
 
@@ -128,6 +131,7 @@ public:
      *
      * @retval kErrorNone     Successfully appended the TLV to the message.
      * @retval kErrorNoBufs   Insufficient buffers available to append the TLV.
+     *
      */
     Error AppendLinkMetricsQueryTlv(Message &aMessage, const QueryInfo &aInfo);
 
@@ -136,6 +140,7 @@ public:
      *
      * @param[in]  aCallback  A pointer to a function that is called when a Link Metrics report is received.
      * @param[in]  aContext   A pointer to application-specific context.
+     *
      */
     void SetReportCallback(ReportCallback aCallback, void *aContext) { mReportCallback.Set(aCallback, aContext); }
 
@@ -143,10 +148,12 @@ public:
      * Handles the received Link Metrics report contained in @p aMessage.
      *
      * @param[in]  aMessage      A reference to the message.
-     * @param[in]  aOffsetRange  The offset range in @p aMessage where the metrics report sub-TLVs are present.
+     * @param[in]  aOffset       The offset in bytes where the metrics report sub-TLVs start.
+     * @param[in]  aLength       The length of the metrics report sub-TLVs in bytes.
      * @param[in]  aAddress      A reference to the source address of the message.
+     *
      */
-    void HandleReport(const Message &aMessage, OffsetRange &aOffsetRange, const Ip6::Address &aAddress);
+    void HandleReport(const Message &aMessage, uint16_t aOffset, uint16_t aLength, const Ip6::Address &aAddress);
 
     /**
      * Sends an MLE Link Metrics Management Request to configure/clear a Forward Tracking Series.
@@ -160,6 +167,7 @@ public:
      * @retval kErrorNoBufs           Insufficient buffers to generate the MLE Link Metrics Management Request message.
      * @retval kErrorInvalidArgs      @p aSeriesId is not within the valid range.
      * @retval kErrorUnknownNeighbor  @p aDestination is not link-local or the neighbor is not found.
+     *
      */
     Error SendMgmtRequestForwardTrackingSeries(const Ip6::Address &aDestination,
                                                uint8_t             aSeriesId,
@@ -171,6 +179,7 @@ public:
      *
      * @param[in]  aCallback A pointer to a function that is called when a Link Metrics Management Response is received.
      * @param[in]  aContext  A pointer to application-specific context.
+     *
      */
     void SetMgmtResponseCallback(MgmtResponseCallback aCallback, void *aContext)
     {
@@ -190,6 +199,7 @@ public:
      * @retval kErrorNoBufs           Insufficient buffers to generate the MLE Link Metrics Management Request message.
      * @retval kErrorInvalidArgs      @p aEnhAckFlags is not a valid value or @p aMetrics isn't correct.
      * @retval kErrorUnknownNeighbor  @p aDestination is not link-local or the neighbor is not found.
+     *
      */
     Error SendMgmtRequestEnhAckProbing(const Ip6::Address &aDestination,
                                        EnhAckFlags         aEnhAckFlags,
@@ -200,6 +210,7 @@ public:
      *
      * @param[in]  aCallback A pointer to a function that is called when Enh-ACK Probing IE is received is received.
      * @param[in]  aContext  A pointer to application-specific context.
+     *
      */
     void SetEnhAckProbingCallback(EnhAckProbingIeReportCallback aCallback, void *aContext)
     {
@@ -214,6 +225,7 @@ public:
      *
      * @retval kErrorNone     Successfully handled the Link Metrics Management Response.
      * @retval kErrorParse    Cannot parse sub-TLVs from @p aMessage successfully.
+     *
      */
     Error HandleManagementResponse(const Message &aMessage, const Ip6::Address &aAddress);
 
@@ -228,6 +240,7 @@ public:
      * @retval kErrorNoBufs           Insufficient buffers to generate the MLE Link Probe message.
      * @retval kErrorInvalidArgs      @p aSeriesId or @p aLength is not within the valid range.
      * @retval kErrorUnknownNeighbor  @p aDestination is not link-local or the neighbor is not found.
+     *
      */
     Error SendLinkProbe(const Ip6::Address &aDestination, uint8_t aSeriesId, uint8_t aLength);
 
@@ -237,6 +250,7 @@ public:
      * @param[in] aData      A pointer to buffer containing the Enh-ACK Probing IE data.
      * @param[in] aLength    The length of @p aData.
      * @param[in] aNeighbor  The neighbor from which the Enh-ACK Probing IE was received.
+     *
      */
     void ProcessEnhAckIeData(const uint8_t *aData, uint8_t aLength, const Neighbor &aNeighbor);
 
@@ -257,7 +271,8 @@ private:
 /**
  * Implements the Thread Link Metrics Subject.
  *
- * The Subject responds queries with reports, handles Link Metrics Management Requests and Link Probe Messages.
+ * The Subject reponds queries with reports, handles Link Metrics Management Requests and Link Probe Messages.
+ *
  */
 class Subject : public InstanceLocator, private NonCopyable
 {
@@ -268,6 +283,7 @@ public:
      * Initializes an instance of the Subject class.
      *
      * @param[in]  aInstance  A reference to the OpenThread interface.
+     *
      */
     explicit Subject(Instance &aInstance);
 
@@ -281,6 +297,7 @@ public:
      * @retval kErrorNone         Successfully appended the Thread Discovery TLV.
      * @retval kErrorParse        Cannot parse query sub TLV successfully.
      * @retval kErrorInvalidArgs  QueryId is invalid or any Type ID is invalid.
+     *
      */
     Error AppendReport(Message &aMessage, const Message &aRequestMessage, Neighbor &aNeighbor);
 
@@ -293,6 +310,7 @@ public:
      *
      * @retval kErrorNone     Successfully handled the Link Metrics Management Request.
      * @retval kErrorParse    Cannot parse sub-TLVs from @p aMessage successfully.
+     *
      */
     Error HandleManagementRequest(const Message &aMessage, Neighbor &aNeighbor, Status &aStatus);
 
@@ -304,6 +322,7 @@ public:
      *
      * @retval kErrorNone     Successfully handled the Link Metrics Management Response.
      * @retval kErrorParse    Cannot parse sub-TLVs from @p aMessage successfully.
+     *
      */
     Error HandleLinkProbe(const Message &aMessage, uint8_t &aSeriesId);
 
@@ -311,6 +330,7 @@ public:
      * Frees a SeriesInfo entry that was allocated from the Subject object.
      *
      * @param[in]  aSeries    A reference to the SeriesInfo to free.
+     *
      */
     void Free(SeriesInfo &aSeriesInfo);
 
@@ -322,7 +342,10 @@ private:
     static constexpr uint16_t kMaxSeriesSupported = OPENTHREAD_CONFIG_MLE_LINK_METRICS_SERIES_MTD;
 #endif
 
-    static Error ReadTypeIdsFromMessage(const Message &aMessage, const OffsetRange &aOffsetRange, Metrics &aMetrics);
+    static Error ReadTypeIdsFromMessage(const Message &aMessage,
+                                        uint16_t       aStartOffset,
+                                        uint16_t       aEndOffset,
+                                        Metrics       &aMetrics);
     static Error AppendReportSubTlvToMessage(Message &aMessage, const MetricsValues &aValues);
 
     Status ConfigureForwardTrackingSeries(uint8_t        aSeriesId,

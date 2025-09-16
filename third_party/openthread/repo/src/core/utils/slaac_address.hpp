@@ -58,6 +58,7 @@ namespace Utils {
 
 /**
  * Implements the SLAAC utility for Thread protocol.
+ *
  */
 class Slaac : public InstanceLocator, private NonCopyable
 {
@@ -68,6 +69,7 @@ public:
 
     /**
      * Represents the secret key used for generating semantically opaque IID (per RFC 7217).
+     *
      */
     struct IidSecretKey
     {
@@ -82,6 +84,7 @@ public:
      * Note that SLAAC module starts enabled.
      *
      * @param[in]  aInstance  A reference to the OpenThread instance.
+     *
      */
     explicit Slaac(Instance &aInstance);
 
@@ -89,6 +92,7 @@ public:
      * Enables the SLAAC module.
      *
      * When enabled, new SLAAC addresses are generated and added from on-mesh prefixes in network data.
+     *
      */
     void Enable(void);
 
@@ -96,6 +100,7 @@ public:
      * Disables the SLAAC module.
      *
      * When disabled, any previously added SLAAC address by this module is removed.
+     *
      */
     void Disable(void);
 
@@ -104,6 +109,7 @@ public:
      *
      * @retval TRUE    SLAAC module is enabled.
      * @retval FALSE   SLAAC module is disabled.
+     *
      */
     bool IsEnabled(void) const { return mEnabled; }
 
@@ -117,6 +123,7 @@ public:
      * The filter can be set to `nullptr` to disable filtering (i.e., allow SLAAC addresses for all prefixes).
      *
      * @param[in] aFilter   The filter to use.
+     *
      */
     void SetFilter(PrefixFilter aFilter);
 
@@ -131,6 +138,7 @@ public:
      *
      * @retval kErrorNone    If successfully generated the IID.
      * @retval kErrorFailed  If no valid IID was generated.
+     *
      */
     Error GenerateIid(Ip6::Netif::UnicastAddress &aAddress, uint8_t &aDadCounter) const;
 
@@ -147,6 +155,7 @@ public:
      *
      * @retval kErrorNone       Found a match for @p aAddress and updated @p aDomainId.
      * @retval kErrorNotFound   Could not find a match for @p aAddress in deprecating SLAAC prefixes.
+     *
      */
     Error FindDomainIdFor(const Ip6::Address &aAddress, uint8_t &aDomainId) const;
 
@@ -168,12 +177,8 @@ private:
     class SlaacAddress : public Ip6::Netif::UnicastAddress
     {
     public:
-        static constexpr uint8_t kInvalidContextId = 0;
-
         bool      IsInUse(void) const { return mValid; }
         void      MarkAsNotInUse(void) { mValid = false; }
-        uint8_t   GetContextId(void) const { return mContextId; }
-        void      SetContextId(uint8_t aContextId) { mContextId = aContextId; }
         uint8_t   GetDomainId(void) const { return mDomainId; }
         void      SetDomainId(uint8_t aDomainId) { mDomainId = aDomainId; }
         bool      IsDeprecating(void) const { return (mExpirationTime.GetValue() != kNotDeprecated); };
@@ -192,7 +197,6 @@ private:
     private:
         static constexpr uint32_t kNotDeprecated = 0; // Special `mExpirationTime` value to indicate not deprecated.
 
-        uint8_t   mContextId;
         uint8_t   mDomainId;
         TimeMilli mExpirationTime;
     };
@@ -205,7 +209,6 @@ private:
     void        DeprecateAddress(SlaacAddress &aAddress);
     void        RemoveAddress(SlaacAddress &aAddress);
     void        AddAddressFor(const NetworkData::OnMeshPrefixConfig &aConfig);
-    bool        UpdateContextIdFor(SlaacAddress &aSlaacAddress);
     void        HandleTimer(void);
     void        GetIidSecretKey(IidSecretKey &aKey) const;
     void        HandleNotifierEvents(Events aEvents);

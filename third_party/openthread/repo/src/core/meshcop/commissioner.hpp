@@ -63,10 +63,6 @@ namespace ot {
 
 namespace MeshCoP {
 
-#if !OPENTHREAD_CONFIG_SECURE_TRANSPORT_ENABLE
-#error "Commissioner feature requires `OPENTHREAD_CONFIG_SECURE_TRANSPORT_ENABLE`"
-#endif
-
 class Commissioner : public InstanceLocator, private NonCopyable
 {
     friend class Tmf::Agent;
@@ -75,6 +71,7 @@ class Commissioner : public InstanceLocator, private NonCopyable
 public:
     /**
      * Type represents the Commissioner State.
+     *
      */
     enum State : uint8_t
     {
@@ -85,6 +82,7 @@ public:
 
     /**
      * Type represents Joiner Event.
+     *
      */
     enum JoinerEvent : uint8_t
     {
@@ -102,6 +100,7 @@ public:
      * Initializes the Commissioner object.
      *
      * @param[in]  aInstance     A reference to the OpenThread instance.
+     *
      */
     explicit Commissioner(Instance &aInstance);
 
@@ -115,6 +114,7 @@ public:
      * @retval kErrorNone           Successfully started the Commissioner service.
      * @retval kErrorAlready        Commissioner is already started.
      * @retval kErrorInvalidState   Device is not currently attached to a network.
+     *
      */
     Error Start(StateCallback aStateCallback, JoinerCallback aJoinerCallback, void *aCallbackContext);
 
@@ -123,6 +123,7 @@ public:
      *
      * @retval kErrorNone     Successfully stopped the Commissioner service.
      * @retval kErrorAlready  Commissioner is already stopped.
+     *
      */
     Error Stop(void) { return Stop(kSendKeepAliveToResign); }
 
@@ -130,6 +131,7 @@ public:
      * Returns the Commissioner Id.
      *
      * @returns The Commissioner Id.
+     *
      */
     const char *GetId(void) const { return mCommissionerId; }
 
@@ -141,11 +143,13 @@ public:
      * @retval kErrorNone           Successfully set the Commissioner Id.
      * @retval kErrorInvalidArgs    Given name is too long.
      * @retval kErrorInvalidState   The commissioner is active and id cannot be changed.
+     *
      */
     Error SetId(const char *aId);
 
     /**
      * Clears all Joiner entries.
+     *
      */
     void ClearJoiners(void);
 
@@ -158,6 +162,7 @@ public:
      * @retval kErrorNone          Successfully added the Joiner.
      * @retval kErrorNoBufs        No buffers available to add the Joiner.
      * @retval kErrorInvalidState  Commissioner service is not started.
+     *
      */
     Error AddJoinerAny(const char *aPskd, uint32_t aTimeout) { return AddJoiner(nullptr, nullptr, aPskd, aTimeout); }
 
@@ -171,6 +176,7 @@ public:
      * @retval kErrorNone          Successfully added the Joiner.
      * @retval kErrorNoBufs        No buffers available to add the Joiner.
      * @retval kErrorInvalidState  Commissioner service is not started.
+     *
      */
     Error AddJoiner(const Mac::ExtAddress &aEui64, const char *aPskd, uint32_t aTimeout)
     {
@@ -187,6 +193,7 @@ public:
      * @retval kErrorNone          Successfully added the Joiner.
      * @retval kErrorNoBufs        No buffers available to add the Joiner.
      * @retval kErrorInvalidState  Commissioner service is not started.
+     *
      */
     Error AddJoiner(const JoinerDiscerner &aDiscerner, const char *aPskd, uint32_t aTimeout)
     {
@@ -201,6 +208,7 @@ public:
      *
      * @retval kErrorNone       Successfully get the Joiner info.
      * @retval kErrorNotFound   Not found next Joiner.
+     *
      */
     Error GetNextJoinerInfo(uint16_t &aIterator, otJoinerInfo &aJoiner) const;
 
@@ -212,6 +220,7 @@ public:
      * @retval kErrorNone          Successfully added the Joiner.
      * @retval kErrorNotFound      The Joiner entry accepting any Joiner was not found.
      * @retval kErrorInvalidState  Commissioner service is not started.
+     *
      */
     Error RemoveJoinerAny(uint32_t aDelay) { return RemoveJoiner(nullptr, nullptr, aDelay); }
 
@@ -224,6 +233,7 @@ public:
      * @retval kErrorNone          Successfully added the Joiner.
      * @retval kErrorNotFound      The Joiner specified by @p aEui64 was not found.
      * @retval kErrorInvalidState  Commissioner service is not started.
+     *
      */
     Error RemoveJoiner(const Mac::ExtAddress &aEui64, uint32_t aDelay)
     {
@@ -239,6 +249,7 @@ public:
      * @retval kErrorNone          Successfully added the Joiner.
      * @retval kErrorNotFound      The Joiner specified by @p aEui64 was not found.
      * @retval kErrorInvalidState  Commissioner service is not started.
+     *
      */
     Error RemoveJoiner(const JoinerDiscerner &aDiscerner, uint32_t aDelay)
     {
@@ -249,6 +260,7 @@ public:
      * Gets the Provisioning URL.
      *
      * @returns A pointer to char buffer containing the URL string.
+     *
      */
     const char *GetProvisioningUrl(void) const { return mProvisioningUrl; }
 
@@ -259,6 +271,7 @@ public:
      *
      * @retval kErrorNone         Successfully set the Provisioning URL.
      * @retval kErrorInvalidArgs  @p aProvisioningUrl is invalid (too long).
+     *
      */
     Error SetProvisioningUrl(const char *aProvisioningUrl);
 
@@ -266,6 +279,7 @@ public:
      * Returns the Commissioner Session ID.
      *
      * @returns The Commissioner Session ID.
+     *
      */
     uint16_t GetSessionId(void) const { return mSessionId; }
 
@@ -273,6 +287,7 @@ public:
      * Indicates whether or not the Commissioner role is active.
      *
      * @returns TRUE if the Commissioner role is active, FALSE otherwise.
+     *
      */
     bool IsActive(void) const { return mState == kStateActive; }
 
@@ -280,6 +295,7 @@ public:
      * Indicates whether or not the Commissioner role is disabled.
      *
      * @returns TRUE if the Commissioner role is disabled, FALSE otherwise.
+     *
      */
     bool IsDisabled(void) const { return mState == kStateDisabled; }
 
@@ -287,6 +303,7 @@ public:
      * Gets the Commissioner State.
      *
      * @returns The Commissioner State.
+     *
      */
     State GetState(void) const { return mState; }
 
@@ -299,6 +316,7 @@ public:
      * @retval kErrorNone          Send MGMT_COMMISSIONER_GET successfully.
      * @retval kErrorNoBufs        Insufficient buffer space to send.
      * @retval kErrorInvalidState  Commissioner service is not started.
+     *
      */
     Error SendMgmtCommissionerGetRequest(const uint8_t *aTlvs, uint8_t aLength);
 
@@ -312,6 +330,7 @@ public:
      * @retval kErrorNone          Send MGMT_COMMISSIONER_SET successfully.
      * @retval kErrorNoBufs        Insufficient buffer space to send.
      * @retval kErrorInvalidState  Commissioner service is not started.
+     *
      */
     Error SendMgmtCommissionerSetRequest(const CommissioningDataset &aDataset, const uint8_t *aTlvs, uint8_t aLength);
 
@@ -319,6 +338,7 @@ public:
      * Returns a reference to the AnnounceBeginClient instance.
      *
      * @returns A reference to the AnnounceBeginClient instance.
+     *
      */
     AnnounceBeginClient &GetAnnounceBeginClient(void) { return mAnnounceBegin; }
 
@@ -326,6 +346,7 @@ public:
      * Returns a reference to the EnergyScanClient instance.
      *
      * @returns A reference to the EnergyScanClient instance.
+     *
      */
     EnergyScanClient &GetEnergyScanClient(void) { return mEnergyScan; }
 
@@ -333,6 +354,7 @@ public:
      * Returns a reference to the PanIdQueryClient instance.
      *
      * @returns A reference to the PanIdQueryClient instance.
+     *
      */
     PanIdQueryClient &GetPanIdQueryClient(void) { return mPanIdQuery; }
 
@@ -396,30 +418,30 @@ private:
     static void HandleMgmtCommissionerSetResponse(void                *aContext,
                                                   otMessage           *aMessage,
                                                   const otMessageInfo *aMessageInfo,
-                                                  otError              aResult);
+                                                  Error                aResult);
     void        HandleMgmtCommissionerSetResponse(Coap::Message          *aMessage,
                                                   const Ip6::MessageInfo *aMessageInfo,
                                                   Error                   aResult);
     static void HandleMgmtCommissionerGetResponse(void                *aContext,
                                                   otMessage           *aMessage,
                                                   const otMessageInfo *aMessageInfo,
-                                                  otError              aResult);
+                                                  Error                aResult);
     void        HandleMgmtCommissionerGetResponse(Coap::Message          *aMessage,
                                                   const Ip6::MessageInfo *aMessageInfo,
                                                   Error                   aResult);
     static void HandleLeaderPetitionResponse(void                *aContext,
                                              otMessage           *aMessage,
                                              const otMessageInfo *aMessageInfo,
-                                             otError              aResult);
-    void HandleLeaderPetitionResponse(Coap::Message *aMessage, const Ip6::MessageInfo *aMessageInfo, otError aResult);
+                                             Error                aResult);
+    void HandleLeaderPetitionResponse(Coap::Message *aMessage, const Ip6::MessageInfo *aMessageInfo, Error aResult);
     static void HandleLeaderKeepAliveResponse(void                *aContext,
                                               otMessage           *aMessage,
                                               const otMessageInfo *aMessageInfo,
                                               Error                aResult);
     void HandleLeaderKeepAliveResponse(Coap::Message *aMessage, const Ip6::MessageInfo *aMessageInfo, Error aResult);
 
-    static void HandleSecureAgentConnectEvent(Dtls::Session::ConnectEvent aEvent, void *aContext);
-    void        HandleSecureAgentConnectEvent(Dtls::Session::ConnectEvent aEvent);
+    static void HandleSecureAgentConnected(bool aConnected, void *aContext);
+    void        HandleSecureAgentConnected(bool aConnected);
 
     template <Uri kUri> void HandleTmf(Coap::Message &aMessage, const Ip6::MessageInfo &aMessageInfo);
 

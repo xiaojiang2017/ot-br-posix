@@ -29,6 +29,7 @@
 /**
  * @file
  *   This file includes compile-time configurations for the IP6 service.
+ *
  */
 
 #ifndef CONFIG_IP6_H_
@@ -41,6 +42,7 @@
  *   This module includes configuration variables for the IP6 service.
  *
  * @{
+ *
  */
 
 #include "config/border_routing.h"
@@ -50,6 +52,7 @@
  * @def OPENTHREAD_CONFIG_IP6_MAX_EXT_UCAST_ADDRS
  *
  * The maximum number of supported IPv6 addresses allows to be externally added.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_IP6_MAX_EXT_UCAST_ADDRS
 #define OPENTHREAD_CONFIG_IP6_MAX_EXT_UCAST_ADDRS 4
@@ -59,6 +62,7 @@
  * @def OPENTHREAD_CONFIG_IP6_MAX_EXT_MCAST_ADDRS
  *
  * The maximum number of supported IPv6 multicast addresses allows to be externally added.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_IP6_MAX_EXT_MCAST_ADDRS
 #define OPENTHREAD_CONFIG_IP6_MAX_EXT_MCAST_ADDRS 2
@@ -68,6 +72,7 @@
  * @def OPENTHREAD_CONFIG_IP6_HOP_LIMIT_DEFAULT
  *
  * This setting configures the default hop limit of IPv6.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_IP6_HOP_LIMIT_DEFAULT
 #define OPENTHREAD_CONFIG_IP6_HOP_LIMIT_DEFAULT 64
@@ -77,6 +82,7 @@
  * @def OPENTHREAD_CONFIG_IP6_MAX_DATAGRAM_LENGTH
  *
  * This setting configures the max datagram length of IPv6.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_IP6_MAX_DATAGRAM_LENGTH
 #define OPENTHREAD_CONFIG_IP6_MAX_DATAGRAM_LENGTH 1280
@@ -86,6 +92,7 @@
  * @def OPENTHREAD_CONFIG_ENABLE_IP6_FRAGMENTATION
  *
  * Define as 1 to enable IPv6 Fragmentation support.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_IP6_FRAGMENTATION_ENABLE
 #define OPENTHREAD_CONFIG_IP6_FRAGMENTATION_ENABLE 0
@@ -95,6 +102,7 @@
  * @def OPENTHREAD_CONFIG_IP6_MAX_ASSEMBLED_DATAGRAM
  *
  * This setting configures the max datagram length of a unfragmented IPv6 packet.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_IP6_MAX_ASSEMBLED_DATAGRAM
 #define OPENTHREAD_CONFIG_IP6_MAX_ASSEMBLED_DATAGRAM 2000
@@ -106,6 +114,7 @@
  * This setting configures the reassembly timeout for IPv6 in seconds.
  *
  * RFC 2460 \> 60 seconds
+ *
  */
 #ifndef OPENTHREAD_CONFIG_IP6_REASSEMBLY_TIMEOUT
 #define OPENTHREAD_CONFIG_IP6_REASSEMBLY_TIMEOUT 60
@@ -115,6 +124,7 @@
  * @def OPENTHREAD_CONFIG_IP6_SLAAC_ENABLE
  *
  * Define as 1 to enable support for adding of auto-configured SLAAC addresses by OpenThread.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_IP6_SLAAC_ENABLE
 #define OPENTHREAD_CONFIG_IP6_SLAAC_ENABLE 0
@@ -124,6 +134,7 @@
  * @def OPENTHREAD_CONFIG_IP6_SLAAC_NUM_ADDRESSES
  *
  * The number of auto-configured SLAAC addresses. Applicable only if OPENTHREAD_CONFIG_IP6_SLAAC_ENABLE is enabled.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_IP6_SLAAC_NUM_ADDRESSES
 #define OPENTHREAD_CONFIG_IP6_SLAAC_NUM_ADDRESSES 4
@@ -137,6 +148,7 @@
  * Applicable only if OPENTHREAD_CONFIG_IP6_SLAAC_ENABLE is enabled.
  *
  * Deprecating interval is used once an on-mesh prefix is removed from Network Data before removing the SLAAC address.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_IP6_SLAAC_DEPRECATION_INTERVAL
 #define OPENTHREAD_CONFIG_IP6_SLAAC_DEPRECATION_INTERVAL 300
@@ -146,6 +158,7 @@
  * @def OPENTHREAD_CONFIG_MPL_SEED_SET_ENTRIES
  *
  * The number of MPL Seed Set entries for duplicate detection.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_MPL_SEED_SET_ENTRIES
 #define OPENTHREAD_CONFIG_MPL_SEED_SET_ENTRIES 35
@@ -155,6 +168,7 @@
  * @def OPENTHREAD_CONFIG_MPL_SEED_SET_ENTRY_LIFETIME
  *
  * The MPL Seed Set entry lifetime in seconds.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_MPL_SEED_SET_ENTRY_LIFETIME
 #define OPENTHREAD_CONFIG_MPL_SEED_SET_ENTRY_LIFETIME 5
@@ -167,6 +181,7 @@
  *
  * If this feature is enabled, the MPL forward interval will be adjusted dynamically according to
  * the network scale, which helps to reduce multicast latency.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_MPL_DYNAMIC_INTERVAL_ENABLE
 #define OPENTHREAD_CONFIG_MPL_DYNAMIC_INTERVAL_ENABLE 0
@@ -176,6 +191,7 @@
  * @def OPENTHREAD_CONFIG_TCP_ENABLE
  *
  * Define as 1 to enable TCP.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_TCP_ENABLE
 #define OPENTHREAD_CONFIG_TCP_ENABLE 1
@@ -185,6 +201,7 @@
  * @def OPENTHREAD_CONFIG_TLS_ENABLE
  *
  * Define as 1 to enable support for TLS over TCP.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_TLS_ENABLE
 #define OPENTHREAD_CONFIG_TLS_ENABLE (OPENTHREAD_CONFIG_TCP_ENABLE || OPENTHREAD_CONFIG_BLE_TCAT_ENABLE)
@@ -194,6 +211,7 @@
  * @def OPENTHREAD_CONFIG_IP6_ALLOW_LOOP_BACK_HOST_DATAGRAMS
  *
  * Define as 1 to allow IPv6 datagrams from Host to be looped back to Host.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_IP6_ALLOW_LOOP_BACK_HOST_DATAGRAMS
 #define OPENTHREAD_CONFIG_IP6_ALLOW_LOOP_BACK_HOST_DATAGRAMS 1
@@ -203,6 +221,7 @@
  * @def OPENTHREAD_CONFIG_IP6_BR_COUNTERS_ENABLE
  *
  * Define as 1 to enable IPv6 Border Routing counters.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_IP6_BR_COUNTERS_ENABLE
 #define OPENTHREAD_CONFIG_IP6_BR_COUNTERS_ENABLE OPENTHREAD_CONFIG_BORDER_ROUTING_ENABLE
@@ -212,6 +231,7 @@
  * @def OPENTHREAD_CONFIG_IP6_RESTRICT_FORWARDING_LARGER_SCOPE_MCAST_WITH_LOCAL_SRC
  *
  * Define as 1 to restrict multicast forwarding to larger scope from local sources.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_IP6_RESTRICT_FORWARDING_LARGER_SCOPE_MCAST_WITH_LOCAL_SRC
 #define OPENTHREAD_CONFIG_IP6_RESTRICT_FORWARDING_LARGER_SCOPE_MCAST_WITH_LOCAL_SRC 0
@@ -219,6 +239,7 @@
 
 /**
  * @}
+ *
  */
 
 #endif // CONFIG_IP6_H_

@@ -29,12 +29,13 @@
 /**
  * @file
  *   This file includes implementations for IPv6 Neighbor Discovery (ND6).
+ *
  */
 
 #include "nd6.hpp"
 
-#if OPENTHREAD_CONFIG_BORDER_ROUTING_ENABLE
-
+#include "common/as_core_type.hpp"
+#include "common/code_utils.hpp"
 #include "instance/instance.hpp"
 
 namespace ot {
@@ -178,8 +179,6 @@ void RaFlagsExtOption::Init(void)
     Clear();
     SetType(kTypeRaFlagsExtension);
     SetSize(sizeof(RaFlagsExtOption));
-
-    OT_UNUSED_VARIABLE(mFlags);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -208,9 +207,9 @@ void RouterAdvert::Header::SetDefaultRouterPreference(RoutePreference aPreferenc
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-// TxMessage
+// RouterAdver::TxMessage
 
-Option *TxMessage::AppendOption(uint16_t aOptionSize)
+Option *RouterAdvert::TxMessage::AppendOption(uint16_t aOptionSize)
 {
     // This method appends an option with a given size to the RA
     // message by reserving space in the data buffer if there is
@@ -228,7 +227,7 @@ exit:
     return option;
 }
 
-Error TxMessage::AppendBytes(const uint8_t *aBytes, uint16_t aLength)
+Error RouterAdvert::TxMessage::AppendBytes(const uint8_t *aBytes, uint16_t aLength)
 {
     Error error = kErrorNone;
 
@@ -244,35 +243,10 @@ exit:
     return error;
 }
 
-Error TxMessage::AppendLinkLayerOption(LinkLayerAddress &aLinkLayerAddress, Option::Type aType)
+Error RouterAdvert::TxMessage::AppendHeader(const Header &aHeader)
 {
-    Error    error;
-    Option   option;
-    uint16_t size;
-
-    size = sizeof(Option) + aLinkLayerAddress.mLength;
-
-    option.SetType(aType);
-    option.SetSize(size);
-
-    SuccessOrExit(error = Append(option));
-    SuccessOrExit(error = AppendBytes(aLinkLayerAddress.mAddress, aLinkLayerAddress.mLength));
-
-    // `SetSize()` rounds up to ensure the option's size is a multiple
-    // of `kLengthUnit = 8` bytes and ends on a 64-bit boundary. Append
-    // any necessary zero padding bytes.
-
-    for (; size < option.GetSize(); size++)
-    {
-        SuccessOrExit(error = Append<uint8_t>(0));
-    }
-
-exit:
-    return error;
+    return AppendBytes(reinterpret_cast<const uint8_t *>(&aHeader), sizeof(Header));
 }
-
-//----------------------------------------------------------------------------------------------------------------------
-// RouterAdver::TxMessage
 
 Error RouterAdvert::TxMessage::AppendPrefixInfoOption(const Prefix &aPrefix,
                                                       uint32_t      aValidLifetime,
@@ -314,19 +288,38 @@ exit:
     return error;
 }
 
-//----------------------------------------------------------------------------------------------------------------------
-// RouterSolicitHeader
+Error RouterAdvert::TxMessage::AppendFlagsExtensionOption(bool aStubRouterFlag)
+{
+    Error             error = kErrorNone;
+    RaFlagsExtOption *flagsOption;
 
-RouterSolicitHeader::RouterSolicitHeader(void)
+    flagsOption = static_cast<RaFlagsExtOption *>(AppendOption(sizeof(RaFlagsExtOption)));
+    VerifyOrExit(flagsOption != nullptr, error = kErrorNoBufs);
+
+    flagsOption->Init();
+
+    if (aStubRouterFlag)
+    {
+        flagsOption->SetStubRouterFlag();
+    }
+
+exit:
+    return error;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// RouterSolicitMessage
+
+RouterSolicitMessage::RouterSolicitMessage(void)
 {
     mHeader.Clear();
     mHeader.SetType(Icmp::Header::kTypeRouterSolicit);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-// NeighborSolicitHeader
+// NeighborSolicitMessage
 
-NeighborSolicitHeader::NeighborSolicitHeader(void)
+NeighborSolicitMessage::NeighborSolicitMessage(void)
 {
     OT_UNUSED_VARIABLE(mChecksum);
     OT_UNUSED_VARIABLE(mReserved);
@@ -350,5 +343,3 @@ NeighborAdvertMessage::NeighborAdvertMessage(void)
 } // namespace Nd
 } // namespace Ip6
 } // namespace ot
-
-#endif // OPENTHREAD_CONFIG_BORDER_ROUTING_ENABLE

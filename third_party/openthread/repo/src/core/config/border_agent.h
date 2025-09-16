@@ -29,6 +29,7 @@
 /**
  * @file
  *   This file includes compile-time configurations for Border Agent.
+ *
  */
 
 #ifndef CONFIG_BORDER_AGENT_H_
@@ -41,12 +42,14 @@
  *   This module includes configuration variables for Border Agent.
  *
  * @{
+ *
  */
 
 /**
  * @def OPENTHREAD_CONFIG_BORDER_AGENT_ENABLE
  *
  * Define to 1 to enable Border Agent support.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_BORDER_AGENT_ENABLE
 #define OPENTHREAD_CONFIG_BORDER_AGENT_ENABLE 0
@@ -56,6 +59,7 @@
  * @def OPENTHREAD_CONFIG_BORDER_AGENT_UDP_PORT
  *
  * Specifies the Border Agent UDP port, and use 0 for ephemeral port.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_BORDER_AGENT_UDP_PORT
 #define OPENTHREAD_CONFIG_BORDER_AGENT_UDP_PORT 0
@@ -65,6 +69,7 @@
  * @def OPENTHREAD_CONFIG_BORDER_AGENT_ID_ENABLE
  *
  * Define to 1 to enable Border Agent ID support.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_BORDER_AGENT_ID_ENABLE
 #define OPENTHREAD_CONFIG_BORDER_AGENT_ID_ENABLE 1
@@ -74,23 +79,15 @@
  * @def OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE
  *
  * Define to 1 to enable ephemeral key mechanism and its APIs in Border Agent.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE
 #define OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE (OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_4)
 #endif
 
 /**
- * @def OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_FEATURE_ENABLED_BY_DEFAULT
- *
- * Whether or not the ephemeral key feature is enabled by default at run-time.
- */
-#ifndef OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_FEATURE_ENABLED_BY_DEFAULT
-#define OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_FEATURE_ENABLED_BY_DEFAULT \
-    OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE
-#endif
-
-/**
  * @}
+ *
  */
 
 #endif // CONFIG_BORDER_AGENT_H_

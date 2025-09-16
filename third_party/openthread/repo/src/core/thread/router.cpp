@@ -33,6 +33,11 @@
 
 #include "router.hpp"
 
+#include "common/array.hpp"
+#include "common/code_utils.hpp"
+#include "common/debug.hpp"
+#include "common/locator_getters.hpp"
+#include "common/num_utils.hpp"
 #include "instance/instance.hpp"
 
 namespace ot {

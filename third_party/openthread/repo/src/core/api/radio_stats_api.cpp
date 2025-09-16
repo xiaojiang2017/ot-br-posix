@@ -33,7 +33,10 @@
 
 #include "openthread-core-config.h"
 
-#include "instance/instance.hpp"
+#include <openthread/radio_stats.h>
+
+#include "common/as_core_type.hpp"
+#include "common/locator_getters.hpp"
 
 using namespace ot;
 
@@ -41,9 +44,9 @@ using namespace ot;
 
 const otRadioTimeStats *otRadioTimeStatsGet(otInstance *aInstance)
 {
-    return &AsCoreType(aInstance).Get<Radio::Statistics>().GetStats();
+    return &AsCoreType(aInstance).Get<RadioStatistics>().GetStats();
 }
 
-void otRadioTimeStatsReset(otInstance *aInstance) { AsCoreType(aInstance).Get<Radio::Statistics>().ResetTime(); }
+void otRadioTimeStatsReset(otInstance *aInstance) { AsCoreType(aInstance).Get<RadioStatistics>().ResetTime(); }
 
 #endif // OPENTHREAD_CONFIG_RADIO_STATS_ENABLE && (OPENTHREAD_FTD || OPENTHREAD_MTD)

@@ -35,7 +35,12 @@
 
 #if OPENTHREAD_CONFIG_TMF_ANYCAST_LOCATOR_ENABLE
 
+#include "common/as_core_type.hpp"
+#include "common/code_utils.hpp"
+#include "common/locator_getters.hpp"
 #include "instance/instance.hpp"
+#include "thread/thread_tlvs.hpp"
+#include "thread/uri_paths.hpp"
 
 namespace ot {
 
@@ -76,7 +81,7 @@ exit:
 void AnycastLocator::HandleResponse(void                *aContext,
                                     otMessage           *aMessage,
                                     const otMessageInfo *aMessageInfo,
-                                    otError              aError)
+                                    Error                aError)
 {
     static_cast<AnycastLocator *>(aContext)->HandleResponse(AsCoapMessagePtr(aMessage), AsCoreTypePtr(aMessageInfo),
                                                             aError);
@@ -86,7 +91,7 @@ void AnycastLocator::HandleResponse(Coap::Message *aMessage, const Ip6::MessageI
 {
     OT_UNUSED_VARIABLE(aMessageInfo);
 
-    uint16_t            rloc16  = Mle::kInvalidRloc16;
+    uint16_t            rloc16  = Mac::kShortAddrInvalid;
     const Ip6::Address *address = nullptr;
     Ip6::Address        meshLocalAddress;
 
@@ -119,7 +124,7 @@ void AnycastLocator::HandleTmf<kUriAnycastLocate>(Coap::Message &aMessage, const
     message = Get<Tmf::Agent>().NewResponseMessage(aMessage);
     VerifyOrExit(message != nullptr);
 
-    SuccessOrExit(Tlv::Append<ThreadMeshLocalEidTlv>(*message, Get<Mle::Mle>().GetMeshLocalEid().GetIid()));
+    SuccessOrExit(Tlv::Append<ThreadMeshLocalEidTlv>(*message, Get<Mle::Mle>().GetMeshLocal64().GetIid()));
     SuccessOrExit(Tlv::Append<ThreadRloc16Tlv>(*message, Get<Mle::Mle>().GetRloc16()));
 
     SuccessOrExit(Get<Tmf::Agent>().SendMessage(*message, aMessageInfo));

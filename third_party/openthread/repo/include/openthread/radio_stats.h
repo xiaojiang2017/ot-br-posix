@@ -51,10 +51,12 @@ extern "C" {
  *   This module includes functions for radio statistics.
  *
  * @{
+ *
  */
 
 /**
  * Contains the statistics of radio.
+ *
  */
 typedef struct otRadioTimeStats
 {
@@ -73,6 +75,7 @@ typedef struct otRadioTimeStats
  * @param[in]  aInstance    A pointer to an OpenThread instance.
  *
  * @returns  A const pointer to the otRadioTimeStats struct that contains the data.
+ *
  */
 const otRadioTimeStats *otRadioTimeStatsGet(otInstance *aInstance);
 
@@ -82,11 +85,14 @@ const otRadioTimeStats *otRadioTimeStatsGet(otInstance *aInstance);
  * All times are reset to 0.
  *
  * @param[in]  aInstance    A pointer to an OpenThread instance.
+ *
+ *
  */
 void otRadioTimeStatsReset(otInstance *aInstance);
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

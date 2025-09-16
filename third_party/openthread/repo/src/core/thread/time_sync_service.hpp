@@ -52,6 +52,7 @@ namespace ot {
 
 /**
  * Implements OpenThread Time Synchronization Service.
+ *
  */
 class TimeSync : public InstanceLocator, private NonCopyable
 {
@@ -60,6 +61,7 @@ class TimeSync : public InstanceLocator, private NonCopyable
 public:
     /**
      * Represents Network Time Status
+     *
      */
     enum Status : int8_t
     {
@@ -70,6 +72,7 @@ public:
 
     /**
      * Initializes the object.
+     *
      */
     TimeSync(Instance &aInstance);
 
@@ -79,6 +82,7 @@ public:
      * @param[in,out] aNetworkTime  The Thread network time in microseconds.
      *
      * @returns The time synchronization status.
+     *
      */
     Status GetTime(uint64_t &aNetworkTime) const;
 
@@ -86,6 +90,7 @@ public:
      * Handle the message which includes time synchronization information.
      *
      * @param[in] aMessage  The message which includes time synchronization information.
+     *
      */
     void HandleTimeSyncMessage(const Message &aMessage);
 
@@ -97,6 +102,7 @@ public:
      *       1. Leader send time sync message periodically;
      *       2. Router(except Leader) received a time sync message with newer sequence;
      *       3. Router received a time sync message with older sequence.
+     *
      */
     void ProcessTimeSync(void);
 #endif
@@ -105,6 +111,7 @@ public:
      * Gets the time synchronization sequence.
      *
      * @returns The time synchronization sequence.
+     *
      */
     uint8_t GetTimeSyncSeq(void) const { return mTimeSyncSeq; }
 
@@ -112,6 +119,7 @@ public:
      * Gets the time offset to the Thread network time.
      *
      * @returns The time offset to the Thread network time, in microseconds.
+     *
      */
     int64_t GetNetworkTimeOffset(void) const { return mNetworkTimeOffset; }
 
@@ -119,6 +127,7 @@ public:
      * Set the time synchronization period.
      *
      * @param[in] aTimeSyncPeriod   The time synchronization period, in seconds.
+     *
      */
     void SetTimeSyncPeriod(uint16_t aTimeSyncPeriod) { mTimeSyncPeriod = aTimeSyncPeriod; }
 
@@ -126,6 +135,7 @@ public:
      * Get the time synchronization period.
      *
      * @returns The time synchronization period, in seconds.
+     *
      */
     uint16_t GetTimeSyncPeriod(void) const { return mTimeSyncPeriod; }
 
@@ -133,6 +143,7 @@ public:
      * Set the time synchronization XTAL accuracy threshold for Router.
      *
      * @param[in] aXtalThreshold   The XTAL accuracy threshold for Router, in PPM.
+     *
      */
     void SetXtalThreshold(uint16_t aXtalThreshold) { mXtalThreshold = aXtalThreshold; }
 
@@ -140,6 +151,7 @@ public:
      * Get the time synchronization XTAL accuracy threshold for Router.
      *
      * @returns The XTAL accuracy threshold for Router, in PPM.
+     *
      */
     uint16_t GetXtalThreshold(void) const { return mXtalThreshold; }
 
@@ -148,6 +160,7 @@ public:
      *
      * @param[in] aCallback The callback to be called when time sync is handled.
      * @param[in] aCallbackContext The context to be passed to callback.
+     *
      */
     void SetTimeSyncCallback(otNetworkTimeSyncCallbackFn aCallback, void *aCallbackContext)
     {
@@ -156,6 +169,7 @@ public:
 
     /**
      * Callback to be called when timer expires.
+     *
      */
     void HandleTimeout(void);
 
@@ -164,6 +178,7 @@ private:
      * Callback to be called when thread state changes.
      *
      * @param[in] aFlags Flags that denote the state change events.
+     *
      */
     void HandleNotifierEvents(Events aEvents);
 
@@ -172,16 +187,19 @@ private:
      *
      * @param[in] aNotifyTimeUpdated True to denote that observers should be notified due to a time change, false
      * otherwise.
+     *
      */
     void CheckAndHandleChanges(bool aNotifyTimeUpdated);
 
     /**
      * Increase the time synchronization sequence.
+     *
      */
     void IncrementTimeSyncSeq(void);
 
     /**
      * Notify any listener of a network time sync update event.
+     *
      */
     void NotifyTimeSyncCallback(void);
 

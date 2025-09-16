@@ -46,6 +46,7 @@ namespace Hdlc {
  * @param[in]  aByte  The input byte value.
  *
  * @returns The updated FCS.
+ *
  */
 static uint16_t UpdateFcs(uint16_t aFcs, uint8_t aByte);
 
@@ -60,6 +61,7 @@ enum
 
 /**
  * FCS lookup table
+ *
  */
 enum
 {
@@ -136,8 +138,8 @@ otError Encoder::Encode(uint8_t aByte)
     {
         VerifyOrExit(mWritePointer.CanWrite(2), error = OT_ERROR_NO_BUFS);
 
-        IgnoreReturnValue(mWritePointer.WriteByte(kEscapeSequence));
-        IgnoreReturnValue(mWritePointer.WriteByte(aByte ^ 0x20));
+        IgnoreError(mWritePointer.WriteByte(kEscapeSequence));
+        IgnoreError(mWritePointer.WriteByte(aByte ^ 0x20));
     }
     else
     {
@@ -274,7 +276,7 @@ void Decoder::Decode(const uint8_t *aData, uint16_t aLength)
                 if (mWritePointer->CanWrite(sizeof(uint8_t)))
                 {
                     mFcs = UpdateFcs(mFcs, byte);
-                    IgnoreReturnValue(mWritePointer->WriteByte(byte));
+                    IgnoreError(mWritePointer->WriteByte(byte));
                     mDecodedLength++;
                 }
                 else
@@ -293,7 +295,7 @@ void Decoder::Decode(const uint8_t *aData, uint16_t aLength)
             {
                 byte ^= 0x20;
                 mFcs = UpdateFcs(mFcs, byte);
-                IgnoreReturnValue(mWritePointer->WriteByte(byte));
+                IgnoreError(mWritePointer->WriteByte(byte));
                 mDecodedLength++;
                 mState = kStateSync;
             }

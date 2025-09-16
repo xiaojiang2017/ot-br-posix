@@ -35,7 +35,11 @@
 
 #if OPENTHREAD_CONFIG_JOINER_ENABLE
 
-#include "instance/instance.hpp"
+#include <openthread/joiner.h>
+
+#include "common/as_core_type.hpp"
+#include "common/debug.hpp"
+#include "common/locator_getters.hpp"
 
 using namespace ot;
 

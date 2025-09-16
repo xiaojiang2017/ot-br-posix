@@ -29,6 +29,7 @@
 /**
  * @file
  *   This file includes compile-time configurations for the Link Quality service.
+ *
  */
 
 #ifndef CONFIG_LINK_QUALITY_H_
@@ -41,6 +42,7 @@
  *   This module includes configuration variables for the Link Quality service.
  *
  * @{
+ *
  */
 
 /**
@@ -50,6 +52,7 @@
  * frame transmissions. This value specifies the window (in terms of number of transmissions or samples) over which the
  * average rate is maintained. Practically, the average value can be considered as the percentage of CCA failures in
  * (approximately) last AVERAGING_WINDOW frame transmissions.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_CCA_FAILURE_RATE_AVERAGING_WINDOW
 #define OPENTHREAD_CONFIG_CCA_FAILURE_RATE_AVERAGING_WINDOW 512
@@ -62,6 +65,7 @@
  * parameter specifies the window (in terms of number of frames/sample) over which the average error rate is maintained.
  * Practically, the average value can be considered as the percentage of failed (no ack) MAC frame transmissions  over
  * (approximately) last AVERAGING_WINDOW frame transmission attempts to a specific neighbor.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_FRAME_TX_ERR_RATE_AVERAGING_WINDOW
 #define OPENTHREAD_CONFIG_FRAME_TX_ERR_RATE_AVERAGING_WINDOW 128
@@ -74,6 +78,7 @@
  * window (in terms of number of messages) over which the average error rate is maintained. Practically, the average
  * value can be considered as the percentage of failed (no ack) messages over (approximately) last AVERAGING_WINDOW
  * IPv6 messages sent to a specific neighbor.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_IPV6_TX_ERR_RATE_AVERAGING_WINDOW
 #define OPENTHREAD_CONFIG_IPV6_TX_ERR_RATE_AVERAGING_WINDOW 128
@@ -81,6 +86,7 @@
 
 /**
  * @}
+ *
  */
 
 #endif // CONFIG_LINK_QUALITY_H_

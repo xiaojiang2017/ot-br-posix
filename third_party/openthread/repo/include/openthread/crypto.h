@@ -52,10 +52,12 @@ extern "C" {
  *   This module includes cryptographic functions.
  *
  * @{
+ *
  */
 
 /**
  * Represents a SHA-256 hash.
+ *
  */
 typedef otPlatCryptoSha256Hash otCryptoSha256Hash;
 
@@ -66,6 +68,7 @@ typedef otPlatCryptoSha256Hash otCryptoSha256Hash;
  * @param[in]     aBuf           A pointer to the input buffer.
  * @param[in]     aBufLength     The length of @p aBuf in bytes.
  * @param[out]    aHash          A pointer to a `otCryptoSha256Hash` structure to output the hash value.
+ *
  */
 void otCryptoHmacSha256(const otCryptoKey *aKey, const uint8_t *aBuf, uint16_t aBufLength, otCryptoSha256Hash *aHash);
 
@@ -86,6 +89,7 @@ void otCryptoHmacSha256(const otCryptoKey *aKey, const uint8_t *aBuf, uint16_t a
  * @param[in]      aEncrypt       `true` on encrypt and `false` on decrypt.
  *
  * @param[out]     aTag           A pointer to the tag.
+ *
  */
 void otCryptoAesCcm(const otCryptoKey *aKey,
                     uint8_t            aTagLength,
@@ -101,6 +105,7 @@ void otCryptoAesCcm(const otCryptoKey *aKey,
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

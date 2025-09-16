@@ -34,7 +34,7 @@
 #include "tasklet.hpp"
 
 #include "common/code_utils.hpp"
-#include "instance/instance.hpp"
+#include "common/locator_getters.hpp"
 
 namespace ot {
 
@@ -43,14 +43,6 @@ void Tasklet::Post(void)
     if (!IsPosted())
     {
         Get<Scheduler>().PostTasklet(*this);
-    }
-}
-
-void Tasklet::Unpost(void)
-{
-    if (IsPosted())
-    {
-        Get<Scheduler>().RemoveTasklet(*this);
     }
 }
 
@@ -69,24 +61,6 @@ void Tasklet::Scheduler::PostTasklet(Tasklet &aTasklet)
         aTasklet.mNext = mTail->mNext;
         mTail->mNext   = &aTasklet;
         mTail          = &aTasklet;
-    }
-}
-
-void Tasklet::Scheduler::RemoveTasklet(Tasklet &aTasklet)
-{
-    Tasklet *prev = mTail;
-
-    while (prev->mNext != &aTasklet)
-    {
-        prev = prev->mNext;
-    }
-
-    prev->mNext    = aTasklet.mNext;
-    aTasklet.mNext = nullptr;
-
-    if (mTail == &aTasklet)
-    {
-        mTail = (prev != &aTasklet) ? prev : nullptr;
     }
 }
 

@@ -66,6 +66,7 @@ namespace Utils {
 
 /**
  * Implements the Mesh Diagnostics.
+ *
  */
 class MeshDiag : public InstanceLocator
 {
@@ -82,6 +83,7 @@ public:
 
     /**
      * Represents an iterator to go over list of IPv6 addresses of a router or an MTD child.
+     *
      */
     class Ip6AddrIterator : public otMeshDiagIp6AddrIterator
     {
@@ -95,6 +97,7 @@ public:
          *
          * @retval kErrorNone      Successfully retrieved the next address. @p aAddress is updated.
          * @retval kErrorNotFound  No more address. Reached the end of the list.
+         *
          */
         Error GetNextAddress(Ip6::Address &aAddress);
 
@@ -102,11 +105,13 @@ public:
         Error InitFrom(const Message &aMessage);
 
         const Message *mMessage;
-        OffsetRange    mOffsetRange;
+        uint16_t       mCurOffset;
+        uint16_t       mEndOffset;
     };
 
     /**
      * Represents information about a router in Thread mesh.
+     *
      */
     class RouterInfo : public otMeshDiagRouterInfo, public Clearable<RouterInfo>
     {
@@ -118,6 +123,7 @@ public:
 
     /**
      * Represents information about a child in Thread mesh.
+     *
      */
     class ChildInfo : public otMeshDiagChildInfo, public Clearable<ChildInfo>
     {
@@ -125,6 +131,7 @@ public:
 
     /**
      * Represents an iterator to go over list of IPv6 addresses of a router.
+     *
      */
     class ChildIterator : public otMeshDiagChildIterator
     {
@@ -138,6 +145,7 @@ public:
          *
          * @retval kErrorNone      Successfully retrieved the next child info. @p aChildInfo is updated.
          * @retval kErrorNotFound  No more child entry. Reached the end of the list.
+         *
          */
         Error GetNextChildInfo(ChildInfo &aChildInfo);
 
@@ -145,7 +153,8 @@ public:
         Error InitFrom(const Message &aMessage, uint16_t aParentRloc16);
 
         const Message *mMessage;
-        OffsetRange    mOffsetRange;
+        uint16_t       mCurOffset;
+        uint16_t       mEndOffset;
         uint16_t       mParentRloc16;
     };
 
@@ -153,6 +162,7 @@ public:
      * Initializes the `MeshDiag` instance.
      *
      * @param[in] aInstance   The OpenThread instance.
+     *
      */
     explicit MeshDiag(Instance &aInstance);
 
@@ -167,6 +177,7 @@ public:
      * @retval kErrorBusy          A previous discovery or query request is still ongoing.
      * @retval kErrorInvalidState  Device is not attached.
      * @retval kErrorNoBufs        Could not allocate buffer to send discovery messages.
+     *
      */
     Error DiscoverTopology(const DiscoverConfig &aConfig, DiscoverCallback aCallback, void *aContext);
 
@@ -182,6 +193,7 @@ public:
      * @retval kErrorInvalidArgs   The @p aRloc16 is not a valid router RLOC16.
      * @retval kErrorInvalidState  Device is not attached.
      * @retval kErrorNoBufs        Could not allocate buffer to send query messages.
+     *
      */
     Error QueryChildTable(uint16_t aRloc16, QueryChildTableCallback aCallback, void *aContext);
 
@@ -197,6 +209,7 @@ public:
      * @retval kErrorInvalidArgs   The @p aRloc16 is not a valid  RLOC16.
      * @retval kErrorInvalidState  Device is not attached.
      * @retval kErrorNoBufs        Could not allocate buffer to send query messages.
+     *
      */
     Error QueryChildrenIp6Addrs(uint16_t aRloc16, ChildIp6AddrsCallback aCallback, void *aContext);
 
@@ -212,6 +225,7 @@ public:
      * @retval kErrorInvalidArgs   The @p aRloc16 is not a valid router RLOC16.
      * @retval kErrorInvalidState  Device is not attached.
      * @retval kErrorNoBufs        Could not allocate buffer to send query messages.
+     *
      */
     Error QueryRouterNeighborTable(uint16_t aRloc16, RouterNeighborTableCallback aCallback, void *aContext);
 
@@ -220,6 +234,7 @@ public:
      *
      * When ongoing discovery is cancelled, the callback from `DiscoverTopology()` or  `QueryChildTable()` will not be
      * called anymore.
+     *
      */
     void Cancel(void);
 
@@ -291,7 +306,7 @@ private:
     static void HandleDiagGetResponse(void                *aContext,
                                       otMessage           *aMessage,
                                       const otMessageInfo *aMessageInfo,
-                                      otError              aResult);
+                                      Error                aResult);
 
     using TimeoutTimer = TimerMilliIn<MeshDiag, &MeshDiag::HandleTimer>;
 

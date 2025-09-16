@@ -29,6 +29,7 @@
 /**
  * @file
  *   This file includes definitions for infrastructure network interface.
+ *
  */
 
 #ifndef INFRA_IF_HPP_
@@ -51,20 +52,21 @@ namespace BorderRouter {
 
 /**
  * Represents the infrastructure network interface on a border router.
+ *
  */
 class InfraIf : public InstanceLocator
 {
 public:
     static constexpr uint16_t kInfoStringSize = 20; ///< Max chars for the info string (`ToString()`).
 
-    typedef String<kInfoStringSize>       InfoString;       ///< String type returned from `ToString()`.
-    typedef Data<kWithUint16Length>       Icmp6Packet;      ///< An IMCPv6 packet (data containing the IP payload)
-    typedef otPlatInfraIfLinkLayerAddress LinkLayerAddress; ///< A link-layer address
+    typedef String<kInfoStringSize> InfoString;  ///< String type returned from `ToString()`.
+    typedef Data<kWithUint16Length> Icmp6Packet; ///< An IMCPv6 packet (data containing the IP payload)
 
     /**
      * Initializes the `InfraIf`.
      *
      * @param[in]  aInstance  A OpenThread instance.
+     *
      */
     explicit InfraIf(Instance &aInstance);
 
@@ -76,11 +78,13 @@ public:
      * @retval  kErrorNone         Successfully initialized the `InfraIf`.
      * @retval  kErrorInvalidArgs  The index of the infra interface is not valid.
      * @retval  kErrorInvalidState The `InfraIf` is already initialized.
+     *
      */
     Error Init(uint32_t aIfIndex);
 
     /**
      * Deinitilaizes the `InfraIf`.
+     *
      */
     void Deinit(void);
 
@@ -89,6 +93,7 @@ public:
      *
      * @retval TRUE    The `InfraIf` is initialized.
      * @retval FALSE   The `InfraIf` is not initialized.
+     *
      */
     bool IsInitialized(void) const { return mInitialized; }
 
@@ -97,6 +102,7 @@ public:
      *
      * @retval TRUE   The infrastructure interface is running.
      * @retval FALSE  The infrastructure interface is not running.
+     *
      */
     bool IsRunning(void) const { return mIsRunning; }
 
@@ -104,6 +110,7 @@ public:
      * Returns the infrastructure interface index.
      *
      * @returns The interface index or zero if not initialized.
+     *
      */
     uint32_t GetIfIndex(void) const { return mIfIndex; }
 
@@ -111,18 +118,9 @@ public:
      * Sets the infrastructure interface index.
      *
      * @param[in]  aIfIndex        The infrastructure interface index.
+     *
      */
     void SetIfIndex(uint32_t aIfIndex) { mIfIndex = aIfIndex; }
-
-    /**
-     * Gets the infrastructure interface link-layer address.
-     *
-     * @param[out]  aLinkLayerAddress     A reference to return the interface link-layer address.
-     *
-     * @retval  kErrorNone    Successfully get the infrastructure interface link-layer address.
-     * @retval  kErrorFailed  Failed to get the infrastructure interface link-layer address.
-     */
-    Error GetLinkLayerAddress(LinkLayerAddress &aLinkLayerAddress);
 
     /**
      * Indicates whether or not the infra interface has the given IPv6 address assigned.
@@ -133,6 +131,7 @@ public:
      *
      * @retval TRUE   The infrastructure interface has @p aAddress.
      * @retval FALSE  The infrastructure interface does not have @p aAddress.
+     *
      */
     bool HasAddress(const Ip6::Address &aAddress) const;
 
@@ -146,6 +145,7 @@ public:
      *
      * @retval kErrorNone    Successfully sent the ICMPv6 message.
      * @retval kErrorFailed  Failed to send the ICMPv6 message.
+     *
      */
     Error Send(const Icmp6Packet &aPacket, const Ip6::Address &aDestination) const;
 
@@ -155,6 +155,7 @@ public:
      * @param[in]  aIfIndex       The infrastructure interface index on which the ICMPv6 message is received.
      * @param[in]  aSource        The IPv6 source address.
      * @param[in]  aPacket        The ICMPv6 packet.
+     *
      */
     void HandledReceived(uint32_t aIfIndex, const Ip6::Address &aSource, const Icmp6Packet &aPacket);
 
@@ -165,6 +166,7 @@ public:
      *
      * @retval  kErrorNone    Successfully request NAT64 prefix discovery.
      * @retval  kErrorFailed  Failed to request NAT64 prefix discovery.
+     *
      */
     Error DiscoverNat64Prefix(void) const;
 
@@ -173,6 +175,7 @@ public:
      *
      * @param[in]  aIfIndex    The infrastructure interface index on which the host address is received.
      * @param[in]  aPrefix     The NAT64 prefix on the infrastructure link.
+     *
      */
     void DiscoverNat64PrefixDone(uint32_t aIfIndex, const Ip6::Prefix &aPrefix);
 
@@ -185,6 +188,7 @@ public:
      * @retval  kErrorNone          Successfully updated the infra interface status.
      * @retval  kErrorInvalidState  The `InfraIf` is not initialized.
      * @retval  kErrorInvalidArgs   The @p IfIndex does not match the interface index of `InfraIf`.
+     *
      */
     Error HandleStateChanged(uint32_t aIfIndex, bool aIsRunning);
 
@@ -192,6 +196,7 @@ public:
      * Converts the `InfraIf` to a human-readable string.
      *
      * @returns The string representation of `InfraIf`.
+     *
      */
     InfoString ToString(void) const;
 

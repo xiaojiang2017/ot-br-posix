@@ -34,9 +34,9 @@
 
 #include "common/code_utils.hpp"
 #include "common/new.hpp"
+#include "common/num_utils.hpp"
 #include "lib/platform/exit_code.h"
 #include "lib/spinel/spinel.h"
-#include "lib/utils/math.hpp"
 
 namespace ot {
 namespace Spinel {
@@ -193,7 +193,6 @@ otError SpinelDriver::SendCommand(uint32_t aCommand, spinel_prop_key_t aKey, spi
     offset = static_cast<uint16_t>(packed);
 
     SuccessOrExit(error = mSpinelInterface->SendFrame(buffer, offset));
-    LogSpinelFrame(buffer, offset, true /* aTx */);
 
 exit:
     return error;
@@ -228,7 +227,6 @@ otError SpinelDriver::SendCommand(uint32_t          aCommand,
     }
 
     SuccessOrExit(error = mSpinelInterface->SendFrame(buffer, offset));
-    LogSpinelFrame(buffer, offset, true /* aTx */);
 
 exit:
     return error;
@@ -248,7 +246,7 @@ otError SpinelDriver::WaitResponse(void)
     otError  error = OT_ERROR_NONE;
     uint64_t end   = otPlatTimeGet() + kMaxWaitTime * kUsPerMs;
 
-    LogDebg("Waiting response: key=%lu", Lib::Utils::ToUlong(mWaitingKey));
+    LogDebg("Waiting response: key=%lu", ToUlong(mWaitingKey));
 
     do
     {

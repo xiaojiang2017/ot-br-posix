@@ -48,6 +48,7 @@ extern "C" {
  *   This module includes the platform abstraction for dynamic memory allocation.
  *
  * @{
+ *
  */
 
 /*
@@ -83,6 +84,7 @@ void otPlatFree(void *aPtr);
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

@@ -35,23 +35,18 @@
  * Represents a socket for communication with other simulation node.
  *
  * This is used for emulation of 15.4 radio or other interfaces.
+ *
  */
 typedef struct utilsSocket
 {
     bool     mInitialized; ///< Whether or not initialized.
-    bool     mUseIp6;      ///< Whether IPv6 or IPv4.
     int      mTxFd;        ///< RX file descriptor.
     int      mRxFd;        ///< TX file descriptor.
     uint16_t mPortBase;    ///< Base port number value.
     uint16_t mPort;        ///< The port number used by this node
-    union
-    {
-        struct sockaddr_in  mSockAddr4; ///< The IPv4 group sock address.
-        struct sockaddr_in6 mSockAddr6; ///< The IPv4 group sock address.
-    } mGroupAddr;                       ///< The group sock address for simulating radio.
 } utilsSocket;
 
-extern const char *gLocalInterface; ///< Local interface name or address to use for sockets
+extern const char *gLocalHost; ///< Local host address to use for sockets
 
 /**
  * Adds a file descriptor (FD) to a given FD set.
@@ -59,6 +54,7 @@ extern const char *gLocalInterface; ///< Local interface name or address to use 
  * @param[in] aFd      The FD to add.
  * @param[in] aFdSet   The FD set to add to.
  * @param[in] aMaxFd   A pointer to track maximum FD in @p aFdSet (can be NULL).
+ *
  */
 void utilsAddFdToFdSet(int aFd, fd_set *aFdSet, int *aMaxFd);
 
@@ -67,6 +63,7 @@ void utilsAddFdToFdSet(int aFd, fd_set *aFdSet, int *aMaxFd);
  *
  * @param[in] aSocket     The socket to initialize.
  * @param[in] aPortBase   The base port number value. Nodes will determine their port as `aPortBased + gNodeId`.
+ *
  */
 void utilsInitSocket(utilsSocket *aSocket, uint16_t aPortBase);
 
@@ -74,6 +71,7 @@ void utilsInitSocket(utilsSocket *aSocket, uint16_t aPortBase);
  * De-initializes the socket.
  *
  * @param[in] aSocket   The socket to de-initialize.
+ *
  */
 void utilsDeinitSocket(utilsSocket *aSocket);
 
@@ -83,6 +81,7 @@ void utilsDeinitSocket(utilsSocket *aSocket);
  * @param[in] aSocket   The socket.
  * @param[in] aFdSet    The (read) FD set to add to.
  * @param[in] aMaxFd    A pointer to track maximum FD in @p aFdSet (can be NULL).
+ *
  */
 void utilsAddSocketRxFd(const utilsSocket *aSocket, fd_set *aFdSet, int *aMaxFd);
 
@@ -92,6 +91,7 @@ void utilsAddSocketRxFd(const utilsSocket *aSocket, fd_set *aFdSet, int *aMaxFd)
  * @param[in] aSocket   The socket.
  * @param[in] aFdSet    The (write) FD set to add to.
  * @param[in] aMaxFd    A pointer to track maximum FD in @p aFdSet (can be NULL).
+ *
  */
 void utilsAddSocketTxFd(const utilsSocket *aSocket, fd_set *aFdSet, int *aMaxFd);
 
@@ -103,6 +103,7 @@ void utilsAddSocketTxFd(const utilsSocket *aSocket, fd_set *aFdSet, int *aMaxFd)
  *
  * @retval TRUE   The socket RX FD is in @p aReadFdSet, and socket can receive.
  * @retval FALSE  The socket RX FD is not in @p aReadFdSet. Socket is not ready to receive.
+ *
  */
 bool utilsCanSocketReceive(const utilsSocket *aSocket, const fd_set *aReadFdSet);
 
@@ -114,6 +115,7 @@ bool utilsCanSocketReceive(const utilsSocket *aSocket, const fd_set *aReadFdSet)
  *
  * @retval TRUE   The socket TX FD is in @p aWriteFdSet, and socket can send.
  * @retval FALSE  The socket TX FD is not in @p aWriteFdSet. Socket is not ready to send.
+ *
  */
 bool utilsCanSocketSend(const utilsSocket *aSocket, const fd_set *aWriteFdSet);
 
@@ -129,6 +131,7 @@ bool utilsCanSocketSend(const utilsSocket *aSocket, const fd_set *aWriteFdSet);
  *                             Can be NULL if not needed.
  *
  * @returns The number of received bytes written into @p aBuffer.
+ *
  */
 uint16_t utilsReceiveFromSocket(const utilsSocket *aSocket,
                                 void              *aBuffer,
@@ -141,6 +144,7 @@ uint16_t utilsReceiveFromSocket(const utilsSocket *aSocket,
  * @param[in] aSocket         The socket.
  * @param[in] aBuffer         The buffer containing the bytes to sent.
  * @param[in]  aBufferSize    Size of data in @p buffer in bytes.
+ *
  */
 void utilsSendOverSocket(const utilsSocket *aSocket, const void *aBuffer, uint16_t aBufferLength);
 

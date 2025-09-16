@@ -51,6 +51,7 @@ namespace Mac {
 
 /**
  * Defines the raw link-layer object.
+ *
  */
 class LinkRaw : public InstanceLocator, private NonCopyable
 {
@@ -61,11 +62,13 @@ public:
      * Initializes the object.
      *
      * @param[in]   aInstance   A reference to the OpenThread instance.
+     *
      */
     explicit LinkRaw(Instance &aInstance);
 
     /**
      * Initializes the states of the raw link-layer.
+     *
      */
     void Init(void);
 
@@ -73,6 +76,7 @@ public:
      * Returns true if the raw link-layer is enabled.
      *
      * @returns true if enabled, false otherwise.
+     *
      */
     bool IsEnabled(void) const { return mReceiveDoneCallback != nullptr; }
 
@@ -86,6 +90,7 @@ public:
      * @retval kErrorInvalidState    Thread stack is enabled.
      * @retval kErrorFailed          The radio could not be enabled/disabled.
      * @retval kErrorNone            Successfully enabled/disabled raw link.
+     *
      */
     Error SetReceiveDone(otLinkRawReceiveDone aCallback);
 
@@ -93,6 +98,7 @@ public:
      * Returns the capabilities of the raw link-layer.
      *
      * @returns The radio capability bit vector.
+     *
      */
     otRadioCaps GetCaps(void) const { return mSubMac.GetCaps(); }
 
@@ -101,6 +107,7 @@ public:
      *
      * @retval kErrorNone            Successfully transitioned to Receive.
      * @retval kErrorInvalidState    The radio was disabled or transmitting.
+     *
      */
     Error Receive(void);
 
@@ -111,6 +118,7 @@ public:
      * @param[in]  aError    kErrorNone when successfully received a frame,
      *                       kErrorAbort when reception was aborted and a frame was not received,
      *                       kErrorNoBufs when a frame could not be received due to lack of rx buffer space.
+     *
      */
     void InvokeReceiveDone(RxFrame *aFrame, Error aError);
 
@@ -118,6 +126,7 @@ public:
      * Gets the radio transmit frame.
      *
      * @returns The transmit frame.
+     *
      */
     TxFrame &GetTransmitFrame(void) { return mSubMac.GetTransmitFrame(); }
 
@@ -130,6 +139,7 @@ public:
      *
      * @retval kErrorNone           Successfully transitioned to Transmit.
      * @retval kErrorInvalidState   The radio was not in the Receive state.
+     *
      */
     Error Transmit(otLinkRawTransmitDone aCallback);
 
@@ -142,6 +152,7 @@ public:
      *                        kErrorNoAck when the frame was transmitted but no ACK was received,
      *                        kErrorChannelAccessFailure tx failed due to activity on the channel,
      *                        kErrorAbort when transmission was aborted for other reasons.
+     *
      */
     void InvokeTransmitDone(TxFrame &aFrame, RxFrame *aAckFrame, Error aError);
 
@@ -156,6 +167,7 @@ public:
      * @retval kErrorBusy            The radio is performing energy scanning.
      * @retval kErrorNotImplemented  The radio doesn't support energy scanning.
      * @retval kErrorInvalidState    If the raw link-layer isn't enabled.
+     *
      */
     Error EnergyScan(uint8_t aScanChannel, uint16_t aScanDuration, otLinkRawEnergyScanDone aCallback);
 
@@ -163,6 +175,7 @@ public:
      * Invokes the mEnergyScanDoneCallback, if set.
      *
      * @param[in]   aEnergyScanMaxRssi  The max RSSI for energy scan.
+     *
      */
     void InvokeEnergyScanDone(int8_t aEnergyScanMaxRssi);
 
@@ -170,6 +183,7 @@ public:
      * Returns the short address.
      *
      * @returns short address.
+     *
      */
     ShortAddress GetShortAddress(void) const { return mSubMac.GetShortAddress(); }
 
@@ -180,23 +194,15 @@ public:
      *
      * @retval kErrorNone            If successful.
      * @retval kErrorInvalidState    If the raw link-layer isn't enabled.
+     *
      */
     Error SetShortAddress(ShortAddress aShortAddress);
-
-    /**
-     * Sets the alternate short address.
-     *
-     * @param[in] aShortAddress   The short address. Use `kShortAddrInvalid` to clear it.
-     *
-     * @retval kErrorNone            If successful.
-     * @retval kErrorInvalidState    If the raw link-layer isn't enabled.
-     */
-    Error SetAlternateShortAddress(ShortAddress aShortAddress);
 
     /**
      * Returns PANID.
      *
      * @returns PANID.
+     *
      */
     PanId GetPanId(void) const { return mPanId; }
 
@@ -207,6 +213,7 @@ public:
      *
      * @retval kErrorNone            If successful.
      * @retval kErrorInvalidState    If the raw link-layer isn't enabled.
+     *
      */
     Error SetPanId(PanId aPanId);
 
@@ -214,6 +221,7 @@ public:
      * Gets the current receiving channel.
      *
      * @returns Current receiving channel.
+     *
      */
     uint8_t GetChannel(void) const { return mReceiveChannel; }
 
@@ -221,6 +229,7 @@ public:
      * Sets the receiving channel.
      *
      * @param[in]  aChannel     The channel to use for receiving.
+     *
      */
     Error SetChannel(uint8_t aChannel);
 
@@ -228,6 +237,7 @@ public:
      * Returns the extended address.
      *
      * @returns A reference to the extended address.
+     *
      */
     const ExtAddress &GetExtAddress(void) const { return mSubMac.GetExtAddress(); }
 
@@ -238,6 +248,7 @@ public:
      *
      * @retval kErrorNone            If successful.
      * @retval kErrorInvalidState    If the raw link-layer isn't enabled.
+     *
      */
     Error SetExtAddress(const ExtAddress &aExtAddress);
 
@@ -253,6 +264,7 @@ public:
      * @retval kErrorNone            If successful.
      * @retval kErrorFailed          Platform failed to import key.
      * @retval kErrorInvalidState    If the raw link-layer isn't enabled.
+     *
      */
     Error SetMacKey(uint8_t aKeyIdMode, uint8_t aKeyId, const Key &aPrevKey, const Key &aCurrKey, const Key &aNextKey);
 
@@ -265,6 +277,7 @@ public:
      *
      * @retval kErrorNone            If successful.
      * @retval kErrorInvalidState    If the raw link-layer isn't enabled.
+     *
      */
     Error SetMacFrameCounter(uint32_t aFrameCounter, bool aSetIfLarger);
 
@@ -283,6 +296,7 @@ public:
      * @param[in] aRetryCount Indicates number of transmission retries for this frame.
      * @param[in] aWillRetx   Indicates whether frame will be retransmitted or not. This is applicable only
      *                        when there was an error in transmission (i.e., `aError` is not NONE).
+     *
      */
     void RecordFrameTransmitStatus(const TxFrame &aFrame, Error aError, uint8_t aRetryCount, bool aWillRetx);
 #else

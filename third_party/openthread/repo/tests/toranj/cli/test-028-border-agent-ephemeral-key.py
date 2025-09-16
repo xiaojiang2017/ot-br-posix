@@ -34,7 +34,9 @@ import time
 # -----------------------------------------------------------------------------------------------------------------------
 # Test description:
 #
-# Validate Border Agent ephemeral key APIs.
+# Validate changes to `IntervalMax` for MLE Advertisement Trickle Timer based on number of
+# router neighbors of the device.
+#
 
 test_name = __file__[:-3] if __file__.endswith('.py') else __file__
 print('-' * 120)
@@ -55,20 +57,36 @@ leader.form('ba-ephemeral')
 
 verify(leader.get_state() == 'leader')
 
-leader.ba_ephemeral_key_set_enabled(False)
-verify(leader.ba_ephemeral_key_get_state() == 'Disabled')
-leader.ba_ephemeral_key_set_enabled(True)
-verify(leader.ba_ephemeral_key_get_state() == 'Stopped')
+verify(leader.ba_is_ephemeral_key_active() == 'inactive')
 
-leader.ba_ephemeral_key_start('password', 10000, 1234)
+port = int(leader.ba_get_port())
+
+leader.ba_set_ephemeral_key('password', 10000, 1234)
 
 time.sleep(0.1)
 
-verify(leader.ba_ephemeral_key_get_state() == 'Started')
-verify(int(leader.ba_ephemeral_key_get_port()) == 1234)
+verify(leader.ba_is_ephemeral_key_active() == 'active')
+verify(int(leader.ba_get_port()) == 1234)
 
-leader.ba_ephemeral_key_stop()
-verify(leader.ba_ephemeral_key_get_state() == 'Stopped')
+leader.ba_set_ephemeral_key('password2', 200, 45678)
+
+time.sleep(0.100 / speedup)
+verify(leader.ba_is_ephemeral_key_active() == 'active')
+verify(int(leader.ba_get_port()) == 45678)
+
+time.sleep(0.150 / speedup)
+verify(leader.ba_is_ephemeral_key_active() == 'inactive')
+verify(int(leader.ba_get_port()) == port)
+
+leader.ba_set_ephemeral_key('newkey')
+verify(leader.ba_is_ephemeral_key_active() == 'active')
+
+time.sleep(0.1)
+verify(leader.ba_is_ephemeral_key_active() == 'active')
+
+leader.ba_clear_ephemeral_key()
+verify(leader.ba_is_ephemeral_key_active() == 'inactive')
+verify(int(leader.ba_get_port()) == port)
 
 # -----------------------------------------------------------------------------------------------------------------------
 # Test finished

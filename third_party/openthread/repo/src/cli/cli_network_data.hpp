@@ -45,6 +45,7 @@ namespace Cli {
 
 /**
  * Implements the Network Data CLI.
+ *
  */
 class NetworkData : private Utils
 {
@@ -55,6 +56,7 @@ public:
      * BorderRouter (OnMeshPrefix) TLV uses `uint16_t` for its flags and ExternalRoute uses `uint8_t`, though some of
      * the bits are not currently used and reserved for future, so 17 chars string (16 flags plus null char at end of
      * string) covers current and future flags.
+     *
      */
     static constexpr uint16_t kFlagsStringSize = 17;
 
@@ -65,6 +67,7 @@ public:
      *
      * @param[in]  aInstance            The OpenThread Instance.
      * @param[in]  aOutputImplementer   An `OutputImplementer`.
+     *
      */
     NetworkData(otInstance *aInstance, OutputImplementer &aOutputImplementer);
 
@@ -78,6 +81,7 @@ public:
      * @retval OT_ERROR_INVALID_COMMAND   Invalid or unknown CLI command.
      * @retval OT_ERROR_INVALID_ARGS      Invalid arguments.
      * @retval ...                        Error during execution of the CLI command.
+     *
      */
     otError Process(Arg aArgs[]);
 
@@ -85,6 +89,7 @@ public:
      * Outputs the prefix config.
      *
      * @param[in]  aConfig  The prefix config.
+     *
      */
     void OutputPrefix(const otBorderRouterConfig &aConfig);
 
@@ -92,6 +97,7 @@ public:
      * Outputs the route config.
      *
      * @param[in]  aConfig  The route config.
+     *
      */
     void OutputRoute(const otExternalRouteConfig &aConfig);
 
@@ -99,6 +105,7 @@ public:
      * Outputs the service config.
      *
      * @param[in]  aConfig  The service config.
+     *
      */
     void OutputService(const otServiceConfig &aConfig);
 
@@ -107,6 +114,7 @@ public:
      *
      * @param[in]  aConfig  The prefix config.
      * @param[out] aString  The string to populate from @a Config flags.
+     *
      */
     static void PrefixFlagsToString(const otBorderRouterConfig &aConfig, FlagsString &aString);
 
@@ -115,6 +123,7 @@ public:
      *
      * @param[in]  aConfig  The route config.
      * @param[out] aString  The string to populate from @a Config flags.
+     *
      */
     static void RouteFlagsToString(const otExternalRouteConfig &aConfig, FlagsString &aString);
 

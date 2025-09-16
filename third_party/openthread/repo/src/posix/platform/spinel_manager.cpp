@@ -36,7 +36,6 @@
 #include "posix/platform/hdlc_interface.hpp"
 #include "posix/platform/radio_url.hpp"
 #include "posix/platform/spi_interface.hpp"
-#include "posix/platform/spinel_driver_getter.hpp"
 #include "posix/platform/vendor_interface.hpp"
 
 static ot::Posix::SpinelManager sSpinelManager;
@@ -44,10 +43,9 @@ static ot::Posix::SpinelManager sSpinelManager;
 namespace ot {
 namespace Posix {
 
-// Implements `GetSpinelDriver` in spinel_driver_getter.hpp for external access to SpinelDriver
-Spinel::SpinelDriver &GetSpinelDriver(void) { return sSpinelManager.GetSpinelDriver(); }
-
 SpinelManager &SpinelManager::GetSpinelManager(void) { return sSpinelManager; }
+
+Spinel::SpinelDriver &SpinelManager::GetSpinelDriver(void) { return sSpinelManager.mSpinelDriver; }
 
 SpinelManager::SpinelManager(void)
     : mUrl(nullptr)
@@ -203,14 +201,14 @@ void platformSpinelManagerDeinit(void) { return sSpinelManager.Deinit(); }
 void virtualTimeSpinelProcess(otInstance *aInstance, const struct VirtualTimeEvent *aEvent)
 {
     OT_UNUSED_VARIABLE(aInstance);
-    ot::Posix::GetSpinelDriver().Process(aEvent);
+    ot::Posix::SpinelManager::GetSpinelDriver().Process(aEvent);
 }
 #else
 void platformSpinelManagerProcess(otInstance *aInstance, const otSysMainloopContext *aContext)
 {
     OT_UNUSED_VARIABLE(aInstance);
 
-    ot::Posix::GetSpinelDriver().Process(aContext);
+    ot::Posix::SpinelManager::GetSpinelDriver().Process(aContext);
 }
 #endif // OPENTHREAD_POSIX_VIRTUAL_TIME
 
@@ -218,7 +216,7 @@ void platformSpinelManagerUpdateFdSet(otSysMainloopContext *aContext)
 {
     sSpinelManager.GetSpinelInterface().UpdateFdSet(aContext);
 
-    if (ot::Posix::GetSpinelDriver().HasPendingFrame())
+    if (ot::Posix::SpinelManager::GetSpinelDriver().HasPendingFrame())
     {
         aContext->mTimeout.tv_sec  = 0;
         aContext->mTimeout.tv_usec = 0;

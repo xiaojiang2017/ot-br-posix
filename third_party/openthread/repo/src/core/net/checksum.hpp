@@ -48,6 +48,7 @@ namespace ot {
 
 /**
  * Implements IP checksum calculation and verification.
+ *
  */
 class Checksum
 {
@@ -64,6 +65,7 @@ public:
      *
      * @retval kErrorNone    The checksum is valid if UDP/ICMP6 protocol, or not a UDP/ICMP6 protocol.
      * @retval kErrorDrop    The check is not valid and message should be dropped.
+     *
      */
     static Error VerifyMessageChecksum(const Message &aMessage, const Ip6::MessageInfo &aMessageInfo, uint8_t aIpProto);
 
@@ -76,6 +78,7 @@ public:
      * @param[in] aSource       The source address.
      * @param[in] aDestination  The destination address.
      * @param[in] aIpProto      The Internet Protocol value.
+     *
      */
     static void UpdateMessageChecksum(Message            &aMessage,
                                       const Ip6::Address &aSource,
@@ -91,6 +94,7 @@ public:
      * @param[in] aSource       The source address.
      * @param[in] aDestination  The destination address.
      * @param[in] aIpProto      The Internet Protocol value.
+     *
      */
     static void UpdateMessageChecksum(Message            &aMessage,
                                       const Ip4::Address &aSource,
@@ -101,6 +105,7 @@ public:
      * Calculates and then updates the checksum field in the IPv4 header.
      *
      * @param[in,out] aHeader The IPv4 header to update the checksum in.
+     *
      */
     static void UpdateIp4HeaderChecksum(Ip4::Header &aHeader);
 

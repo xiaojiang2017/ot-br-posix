@@ -49,6 +49,7 @@ namespace Ip6 {
  *   This module includes definitions for core IPv6 networking.
  *
  * @{
+ *
  */
 
 // Internet Protocol Numbers
@@ -64,16 +65,19 @@ static constexpr uint8_t kProtoDstOpts  = OT_IP6_PROTO_DST_OPTS; ///< Destinatio
 
 /**
  * The max datagram length (in bytes) of an IPv6 message.
+ *
  */
 static constexpr uint16_t kMaxDatagramLength = OPENTHREAD_CONFIG_IP6_MAX_DATAGRAM_LENGTH;
 
 /**
  * The max datagram length (in bytes) of an unfragmented IPv6 message.
+ *
  */
 static constexpr uint16_t kMaxAssembledDatagramLength = OPENTHREAD_CONFIG_IP6_MAX_ASSEMBLED_DATAGRAM;
 
 /**
  * 6-bit Differentiated Services Code Point (DSCP) values.
+ *
  */
 enum IpDscpCs : uint8_t
 {
@@ -96,6 +100,7 @@ enum IpDscpCs : uint8_t
 
 /**
  * Represents the 2-bit Explicit Congestion Notification (ECN) values.
+ *
  */
 enum Ecn : uint8_t
 {
@@ -107,6 +112,7 @@ enum Ecn : uint8_t
 
 /**
  * @}
+ *
  */
 
 } // namespace Ip6

@@ -5,7 +5,11 @@
  *  SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
  */
 
-#include "mbedtls/build_info.h"
+#if !defined(MBEDTLS_CONFIG_FILE)
+#include "mbedtls/config.h"
+#else
+#include MBEDTLS_CONFIG_FILE
+#endif
 
 #include "mbedtls/platform.h"
 
@@ -64,7 +68,7 @@ int main(int argc, char *argv[])
     mbedtls_printf("\n  . Seeding the random number generator...");
     fflush(stdout);
 
-    mbedtls_rsa_init(&rsa);
+    mbedtls_rsa_init(&rsa, MBEDTLS_RSA_PKCS_V15, 0);
     mbedtls_ctr_drbg_init(&ctr_drbg);
     mbedtls_entropy_init(&entropy);
     mbedtls_mpi_init(&N); mbedtls_mpi_init(&P); mbedtls_mpi_init(&Q);
@@ -133,7 +137,7 @@ int main(int argc, char *argv[])
 
     fclose(f);
 
-    if (i != mbedtls_rsa_get_len(&rsa)) {
+    if (i != rsa.len) {
         mbedtls_printf("\n  ! Invalid RSA signature format\n\n");
         goto exit;
     }
@@ -145,7 +149,7 @@ int main(int argc, char *argv[])
     fflush(stdout);
 
     ret = mbedtls_rsa_pkcs1_decrypt(&rsa, mbedtls_ctr_drbg_random,
-                                    &ctr_drbg, &i,
+                                    &ctr_drbg, MBEDTLS_RSA_PRIVATE, &i,
                                     buf, result, 1024);
     if (ret != 0) {
         mbedtls_printf(" failed\n  ! mbedtls_rsa_pkcs1_decrypt returned %d\n\n",
@@ -166,6 +170,11 @@ exit:
     mbedtls_mpi_free(&N); mbedtls_mpi_free(&P); mbedtls_mpi_free(&Q);
     mbedtls_mpi_free(&D); mbedtls_mpi_free(&E); mbedtls_mpi_free(&DP);
     mbedtls_mpi_free(&DQ); mbedtls_mpi_free(&QP);
+
+#if defined(_WIN32)
+    mbedtls_printf("  + Press Enter to exit this program.\n");
+    fflush(stdout); getchar();
+#endif
 
     mbedtls_exit(exit_code);
 }

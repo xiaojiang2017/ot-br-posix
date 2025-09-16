@@ -30,7 +30,15 @@
 
 #if OPENTHREAD_FTD
 
+#include "common/code_utils.hpp"
+#include "common/locator_getters.hpp"
+#include "common/log.hpp"
+#include "common/timer.hpp"
 #include "instance/instance.hpp"
+#include "thread/mle.hpp"
+#include "thread/mle_router.hpp"
+#include "thread/network_data_leader.hpp"
+#include "thread/thread_netif.hpp"
 
 namespace ot {
 
@@ -260,7 +268,7 @@ Router *RouterTable::FindNeighbor(uint16_t aRloc16)
 {
     Router *router = nullptr;
 
-    VerifyOrExit(!Get<Mle::Mle>().HasRloc16(aRloc16));
+    VerifyOrExit(aRloc16 != Get<Mle::MleRouter>().GetRloc16());
     router = FindRouter(Router::AddressMatcher(aRloc16, Router::kInStateValid));
 
 exit:
@@ -314,7 +322,7 @@ Error RouterTable::GetRouterInfo(uint16_t aRouterId, Router::Info &aRouterInfo)
     }
     else
     {
-        VerifyOrExit(Mle::IsRouterRloc16(aRouterId), error = kErrorInvalidArgs);
+        VerifyOrExit(Mle::IsActiveRouter(aRouterId), error = kErrorInvalidArgs);
         routerId = Mle::RouterIdFromRloc16(aRouterId);
         VerifyOrExit(routerId <= Mle::kMaxRouterId, error = kErrorInvalidArgs);
     }
@@ -354,7 +362,7 @@ uint8_t RouterTable::GetLinkCost(const Router &aRouter) const
 {
     uint8_t rval = Mle::kMaxRouteCost;
 
-    VerifyOrExit(!Get<Mle::Mle>().HasRloc16(aRouter.GetRloc16()) && aRouter.IsStateValid());
+    VerifyOrExit(aRouter.GetRloc16() != Get<Mle::MleRouter>().GetRloc16() && aRouter.IsStateValid());
 
     rval = CostForLinkQuality(aRouter.GetTwoWayLinkQuality());
 
@@ -388,10 +396,14 @@ uint8_t RouterTable::GetPathCost(uint16_t aDestRloc16) const
     return pathCost;
 }
 
-uint8_t RouterTable::GetPathCostToLeader(void) const { return GetPathCost(Get<Mle::Mle>().GetLeaderRloc16()); }
+uint8_t RouterTable::GetPathCostToLeader(void) const
+{
+    return GetPathCost(Mle::Rloc16FromRouterId(Get<Mle::Mle>().GetLeaderId()));
+}
 
 void RouterTable::GetNextHopAndPathCost(uint16_t aDestRloc16, uint16_t &aNextHopRloc16, uint8_t &aPathCost) const
 {
+    uint8_t       destRouterId;
     const Router *router;
     const Router *nextHop;
 
@@ -400,7 +412,7 @@ void RouterTable::GetNextHopAndPathCost(uint16_t aDestRloc16, uint16_t &aNextHop
 
     VerifyOrExit(Get<Mle::Mle>().IsAttached());
 
-    if (Get<Mle::Mle>().HasRloc16(aDestRloc16))
+    if (aDestRloc16 == Get<Mle::Mle>().GetRloc16())
     {
         // Destination is this device, return cost as zero.
         aPathCost      = 0;
@@ -408,13 +420,14 @@ void RouterTable::GetNextHopAndPathCost(uint16_t aDestRloc16, uint16_t &aNextHop
         ExitNow();
     }
 
-    router  = FindRouterById(Mle::RouterIdFromRloc16(aDestRloc16));
+    destRouterId = Mle::RouterIdFromRloc16(aDestRloc16);
+
+    router  = FindRouterById(destRouterId);
     nextHop = (router != nullptr) ? FindNextHopOf(*router) : nullptr;
 
     if (Get<Mle::MleRouter>().IsChild())
     {
         const Router &parent = Get<Mle::Mle>().GetParent();
-        bool          destIsParentOrItsChild;
 
         if (parent.IsStateValid())
         {
@@ -426,13 +439,11 @@ void RouterTable::GetNextHopAndPathCost(uint16_t aDestRloc16, uint16_t &aNextHop
         // check if we have a next hop towards the destination and
         // add its cost to the link cost to parent.
 
-        destIsParentOrItsChild = Mle::RouterIdMatch(aDestRloc16, parent.GetRloc16());
-
-        VerifyOrExit(destIsParentOrItsChild || (nextHop != nullptr));
+        VerifyOrExit((destRouterId == parent.GetRouterId()) || (nextHop != nullptr));
 
         aPathCost = CostForLinkQuality(parent.GetLinkQualityIn());
 
-        if (!destIsParentOrItsChild)
+        if (destRouterId != parent.GetRouterId())
         {
             aPathCost += router->GetCost();
         }
@@ -442,7 +453,7 @@ void RouterTable::GetNextHopAndPathCost(uint16_t aDestRloc16, uint16_t &aNextHop
     }
     else // Role is router or leader
     {
-        if (Get<Mle::Mle>().HasMatchingRouterIdWith(aDestRloc16))
+        if (destRouterId == Mle::RouterIdFromRloc16(Get<Mle::Mle>().GetRloc16()))
         {
             // Destination is a one of our children.
 
@@ -478,7 +489,7 @@ void RouterTable::GetNextHopAndPathCost(uint16_t aDestRloc16, uint16_t &aNextHop
         }
     }
 
-    if (Mle::IsChildRloc16(aDestRloc16))
+    if (!Mle::IsActiveRouter(aDestRloc16))
     {
         // Destination is a child. we assume best link quality
         // between destination and its parent router.
@@ -582,7 +593,7 @@ void RouterTable::UpdateRoutes(const Mle::RouteTlv &aRouteTlv, uint8_t aNeighbor
     for (uint8_t routerId = 0, index = 0; routerId <= Mle::kMaxRouterId;
          index += aRouteTlv.IsRouterIdSet(routerId) ? 1 : 0, routerId++)
     {
-        if (!Get<Mle::Mle>().MatchesRouterId(routerId))
+        if (routerId != Mle::RouterIdFromRloc16(Get<Mle::Mle>().GetRloc16()))
         {
             continue;
         }
@@ -595,25 +606,6 @@ void RouterTable::UpdateRoutes(const Mle::RouteTlv &aRouteTlv, uint8_t aNeighbor
             {
                 neighbor->SetLinkQualityOut(linkQuality);
                 SignalTableChanged();
-            }
-
-            // If the `aRouteTlv` indicates that the neighboring
-            // router claims to have no link to us (by setting its
-            // `GetLinkQualityOut()` towards us as `kLinkQuality0`),
-            // and we have previously established a link with it, and
-            // our two-way link quality to this router is at least
-            // `kLinkQuality2`, we schedule a unicast Advertisement to
-            // be sent to this neighbor. This helps expedite recovery
-            // from any temporary router link quality mismatch.
-            // Otherwise, the neighboring router will continue to
-            // advertise that it has no link to us until our next
-            // trickle timer-triggered Advertisement transmission
-            // (which can be up to 32 seconds later).
-
-            if (neighbor->IsStateValid() && (aRouteTlv.GetLinkQualityOut(index) == kLinkQuality0) &&
-                (neighbor->GetTwoWayLinkQuality() >= kLinkQuality2))
-            {
-                Get<Mle::MleRouter>().ScheduleUnicastAdvertisementTo(*neighbor);
             }
         }
 
@@ -636,7 +628,7 @@ void RouterTable::UpdateRoutes(const Mle::RouteTlv &aRouteTlv, uint8_t aNeighbor
 
         router = FindRouterById(routerId);
 
-        if (router == nullptr || Get<Mle::Mle>().HasRloc16(router->GetRloc16()) || router == neighbor)
+        if (router == nullptr || router->GetRloc16() == Get<Mle::Mle>().GetRloc16() || router == neighbor)
         {
             continue;
         }
@@ -693,7 +685,7 @@ exit:
     return;
 }
 
-void RouterTable::UpdateRouterOnFtdChild(const Mle::RouteTlv &aRouteTlv, uint8_t aParentId)
+void RouterTable::UpdateRoutesOnFed(const Mle::RouteTlv &aRouteTlv, uint8_t aParentId)
 {
     for (uint8_t routerId = 0, index = 0; routerId <= Mle::kMaxRouterId;
          index += aRouteTlv.IsRouterIdSet(routerId) ? 1 : 0, routerId++)
@@ -732,7 +724,7 @@ void RouterTable::FillRouteTlv(Mle::RouteTlv &aRouteTlv, const Neighbor *aNeighb
 
     mRouterIdMap.GetAsRouterIdSet(routerIdSet);
 
-    if ((aNeighbor != nullptr) && Mle::IsRouterRloc16(aNeighbor->GetRloc16()))
+    if ((aNeighbor != nullptr) && Mle::IsActiveRouter(aNeighbor->GetRloc16()))
     {
         // Sending a Link Accept message that may require truncation
         // of Route64 TLV.
@@ -748,8 +740,8 @@ void RouterTable::FillRouteTlv(Mle::RouteTlv &aRouteTlv, const Neighbor *aNeighb
                     break;
                 }
 
-                if (Get<Mle::Mle>().MatchesRouterId(routerId) || (routerId == aNeighbor->GetRouterId()) ||
-                    (routerId == Get<Mle::Mle>().GetLeaderId()))
+                if ((routerId == Mle::RouterIdFromRloc16(Get<Mle::Mle>().GetRloc16())) ||
+                    (routerId == aNeighbor->GetRouterId()) || (routerId == Get<Mle::Mle>().GetLeaderId()))
                 {
                     // Route64 TLV must contain this device and the
                     // neighboring router to ensure that at least this
@@ -786,7 +778,7 @@ void RouterTable::FillRouteTlv(Mle::RouteTlv &aRouteTlv, const Neighbor *aNeighb
 
         routerRloc16 = Mle::Rloc16FromRouterId(routerId);
 
-        if (Get<Mle::Mle>().HasRloc16(routerRloc16))
+        if (routerRloc16 == Get<Mle::Mle>().GetRloc16())
         {
             aRouteTlv.SetRouteData(routerIndex, kLinkQuality0, kLinkQuality0, 1);
         }
@@ -906,7 +898,7 @@ void RouterTable::LogRouteTable(void) const
 
         string.Append("    %2d 0x%04x", router.GetRouterId(), router.GetRloc16());
 
-        if (Get<Mle::Mle>().HasRloc16(router.GetRloc16()))
+        if (router.GetRloc16() == Get<Mle::Mle>().GetRloc16())
         {
             string.Append(" - me");
         }

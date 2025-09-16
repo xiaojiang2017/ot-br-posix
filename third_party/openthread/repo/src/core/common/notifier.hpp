@@ -42,7 +42,6 @@
 #include <openthread/instance.h>
 #include <openthread/platform/toolchain.h>
 
-#include "common/array.hpp"
 #include "common/callback.hpp"
 #include "common/error.hpp"
 #include "common/locator.hpp"
@@ -58,10 +57,12 @@ namespace ot {
  *   This module includes definitions for OpenThread Notifier class.
  *
  * @{
+ *
  */
 
 /**
  * Type represents events emitted from OpenThread Notifier.
+ *
  */
 enum Event : uint32_t
 {
@@ -101,17 +102,20 @@ enum Event : uint32_t
 
 /**
  * Represents a list of events.
+ *
  */
 class Events
 {
 public:
     /**
      * Represents a bit-field indicating a list of events (with values from `Event`)
+     *
      */
     typedef otChangedFlags Flags;
 
     /**
      * Initializes the `Events` list (as empty).
+     *
      */
     Events(void)
         : mEventFlags(0)
@@ -120,6 +124,7 @@ public:
 
     /**
      * Clears the `Events` list.
+     *
      */
     void Clear(void) { mEventFlags = 0; }
 
@@ -129,6 +134,7 @@ public:
      * @param[in] aEvent  The event to check.
      *
      * @returns TRUE if the list contains the @p aEvent, FALSE otherwise.
+     *
      */
     bool Contains(Event aEvent) const { return (mEventFlags & aEvent) != 0; }
 
@@ -138,6 +144,7 @@ public:
      * @param[in] aEvents  The events set to check (must be a collection of `Event` constants combined using `|`).
      *
      * @returns TRUE if the list contains any of the @p aEvents set, FALSE otherwise.
+     *
      */
     bool ContainsAny(Flags aEvents) const { return (mEventFlags & aEvents) != 0; }
 
@@ -147,6 +154,7 @@ public:
      * @param[in] aEvents  The events set to check (must be collection of `Event` constants combined using `|`).
      *
      * @returns TRUE if the list contains all of the @p aEvents set, FALSE otherwise.
+     *
      */
     bool ContainsAll(Flags aEvents) const { return (mEventFlags & aEvents) == aEvents; }
 
@@ -154,6 +162,7 @@ public:
      * Adds a given event to the `Events` list.
      *
      * @param[in] aEvent  The event to add.
+     *
      */
     void Add(Event aEvent) { mEventFlags |= aEvent; }
 
@@ -161,6 +170,7 @@ public:
      * Indicates whether the `Events` list is empty.
      *
      * @returns TRUE if the list is empty, FALSE otherwise.
+     *
      */
     bool IsEmpty(void) const { return (mEventFlags == 0); }
 
@@ -168,6 +178,7 @@ public:
      * Gets the `Events` list as bit-field `Flags` value.
      *
      * @returns The list as bit-field `Flags` value.
+     *
      */
     Flags GetAsFlags(void) const { return mEventFlags; }
 
@@ -180,29 +191,25 @@ private:
  *
  * For core internal modules, `Notifier` class emits events directly to them by invoking method `HandleNotifierEvents()`
  * on the module instance.
+ *
+ * A `otStateChangedCallback` callback can be explicitly registered with the `Notifier`. This is mainly intended for use
+ * by external users (i.e.provided as an OpenThread public API). Max number of such callbacks that can be registered at
+ * the same time is specified by `OPENTHREAD_CONFIG_MAX_STATECHANGE_HANDLERS` configuration parameter.
+ *
  */
 class Notifier : public InstanceLocator, private NonCopyable
 {
 public:
     /**
-     * Maximum number of external callback handlers that can be registered.
-     */
-    static constexpr uint16_t kMaxExternalHandlers = OPENTHREAD_CONFIG_MAX_STATECHANGE_HANDLERS;
-
-    typedef otStateChangedCallback StateChangedCallback; ///< State changed callback
-
-    /**
      * Initializes a `Notifier` instance.
      *
      *  @param[in] aInstance     A reference to OpenThread instance.
+     *
      */
     explicit Notifier(Instance &aInstance);
 
     /**
-     * Registers an external `StateChangedCallback`.
-     *
-     * This is intended for use by external users (i.e., provided as an OpenThread public API). `kMaxExternalHandlers`
-     * specifies the maximum number of callbacks.
+     * Registers an `otStateChangedCallback` handler.
      *
      * @param[in]  aCallback     A pointer to the handler function that is called to notify of the changes.
      * @param[in]  aContext      A pointer to arbitrary context information.
@@ -210,21 +217,24 @@ public:
      * @retval kErrorNone     Successfully registered the callback.
      * @retval kErrorAlready  The callback was already registered.
      * @retval kErrorNoBufs   Could not add the callback due to resource constraints.
+     *
      */
-    Error RegisterCallback(StateChangedCallback aCallback, void *aContext);
+    Error RegisterCallback(otStateChangedCallback aCallback, void *aContext);
 
     /**
-     * Removes/unregisters a previously registered `StateChangedCallback` handler.
+     * Removes/unregisters a previously registered `otStateChangedCallback` handler.
      *
      * @param[in]  aCallback     A pointer to the callback function pointer.
      * @param[in]  aContext      A pointer to arbitrary context information.
+     *
      */
-    void RemoveCallback(StateChangedCallback aCallback, void *aContext);
+    void RemoveCallback(otStateChangedCallback aCallback, void *aContext);
 
     /**
      * Schedules signaling of an event.
      *
      * @param[in]  aEvent     The event to signal.
+     *
      */
     void Signal(Event aEvent);
 
@@ -232,6 +242,7 @@ public:
      * Schedules signaling of am event only if the event has not been signaled before (first time signal).
      *
      * @param[in]  aEvent     The event to signal.
+     *
      */
     void SignalIfFirst(Event aEvent);
 
@@ -239,6 +250,7 @@ public:
      * Indicates whether or not an event signal callback is pending/scheduled.
      *
      * @returns TRUE if a callback is pending, FALSE otherwise.
+     *
      */
     bool IsPending(void) const { return !mEventsToSignal.IsEmpty(); }
 
@@ -249,6 +261,7 @@ public:
      *
      * @retval TRUE    The event @p aEvent have been signaled before.
      * @retval FALSE   The event @p aEvent has not been signaled before.
+     *
      */
     bool HasSignaled(Event aEvent) const { return mSignaledEvents.Contains(aEvent); }
 
@@ -266,6 +279,7 @@ public:
      *
      * @retval kErrorNone      The variable was update successfully and @p aEvent was signaled.
      * @retval kErrorAlready   The variable was already set to the same value.
+     *
      */
     template <typename Type> Error Update(Type &aVariable, const Type &aNewValue, Event aEvent)
     {
@@ -286,6 +300,8 @@ public:
     }
 
 private:
+    static constexpr uint16_t kMaxExternalHandlers = OPENTHREAD_CONFIG_MAX_STATECHANGE_HANDLERS;
+
     // Character limit to divide the log into multiple lines in `LogChangedFlags()`.
     static constexpr uint16_t kFlagsStringLineLimit = 70;
 
@@ -294,24 +310,24 @@ private:
 
     static constexpr uint16_t kFlagsStringBufferSize = kFlagsStringLineLimit + kMaxFlagNameLength;
 
-    typedef Callback<StateChangedCallback> ExternalCallback;
+    typedef Callback<otStateChangedCallback> ExternalCallback;
 
     void EmitEvents(void);
 
     void        LogEvents(Events aEvents) const;
     const char *EventToString(Event aEvent) const;
 
-    using EmitEventsTask        = TaskletIn<Notifier, &Notifier::EmitEvents>;
-    using ExternalCallbackArray = Array<ExternalCallback, kMaxExternalHandlers>;
+    using EmitEventsTask = TaskletIn<Notifier, &Notifier::EmitEvents>;
 
-    Events                mEventsToSignal;
-    Events                mSignaledEvents;
-    EmitEventsTask        mTask;
-    ExternalCallbackArray mExternalCallbacks;
+    Events           mEventsToSignal;
+    Events           mSignaledEvents;
+    EmitEventsTask   mTask;
+    ExternalCallback mExternalCallbacks[kMaxExternalHandlers];
 };
 
 /**
  * @}
+ *
  */
 
 } // namespace ot

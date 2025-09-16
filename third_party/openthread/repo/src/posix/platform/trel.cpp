@@ -43,7 +43,6 @@
 #include <unistd.h>
 
 #include <openthread/logging.h>
-#include <openthread/openthread-system.h>
 #include <openthread/platform/trel.h>
 
 #include "logger.hpp"
@@ -194,15 +193,6 @@ static void PrepareSocket(uint16_t &aUdpPort)
         DieNow(OT_EXIT_ERROR_ERRNO);
     }
 
-#ifdef __linux__
-    // Bind to the TREL interface
-    if (setsockopt(sSocket, SOL_SOCKET, SO_BINDTODEVICE, sInterfaceName, strlen(sInterfaceName)) < 0)
-    {
-        LogCrit("Failed to bind socket to the interface %s", sInterfaceName);
-        DieNow(OT_EXIT_ERROR_ERRNO);
-    }
-#endif
-
     sockLen = sizeof(sockAddr);
 
     if (getsockname(sSocket, (struct sockaddr *)&sockAddr, &sockLen) == -1)
@@ -285,15 +275,9 @@ static void ReceivePacket(int aSocket, otInstance *aInstance)
 
     if (sEnabled)
     {
-        otSockAddr senderAddr;
-
         ++sCounters.mRxPackets;
         sCounters.mRxBytes += sRxPacketLength;
-
-        memcpy(&senderAddr.mAddress, &sockAddr.sin6_addr, sizeof(otIp6Address));
-        senderAddr.mPort = ntohs(sockAddr.sin6_port);
-
-        otPlatTrelHandleReceived(aInstance, sRxPacketBuffer, sRxPacketLength, &senderAddr);
+        otPlatTrelHandleReceived(aInstance, sRxPacketBuffer, sRxPacketLength);
     }
 }
 
@@ -429,25 +413,6 @@ OT_TOOL_WEAK void trelDnssdStopBrowse(void)
     // earlier call to `trelDnssdStartBrowse()`.
 }
 
-OT_TOOL_WEAK void trelDnssdNotifyPeerSocketAddressDifference(const otSockAddr *aPeerSockAddr,
-                                                             const otSockAddr *aRxSockAddr)
-{
-    // Notifies platform that a TREL packet was received from a previously
-    // discovered peer with `aPeerSockAddr` now using a different socket
-    // address `aRxSockAddr` compared to the one reported earlier by DNS-SD
-    // using the `otPlatTrelHandleDiscoveredPeerInfo()` callback.
-    //
-    // Ideally the platform DNS-SD should detect changes to advertised port
-    // and addresses by peers, however, there are situations where this is
-    // not detected reliably. This function signals to that we received a
-    // packet from a peer with it using a different port or address. This can
-    // be used to restart/confirm the DNS-SD service/address resolution for
-    // the peer service and/or take any other relevant actions.
-
-    OT_UNUSED_VARIABLE(aPeerSockAddr);
-    OT_UNUSED_VARIABLE(aRxSockAddr);
-}
-
 OT_TOOL_WEAK void trelDnssdRegisterService(uint16_t aPort, const uint8_t *aTxtData, uint8_t aTxtLength)
 {
     // This function registers a new service to be advertised using
@@ -508,7 +473,9 @@ void otPlatTrelEnable(otInstance *aInstance, uint16_t *aUdpPort)
 
     VerifyOrExit(!IsSystemDryRun());
 
-    VerifyOrExit(sInitialized && !sEnabled);
+    assert(sInitialized);
+
+    VerifyOrExit(!sEnabled);
 
     PrepareSocket(*aUdpPort);
     trelDnssdStartBrowse();
@@ -525,7 +492,8 @@ void otPlatTrelDisable(otInstance *aInstance)
 
     VerifyOrExit(!IsSystemDryRun());
 
-    VerifyOrExit(sInitialized && sEnabled);
+    assert(sInitialized);
+    VerifyOrExit(sEnabled);
 
     close(sSocket);
     sSocket = -1;
@@ -567,21 +535,10 @@ exit:
     return;
 }
 
-void otPlatTrelNotifyPeerSocketAddressDifference(otInstance       *aInstance,
-                                                 const otSockAddr *aPeerSockAddr,
-                                                 const otSockAddr *aRxSockAddr)
-{
-    OT_UNUSED_VARIABLE(aInstance);
-
-    trelDnssdNotifyPeerSocketAddressDifference(aPeerSockAddr, aRxSockAddr);
-}
-
 void otPlatTrelRegisterService(otInstance *aInstance, uint16_t aPort, const uint8_t *aTxtData, uint8_t aTxtLength)
 {
     OT_UNUSED_VARIABLE(aInstance);
     VerifyOrExit(!IsSystemDryRun());
-
-    VerifyOrExit(sEnabled);
 
     trelDnssdRegisterService(aPort, aTxtData, aTxtLength);
 
@@ -604,7 +561,10 @@ void otPlatTrelResetCounters(otInstance *aInstance)
     ResetCounters();
 }
 
-void otSysTrelInit(const char *aInterfaceName)
+//---------------------------------------------------------------------------------------------------------------------
+// platformTrel system
+
+void platformTrelInit(const char *aTrelUrl)
 {
     // To silence "unused function" warning.
     (void)LogCrit;
@@ -613,12 +573,17 @@ void otSysTrelInit(const char *aInterfaceName)
     (void)LogNote;
     (void)LogDebg;
 
-    LogDebg("otSysTrelInit(aInterfaceName:\"%s\")", aInterfaceName != nullptr ? aInterfaceName : "");
+    LogDebg("platformTrelInit(aTrelUrl:\"%s\")", aTrelUrl != nullptr ? aTrelUrl : "");
 
-    VerifyOrExit(!sInitialized && !sEnabled && aInterfaceName != nullptr);
+    assert(!sInitialized);
 
-    strncpy(sInterfaceName, aInterfaceName, sizeof(sInterfaceName) - 1);
-    sInterfaceName[sizeof(sInterfaceName) - 1] = '\0';
+    if (aTrelUrl != nullptr)
+    {
+        ot::Posix::RadioUrl url(aTrelUrl);
+
+        strncpy(sInterfaceName, url.GetPath(), sizeof(sInterfaceName) - 1);
+        sInterfaceName[sizeof(sInterfaceName) - 1] = '\0';
+    }
 
     trelDnssdInitialize(sInterfaceName);
 
@@ -626,32 +591,13 @@ void otSysTrelInit(const char *aInterfaceName)
     sInitialized = true;
 
     ResetCounters();
-
-exit:
-    return;
-}
-
-void otSysTrelDeinit(void) { platformTrelDeinit(); }
-
-//---------------------------------------------------------------------------------------------------------------------
-// platformTrel system
-
-void platformTrelInit(const char *aTrelUrl)
-{
-    LogDebg("platformTrelInit(aTrelUrl:\"%s\")", aTrelUrl != nullptr ? aTrelUrl : "");
-
-    if (aTrelUrl != nullptr)
-    {
-        ot::Posix::RadioUrl url(aTrelUrl);
-
-        otSysTrelInit(url.GetPath());
-    }
 }
 
 void platformTrelDeinit(void)
 {
-    VerifyOrExit(sInitialized && !sEnabled);
+    VerifyOrExit(sInitialized);
 
+    otPlatTrelDisable(nullptr);
     sInterfaceName[0] = '\0';
     sInitialized      = false;
     LogDebg("platformTrelDeinit()");

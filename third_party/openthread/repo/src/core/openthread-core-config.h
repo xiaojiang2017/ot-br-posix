@@ -35,7 +35,15 @@
 #define OPENTHREAD_CORE_CONFIG_H_
 
 #include <openthread/config.h>
-#include <openthread/thread.h>
+
+#define OT_THREAD_VERSION_INVALID 0
+
+#define OT_THREAD_VERSION_1_1 2
+#define OT_THREAD_VERSION_1_2 3
+#define OT_THREAD_VERSION_1_3 4
+// Support projects on legacy "1.3.1" version, which is now "1.4"
+#define OT_THREAD_VERSION_1_3_1 5
+#define OT_THREAD_VERSION_1_4 5
 
 #define OPENTHREAD_CORE_CONFIG_H_IN
 
@@ -45,6 +53,7 @@
  * 1. Project specific header file (`OPENTHREAD_PROJECT_CORE_CONFIG_FILE`)
  * 2. Platform specific header file (`OPENTHREAD_PLATFORM_CORE_CONFIG_FILE`)
  * 3. Default config values as specified by `config/{module}.h`
+ *
  */
 
 #ifdef OPENTHREAD_PROJECT_CORE_CONFIG_FILE
@@ -109,7 +118,6 @@
 #include "config/time_sync.h"
 #include "config/tmf.h"
 #include "config/trel.h"
-#include "config/wakeup.h"
 
 #undef OPENTHREAD_CORE_CONFIG_H_IN
 

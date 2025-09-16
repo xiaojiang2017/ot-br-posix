@@ -35,7 +35,11 @@
 
 #if OPENTHREAD_CONFIG_MESH_DIAG_ENABLE && OPENTHREAD_FTD
 
-#include "instance/instance.hpp"
+#include <openthread/mesh_diag.h>
+
+#include "common/as_core_type.hpp"
+#include "common/locator_getters.hpp"
+#include "utils/mesh_diag.hpp"
 
 using namespace ot;
 

@@ -50,6 +50,7 @@ extern "C" {
  *   This module includes the platform abstraction for UART communication.
  *
  * @{
+ *
  */
 
 /**
@@ -57,6 +58,7 @@ extern "C" {
  *
  * @retval OT_ERROR_NONE    Successfully enabled the UART.
  * @retval OT_ERROR_FAILED  Failed to enabled the UART.
+ *
  */
 otError otPlatUartEnable(void);
 
@@ -65,6 +67,7 @@ otError otPlatUartEnable(void);
  *
  * @retval OT_ERROR_NONE    Successfully disabled the UART.
  * @retval OT_ERROR_FAILED  Failed to disable the UART.
+ *
  */
 otError otPlatUartDisable(void);
 
@@ -76,6 +79,7 @@ otError otPlatUartDisable(void);
  *
  * @retval OT_ERROR_NONE    Successfully started transmission.
  * @retval OT_ERROR_FAILED  Failed to start the transmission.
+ *
  */
 otError otPlatUartSend(const uint8_t *aBuf, uint16_t aBufLength);
 
@@ -94,6 +98,7 @@ otError otPlatUartFlush(void);
 
 /**
  * The UART driver calls this method to notify OpenThread that the requested bytes have been sent.
+ *
  */
 extern void otPlatUartSendDone(void);
 
@@ -102,11 +107,13 @@ extern void otPlatUartSendDone(void);
  *
  * @param[in]  aBuf        A pointer to the received bytes.
  * @param[in]  aBufLength  The number of bytes received.
+ *
  */
 extern void otPlatUartReceived(const uint8_t *aBuf, uint16_t aBufLength);
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

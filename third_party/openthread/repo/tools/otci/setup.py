@@ -28,11 +28,11 @@
 #
 import setuptools
 
-with open("README.md", "r", encoding="utf-8") as fh:
+with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="openthread-otci",
+    name="otci-openthread",
     version="0.0.1",
     author="The OpenThread Authors",
     description="OpenThread Controller Interface",
@@ -42,7 +42,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: BSD License",
+        "License :: OSI Approved :: BSD 3-Clause License",
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',

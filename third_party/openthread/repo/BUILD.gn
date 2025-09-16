@@ -38,7 +38,6 @@ config("openthread_config") {
   include_dirs += [
     "${root_gen_dir}/include",
     "include",
-    "src/include",
   ]
 }
 

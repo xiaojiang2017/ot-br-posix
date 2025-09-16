@@ -36,6 +36,8 @@
 
 #include "openthread-core-config.h"
 
+#if OPENTHREAD_FTD
+
 #include "common/locator.hpp"
 #include "common/message.hpp"
 #include "common/non_copyable.hpp"
@@ -57,46 +59,40 @@ namespace ot {
  * @{
  */
 
-#if OPENTHREAD_FTD || OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
-
-class CslNeighbor;
-#if OPENTHREAD_FTD
 class Child;
-#endif
 
 /**
  * Implements indirect transmission.
+ *
  */
 class IndirectSender : public InstanceLocator, public IndirectSenderBase, private NonCopyable
 {
     friend class Instance;
-#if OPENTHREAD_FTD
-    friend class DataPollHandler;
-#endif
-#if OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
-    friend class CslTxScheduler;
+    friend class DataPollHandler::Callbacks;
+#if OPENTHREAD_FTD && OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
+    friend class CslTxScheduler::Callbacks;
 #endif
 
 public:
     /**
-     * Defines all the neighbor info required for indirect (CSL or data-poll) transmission.
+     * Defines all the child info required for indirect transmission.
      *
-     * Sub-classes of `Neighbor`, e.g., `CslNeighbor` or `Child` publicly inherits from this class.
+     * `Child` class publicly inherits from this class.
+     *
      */
-    class NeighborInfo
+    class ChildInfo
     {
         friend class IndirectSender;
-#if OPENTHREAD_FTD
         friend class DataPollHandler;
-        friend class SourceMatchController;
-#endif
         friend class CslTxScheduler;
+        friend class SourceMatchController;
 
     public:
         /**
          * Returns the number of queued messages for the child.
          *
          * @returns Number of queued messages for the child.
+         *
          */
         uint16_t GetIndirectMessageCount(void) const { return mQueuedMessageCount; }
 
@@ -138,24 +134,16 @@ public:
     };
 
     /**
-     * Represents a predicate function for checking if a given `Message` meets specific criteria.
-     *
-     * @param[in] aMessage The message to evaluate.
-     *
-     * @retval TRUE   If the @p aMessage satisfies the predicate condition.
-     * @retval FALSE  If the @p aMessage does not satisfy the predicate condition.
-     */
-    typedef bool (&MessageChecker)(const Message &aMessage);
-
-    /**
      * Initializes the object.
      *
      * @param[in]  aInstance  A reference to the OpenThread instance.
+     *
      */
     explicit IndirectSender(Instance &aInstance);
 
     /**
      * Enables indirect transmissions.
+     *
      */
     void Start(void) { mEnabled = true; }
 
@@ -163,15 +151,16 @@ public:
      * Disables indirect transmission.
      *
      * Any previously scheduled indirect transmission is canceled.
+     *
      */
     void Stop(void);
 
-#if OPENTHREAD_FTD
     /**
      * Adds a message for indirect transmission to a sleepy child.
      *
      * @param[in] aMessage  The message to add.
      * @param[in] aChild    The (sleepy) child for indirect transmission.
+     *
      */
     void AddMessageForSleepyChild(Message &aMessage, Child &aChild);
 
@@ -183,6 +172,7 @@ public:
      *
      * @retval kErrorNone          Successfully removed the message for indirect transmission.
      * @retval kErrorNotFound      The message was not scheduled for indirect transmission to the child.
+     *
      */
     Error RemoveMessageFromSleepyChild(Message &aMessage, Child &aChild);
 
@@ -190,60 +180,16 @@ public:
      * Removes all added messages for a specific child and frees message (with no indirect/direct tx).
      *
      * @param[in]  aChild  A reference to a child whose messages shall be removed.
+     *
      */
     void ClearAllMessagesForSleepyChild(Child &aChild);
-
-    /**
-     * Finds the first queued message for a given sleepy child that also satisfies the conditions of a given
-     * `MessageChecker`.
-     *
-     * The caller MUST ensure that @p aChild is sleepy.
-     *
-     * @param[in] aChild     The sleepy child to check.
-     * @param[in] aChecker   The predicate function to apply.
-     *
-     * @returns A pointer to the matching queued message, or `nullptr` if none is found.
-     */
-    Message *FindQueuedMessageForSleepyChild(const Child &aChild, MessageChecker aChecker)
-    {
-        return AsNonConst(AsConst(this)->FindQueuedMessageForSleepyChild(aChild, aChecker));
-    }
-
-    /**
-     * Finds the first queued message for a given sleepy child that also satisfies the conditions of a given
-     * `MessageChecker`.
-     *
-     * The caller MUST ensure that @p aChild is sleepy.
-     *
-     * @param[in] aChild     The sleepy child to check.
-     * @param[in] aChecker   The predicate function to apply.
-     *
-     * @returns A pointer to the matching queued message, or `nullptr` if none is found.
-     */
-    const Message *FindQueuedMessageForSleepyChild(const Child &aChild, MessageChecker aChecker) const;
-
-    /**
-     * Indicates whether there is any queued message for a given sleepy child that also satisfies the conditions of a
-     * given `MessageChecker`.
-     *
-     * The caller MUST ensure that @p aChild is sleepy.
-     *
-     * @param[in] aChild    The sleepy child to check for.
-     * @param[in] aChecker  The predicate function to apply.
-     *
-     * @retval TRUE   There is a queued message satisfying @p aChecker for sleepy child @p aChild.
-     * @retval FALSE  There is no queued message satisfying @p aChecker for sleepy child @p aChild.
-     */
-    bool HasQueuedMessageForSleepyChild(const Child &aChild, MessageChecker aChecker) const
-    {
-        return (FindQueuedMessageForSleepyChild(aChild, aChecker) != nullptr);
-    }
 
     /**
      * Sets whether to use the extended or short address for a child.
      *
      * @param[in] aChild            A reference to the child.
      * @param[in] aUseShortAddress  `true` to use short address, `false` to use extended address.
+     *
      */
     void SetChildUseShortAddress(Child &aChild, bool aUseShortAddress);
 
@@ -252,53 +198,38 @@ public:
      *
      * @param[in]  aChild    The child whose device mode was changed.
      * @param[in]  aOldMode  The old device mode of the child.
+     *
      */
     void HandleChildModeChange(Child &aChild, Mle::DeviceMode aOldMode);
 
-#endif // OPENTHREAD_FTD
-
 private:
-#if OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
-    // Callbacks from `CslTxScheduler`
-    Error PrepareFrameForCslNeighbor(Mac::TxFrame &aFrame, FrameContext &aContext, CslNeighbor &aCslNeighbor);
-    void  HandleSentFrameToCslNeighbor(const Mac::TxFrame &aFrame,
-                                       const FrameContext &aContext,
-                                       Error               aError,
-                                       CslNeighbor        &aCslNeighbor);
-#endif
-
-#if OPENTHREAD_FTD
-    // Callbacks from `DataPollHandler`
+    // Callbacks from DataPollHandler
     Error PrepareFrameForChild(Mac::TxFrame &aFrame, FrameContext &aContext, Child &aChild);
     void  HandleSentFrameToChild(const Mac::TxFrame &aFrame, const FrameContext &aContext, Error aError, Child &aChild);
     void  HandleFrameChangeDone(Child &aChild);
 
     void     UpdateIndirectMessage(Child &aChild);
+    Message *FindIndirectMessage(Child &aChild, bool aSupervisionTypeOnly = false);
     void     RequestMessageUpdate(Child &aChild);
     uint16_t PrepareDataFrame(Mac::TxFrame &aFrame, Child &aChild, Message &aMessage);
     void     PrepareEmptyFrame(Mac::TxFrame &aFrame, Child &aChild, bool aAckRequest);
     void     ClearMessagesForRemovedChildren(void);
 
-    static bool AcceptAnyMessage(const Message &aMessage);
-    static bool AcceptSupervisionMessage(const Message &aMessage);
-#endif // OPENTHREAD_FTD
-
-    bool mEnabled;
-#if OPENTHREAD_FTD
+    bool                  mEnabled;
     SourceMatchController mSourceMatchController;
     DataPollHandler       mDataPollHandler;
-#endif
-#if OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
+#if OPENTHREAD_FTD && OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
     CslTxScheduler mCslTxScheduler;
 #endif
 };
 
-#endif // #if OPENTHREAD_FTD || OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
-
 /**
  * @}
+ *
  */
 
 } // namespace ot
+
+#endif // OPENTHREAD_FTD
 
 #endif // INDIRECT_SENDER_HPP_

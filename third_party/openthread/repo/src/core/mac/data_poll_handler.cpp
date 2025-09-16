@@ -35,16 +35,47 @@
 
 #if OPENTHREAD_FTD
 
+#include "common/code_utils.hpp"
+#include "common/locator_getters.hpp"
+#include "common/log.hpp"
 #include "instance/instance.hpp"
 
 namespace ot {
 
 RegisterLogModule("DataPollHandlr");
 
+DataPollHandler::Callbacks::Callbacks(Instance &aInstance)
+    : InstanceLocator(aInstance)
+{
+}
+
+inline Error DataPollHandler::Callbacks::PrepareFrameForChild(Mac::TxFrame &aFrame,
+                                                              FrameContext &aContext,
+                                                              Child        &aChild)
+{
+    return Get<IndirectSender>().PrepareFrameForChild(aFrame, aContext, aChild);
+}
+
+inline void DataPollHandler::Callbacks::HandleSentFrameToChild(const Mac::TxFrame &aFrame,
+                                                               const FrameContext &aContext,
+                                                               Error               aError,
+                                                               Child              &aChild)
+{
+    Get<IndirectSender>().HandleSentFrameToChild(aFrame, aContext, aError, aChild);
+}
+
+inline void DataPollHandler::Callbacks::HandleFrameChangeDone(Child &aChild)
+{
+    Get<IndirectSender>().HandleFrameChangeDone(aChild);
+}
+
+//---------------------------------------------------------
+
 DataPollHandler::DataPollHandler(Instance &aInstance)
     : InstanceLocator(aInstance)
     , mIndirectTxChild(nullptr)
     , mFrameContext()
+    , mCallbacks(aInstance)
 {
 }
 
@@ -59,6 +90,18 @@ void DataPollHandler::Clear(void)
     }
 
     mIndirectTxChild = nullptr;
+}
+
+void DataPollHandler::HandleNewFrame(Child &aChild)
+{
+    OT_UNUSED_VARIABLE(aChild);
+
+    // There is no need to take any action with current data poll
+    // handler implementation, since the preparation of the frame
+    // happens after receiving of a data poll from the child. This
+    // method is included for use by other data poll handler models
+    // (e.g., in RCP/host model if the handling of data polls is
+    // delegated to RCP).
 }
 
 void DataPollHandler::RequestFrameChange(FrameChange aChange, Child &aChild)
@@ -79,7 +122,7 @@ void DataPollHandler::RequestFrameChange(FrameChange aChange, Child &aChild)
     else
     {
         ResetTxAttempts(aChild);
-        Get<IndirectSender>().HandleFrameChangeDone(aChild);
+        mCallbacks.HandleFrameChangeDone(aChild);
     }
 }
 
@@ -143,7 +186,7 @@ Mac::TxFrame *DataPollHandler::HandleFrameRequest(Mac::TxFrames &aTxFrames)
     frame = &aTxFrames.GetTxFrame();
 #endif
 
-    VerifyOrExit(Get<IndirectSender>().PrepareFrameForChild(*frame, mFrameContext, *mIndirectTxChild) == kErrorNone,
+    VerifyOrExit(mCallbacks.PrepareFrameForChild(*frame, mFrameContext, *mIndirectTxChild) == kErrorNone,
                  frame = nullptr);
 
 #if OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
@@ -194,7 +237,7 @@ void DataPollHandler::HandleSentFrame(const Mac::TxFrame &aFrame, Error aError, 
         aChild.SetFramePurgePending(false);
         aChild.SetFrameReplacePending(false);
         ResetTxAttempts(aChild);
-        Get<IndirectSender>().HandleFrameChangeDone(aChild);
+        mCallbacks.HandleFrameChangeDone(aChild);
         ExitNow();
     }
 
@@ -221,7 +264,7 @@ void DataPollHandler::HandleSentFrame(const Mac::TxFrame &aFrame, Error aError, 
         {
             aChild.SetFrameReplacePending(false);
             ResetTxAttempts(aChild);
-            Get<IndirectSender>().HandleFrameChangeDone(aChild);
+            mCallbacks.HandleFrameChangeDone(aChild);
             ExitNow();
         }
 
@@ -255,7 +298,7 @@ void DataPollHandler::HandleSentFrame(const Mac::TxFrame &aFrame, Error aError, 
         OT_ASSERT(false);
     }
 
-    Get<IndirectSender>().HandleSentFrameToChild(aFrame, mFrameContext, aError, aChild);
+    mCallbacks.HandleSentFrameToChild(aFrame, mFrameContext, aError, aChild);
 
 exit:
     return;

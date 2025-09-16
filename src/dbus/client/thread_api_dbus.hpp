@@ -64,6 +64,7 @@ public:
      * Will use the default interfacename
      *
      * @param[in] aConnection  The dbus connection.
+     *
      */
     ThreadApiDBus(DBusConnection *aConnection);
 
@@ -72,6 +73,7 @@ public:
      *
      * @param[in] aConnection     The dbus connection.
      * @param[in] aInterfaceName  The network interface name.
+     *
      */
     ThreadApiDBus(DBusConnection *aConnection, const std::string &aInterfaceName);
 
@@ -79,6 +81,7 @@ public:
      * This method adds a callback for device role change.
      *
      * @param[in] aHandler  The device role handler.
+     *
      */
     void AddDeviceRoleHandler(const DeviceRoleHandler &aHandler);
 
@@ -91,6 +94,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError PermitUnsecureJoin(uint16_t aPort, uint32_t aSeconds);
 
@@ -102,6 +106,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError Scan(const ScanHandler &aHandler);
 
@@ -116,6 +121,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError EnergyScan(uint32_t aScanDuration, const EnergyScanHandler &aHandler);
 
@@ -132,6 +138,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError Attach(const std::string          &aNetworkName,
                        uint16_t                    aPanId,
@@ -152,6 +159,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError Attach(const OtResultHandler &aHandler);
 
@@ -161,6 +169,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError Detach(const OtResultHandler &aHandler);
 
@@ -179,6 +188,7 @@ public:
      * @retval OT_ERROR_INVALID_STATE  The device is attaching.
      * @retval OT_ERROR_INVALID_ARGS   Arguments are invalid.
      * @retval OT_ERROR_BUSY           There is an ongoing request.
+     *
      */
     ClientError AttachAllNodesTo(const std::vector<uint8_t> &aDataset);
 
@@ -190,6 +200,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError FactoryReset(const OtResultHandler &aHandler);
 
@@ -199,6 +210,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError Reset(void);
 
@@ -218,6 +230,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError JoinerStart(const std::string     &aPskd,
                             const std::string     &aProvisioningUrl,
@@ -233,6 +246,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError JoinerStop(void);
 
@@ -244,6 +258,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError AddOnMeshPrefix(const OnMeshPrefix &aPrefix);
 
@@ -255,6 +270,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError RemoveOnMeshPrefix(const Ip6Prefix &aPrefix);
 
@@ -266,6 +282,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError AddExternalRoute(const ExternalRoute &aExternalRoute);
 
@@ -277,6 +294,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError RemoveExternalRoute(const Ip6Prefix &aPrefix);
 
@@ -288,6 +306,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError SetMeshLocalPrefix(const std::array<uint8_t, OTBR_IP6_PREFIX_SIZE> &aPrefix);
 
@@ -299,6 +318,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError SetActiveDatasetTlvs(const std::vector<uint8_t> &aDataset);
 
@@ -311,6 +331,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError SetFeatureFlagListData(const std::vector<uint8_t> &aFeatureFlagListData);
 
@@ -322,6 +343,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError SetLinkMode(const LinkModeConfig &aConfig);
 
@@ -333,41 +355,21 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError SetRadioRegion(const std::string &aRadioRegion);
 
     /**
      * This method sets the NAT64 switch.
      *
-     * @param[in] aEnabled  A boolean to enable/disable the NAT64.
+     * @param[in] aEnable  A boolean to enable/disable the NAT64.
      *
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError SetNat64Enabled(bool aEnabled);
-
-    /**
-     * This method sets the Ephemeral Key switch.
-     *
-     * @param[in] aEnabled  A boolean to enable/disable the Ephemeral Key.
-     *
-     * @retval ERROR_NONE  Successfully performed the dbus function call
-     * @retval ERROR_DBUS  dbus encode/decode error
-     * @retval ...         OpenThread defined error value otherwise
-     */
-    ClientError SetEphemeralKeyEnabled(bool aEnabled);
-
-    /**
-     * This method gets the Ephemeral Key switch.
-     *
-     * @param[out] aEnabled  A boolean of enable/disable for Ephemeral Key state.
-     *
-     * @retval ERROR_NONE  Successfully performed the dbus function call
-     * @retval ERROR_DBUS  dbus encode/decode error
-     * @retval ...         OpenThread defined error value otherwise
-     */
-    ClientError GetEphemeralKeyEnabled(bool &aEnabled);
 
     /**
      * This method gets the link operating mode.
@@ -377,6 +379,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetLinkMode(LinkModeConfig &aConfig);
 
@@ -388,6 +391,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetDeviceRole(DeviceRole &aDeviceRole);
 
@@ -399,6 +403,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetNetworkName(std::string &aName);
 
@@ -410,6 +415,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetPanId(uint16_t &aPanId);
 
@@ -421,6 +427,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetExtPanId(uint64_t &aExtPanId);
 
@@ -432,6 +439,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetChannel(uint16_t &aChannel);
 
@@ -443,6 +451,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetNetworkKey(std::vector<uint8_t> &aNetworkKey);
 
@@ -454,6 +463,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetCcaFailureRate(uint16_t &aFailureRate);
 
@@ -465,6 +475,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetLinkCounters(MacCounters &aCounters); // For telemetry
 
@@ -476,6 +487,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetIp6Counters(IpCounters &aCounters); // For telemetry
 
@@ -487,6 +499,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetSupportedChannelMask(uint32_t &aChannelMask);
 
@@ -498,6 +511,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetPreferredChannelMask(uint32_t &aChannelMask);
 
@@ -509,6 +523,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetRloc16(uint16_t &aRloc16);
 
@@ -520,6 +535,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetExtendedAddress(uint64_t &aExtendedAddress);
 
@@ -532,6 +548,7 @@ public:
      * @retval ERROR_DBUS              dbus encode/decode error.
      * @retval OT_ERROR_INVALID_STATE  The node is not a router.
      * @retval ...                     OpenThread defined error value otherwise.
+     *
      */
     ClientError GetRouterId(uint8_t &aRouterId);
 
@@ -543,6 +560,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetLeaderData(LeaderData &aLeaderData);
 
@@ -554,6 +572,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetNetworkData(std::vector<uint8_t> &aNetworkData);
 
@@ -565,6 +584,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetStableNetworkData(std::vector<uint8_t> &aNetworkData);
 
@@ -576,6 +596,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetLocalLeaderWeight(uint8_t &aWeight);
 
@@ -587,6 +608,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetChannelMonitorSampleCount(uint32_t &aSampleCount);
 
@@ -598,6 +620,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetChannelMonitorAllChannelQualities(std::vector<ChannelQuality> &aChannelQualities);
 
@@ -609,6 +632,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetChildTable(std::vector<ChildInfo> &aChildTable);
 
@@ -620,6 +644,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetNeighborTable(std::vector<NeighborInfo> &aNeighborTable);
 
@@ -631,6 +656,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetPartitionId(uint32_t &aPartitionId);
 
@@ -642,6 +668,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetInstantRssi(int8_t &aRssi);
 
@@ -653,6 +680,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetRadioTxPower(int8_t &aTxPower);
 
@@ -664,6 +692,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetExternalRoutes(std::vector<ExternalRoute> &aExternalRoutes);
 
@@ -675,6 +704,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetOnMeshPrefixes(std::vector<OnMeshPrefix> &aOnMeshPrefixes);
 
@@ -686,6 +716,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetActiveDatasetTlvs(std::vector<uint8_t> &aDataset);
 
@@ -697,6 +728,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetPendingDatasetTlvs(std::vector<uint8_t> &aDataset);
 
@@ -709,6 +741,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetFeatureFlagListData(std::vector<uint8_t> &aFeatureFlagListData);
 
@@ -720,6 +753,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetRadioRegion(std::string &aRadioRegion);
 
@@ -731,6 +765,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetSrpServerInfo(SrpServerInfo &aSrpServerInfo);
 
@@ -743,6 +778,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetTrelInfo(TrelInfo &aTrelInfo);
 #endif
@@ -755,6 +791,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetMdnsTelemetryInfo(MdnsTelemetryInfo &aMdnsTelemetryInfo);
 
@@ -767,6 +804,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetDnssdCounters(DnssdCounters &aDnssdCounters);
 #endif
@@ -775,6 +813,7 @@ public:
      * This method returns the network interface name the client is bound to.
      *
      * @returns The network interface name.
+     *
      */
     std::string GetInterfaceName(void);
 
@@ -793,6 +832,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError UpdateVendorMeshCopTxtEntries(std::vector<TxtEntry> &aUpdate);
 
@@ -804,6 +844,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetNat64State(Nat64ComponentState &aState);
 
@@ -815,6 +856,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetNat64Mappings(std::vector<Nat64AddressMapping> &aMappings);
 
@@ -826,6 +868,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetNat64ProtocolCounters(Nat64ProtocolCounters &aCounters);
 
@@ -837,6 +880,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetNat64ErrorCounters(Nat64ErrorCounters &aCounters);
 
@@ -849,6 +893,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetTelemetryData(std::vector<uint8_t> &aTelemetryData);
 
@@ -861,6 +906,7 @@ public:
      * @retval ERROR_NONE  Successfully performed the dbus function call
      * @retval ERROR_DBUS  dbus encode/decode error
      * @retval ...         OpenThread defined error value otherwise
+     *
      */
     ClientError GetCapabilities(std::vector<uint8_t> &aCapabilities);
 

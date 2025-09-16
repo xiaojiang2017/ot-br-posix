@@ -55,6 +55,7 @@ namespace Extension {
  *   This module includes definitions for OpenThread vendor extension hooks.
  *
  * @{
+ *
  */
 
 /**
@@ -64,6 +65,7 @@ namespace Extension {
  * to be implemented by the vendor extension module.
  *
  * Support for vendor extension can be enabled using `OPENTHREAD_ENABLE_VENDOR_EXTENSION` configuration option.
+ *
  */
 class ExtensionBase : public InstanceLocator, private NonCopyable
 {
@@ -77,11 +79,13 @@ public:
      * `SignalInstanceInit()` is called when `aInstance` is fully initialized.
      *
      * @returns A reference to the object.
+     *
      */
     static ExtensionBase &Init(Instance &aInstance);
 
     /**
      * Notifies the extension object that OpenThread instance has been initialized.
+     *
      */
     void SignalInstanceInit(void);
 
@@ -89,6 +93,7 @@ public:
      * Notifies the extension object that NCP instance has been initialized.
      *
      * @param[in] aNcpInstance   A reference to the NCP object.
+     *
      */
     void SignalNcpInit(Ncp::NcpBase &aNcpInstance);
 
@@ -96,6 +101,7 @@ public:
      * Notifies the extension object of events from  OpenThread `Notifier`.
      *
      * @param[in] aEvents   The list of events emitted by `Notifier`.
+     *
      */
     void HandleNotifierEvents(Events aEvents);
 
@@ -104,6 +110,7 @@ protected:
      * Initializes the object.
      *
      * @param[in]  aInstance     A reference to the OpenThread instance.
+     *
      */
     explicit ExtensionBase(Instance &aInstance)
         : InstanceLocator(aInstance)
@@ -116,6 +123,7 @@ protected:
 
 /**
  * @}
+ *
  */
 
 } // namespace Extension

@@ -161,9 +161,6 @@ template <> otError Dns::Process<Cmd("config")>(Arg aArgs[])
      * ResponseTimeout: 5000 ms
      * MaxTxAttempts: 2
      * RecursionDesired: no
-     * ServiceMode: srv_txt_opt
-     * Nat64Mode: allow
-     * TransportProtocol: udp
      * Done
      * @endcode
      * @code
@@ -173,20 +170,16 @@ template <> otError Dns::Process<Cmd("config")>(Arg aArgs[])
      * @code
      * dns config
      * Server: [fd00:0:0:0:0:0:0:2]:53
-     * ResponseTimeout: 6000 ms
+     * ResponseTimeout: 3000 ms
      * MaxTxAttempts: 3
      * RecursionDesired: yes
-     * ServiceMode: srv_txt_opt
-     * Nat64Mode: allow
-     * TransportProtocol: udp
      * Done
      * @endcode
      * @par api_copy
      * #otDnsClientSetDefaultConfig
      * @cparam dns config [@ca{dns-server-IP}] [@ca{dns-server-port}] <!--
      * -->                [@ca{response-timeout-ms}] [@ca{max-tx-attempts}] <!--
-     * -->                [@ca{recursion-desired-boolean}] [@ca{service-mode}] <!--
-     * -->                [@ca{protocol}]
+     * -->                [@ca{recursion-desired-boolean}] [@ca{service-mode}]
      * @par
      * We can leave some of the fields as unspecified (or use value zero). The
      * unspecified fields are replaced by the corresponding OT config option

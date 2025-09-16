@@ -33,7 +33,18 @@
 
 #include "ip6_address.hpp"
 
+#include <stdio.h>
+
+#include "common/array.hpp"
+#include "common/as_core_type.hpp"
+#include "common/code_utils.hpp"
+#include "common/encoding.hpp"
+#include "common/num_utils.hpp"
+#include "common/numeric_limits.hpp"
+#include "common/random.hpp"
 #include "instance/instance.hpp"
+#include "net/ip4_types.hpp"
+#include "net/netif.hpp"
 
 namespace ot {
 namespace Ip6 {
@@ -204,7 +215,7 @@ void Prefix::ToString(char *aBuffer, uint16_t aSize) const
 
 void Prefix::ToString(StringWriter &aWriter) const
 {
-    uint8_t sizeInUint16 = DivideAndRoundUp<uint8_t>(GetBytesSize(), sizeof(uint16_t));
+    uint8_t sizeInUint16 = (GetBytesSize() + sizeof(uint16_t) - 1) / sizeof(uint16_t);
     Prefix  tidyPrefix   = *this;
 
     tidyPrefix.Tidy();
@@ -332,7 +343,7 @@ bool Address::IsLoopback(void) const
             mFields.m32[3] == BigEndian::HostSwap32(1));
 }
 
-bool Address::IsLinkLocalUnicast(void) const
+bool Address::IsLinkLocal(void) const
 {
     return (mFields.m16[0] & BigEndian::HostSwap16(0xffc0)) == BigEndian::HostSwap16(0xfe80);
 }
@@ -352,8 +363,6 @@ void Address::SetToLinkLocalAddress(const InterfaceIdentifier &aIid)
 }
 
 bool Address::IsLinkLocalMulticast(void) const { return IsMulticast() && (GetScope() == kLinkLocalScope); }
-
-bool Address::IsLinkLocalUnicastOrMulticast(void) const { return IsLinkLocalUnicast() || IsLinkLocalMulticast(); }
 
 bool Address::IsLinkLocalAllNodesMulticast(void) const { return (*this == GetLinkLocalAllNodesMulticast()); }
 
@@ -449,7 +458,7 @@ uint8_t Address::GetScope(void) const
     {
         rval = mFields.m8[1] & 0xf;
     }
-    else if (IsLinkLocalUnicast())
+    else if (IsLinkLocal())
     {
         rval = kLinkLocalScope;
     }
@@ -577,9 +586,22 @@ Error Address::ParseFrom(const char *aString, char aTerminatorChar)
 
         while (true)
         {
+            char    c = *aString;
             uint8_t digit;
 
-            if (ParseHexDigit(*aString, digit) != kErrorNone)
+            if (('A' <= c) && (c <= 'F'))
+            {
+                digit = static_cast<uint8_t>(c - 'A' + 10);
+            }
+            else if (('a' <= c) && (c <= 'f'))
+            {
+                digit = static_cast<uint8_t>(c - 'a' + 10);
+            }
+            else if (('0' <= c) && (c <= '9'))
+            {
+                digit = static_cast<uint8_t>(c - '0');
+            }
+            else
             {
                 break;
             }

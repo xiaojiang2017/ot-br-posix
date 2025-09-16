@@ -33,7 +33,12 @@
 
 #include "notifier.hpp"
 
-#include "instance/instance.hpp"
+#include "border_router/routing_manager.hpp"
+#include "common/array.hpp"
+#include "common/code_utils.hpp"
+#include "common/debug.hpp"
+#include "common/locator_getters.hpp"
+#include "common/log.hpp"
 
 namespace ot {
 
@@ -43,27 +48,51 @@ Notifier::Notifier(Instance &aInstance)
     : InstanceLocator(aInstance)
     , mTask(aInstance)
 {
+    for (ExternalCallback &callback : mExternalCallbacks)
+    {
+        callback.Clear();
+    }
 }
 
-Error Notifier::RegisterCallback(StateChangedCallback aCallback, void *aContext)
+Error Notifier::RegisterCallback(otStateChangedCallback aCallback, void *aContext)
 {
-    Error            error = kErrorNone;
-    ExternalCallback newCallback;
+    Error             error          = kErrorNone;
+    ExternalCallback *unusedCallback = nullptr;
 
-    newCallback.Set(aCallback, aContext);
-    VerifyOrExit(!mExternalCallbacks.Contains(newCallback), error = kErrorAlready);
-    error = mExternalCallbacks.PushBack(newCallback);
+    VerifyOrExit(aCallback != nullptr);
+
+    for (ExternalCallback &callback : mExternalCallbacks)
+    {
+        VerifyOrExit(!callback.Matches(aCallback, aContext), error = kErrorAlready);
+
+        if (!callback.IsSet() && (unusedCallback == nullptr))
+        {
+            unusedCallback = &callback;
+        }
+    }
+
+    VerifyOrExit(unusedCallback != nullptr, error = kErrorNoBufs);
+
+    unusedCallback->Set(aCallback, aContext);
 
 exit:
     return error;
 }
 
-void Notifier::RemoveCallback(StateChangedCallback aCallback, void *aContext)
+void Notifier::RemoveCallback(otStateChangedCallback aCallback, void *aContext)
 {
-    ExternalCallback callbackToRemove;
+    VerifyOrExit(aCallback != nullptr);
 
-    callbackToRemove.Set(aCallback, aContext);
-    mExternalCallbacks.Remove(callbackToRemove);
+    for (ExternalCallback &callback : mExternalCallbacks)
+    {
+        if (callback.Matches(aCallback, aContext))
+        {
+            callback.Clear();
+        }
+    }
+
+exit:
+    return;
 }
 
 void Notifier::Signal(Event aEvent)

@@ -61,10 +61,12 @@ namespace Trel {
  *   This module includes definitions for Thread Radio Encapsulation Link (TREL)
  *
  * @{
+ *
  */
 
 /**
  * Represents a Thread Radio Encapsulation Link (TREL).
+ *
  */
 class Link : public InstanceLocator
 {
@@ -77,19 +79,10 @@ public:
     static constexpr uint8_t  kFcsSize = 0;                          ///< FCS size for TREL frame.
 
     /**
-     * Used as input by `CheckPeerAddrOnRxSuccess()` to determine whether the peer socket address can be updated based
-     * on a received TREL packet from the peer if there is a discrepancy.
-     */
-    enum PeerSockAddrUpdateMode : uint8_t
-    {
-        kAllowPeerSockAddrUpdate,    ///< Peer socket address can be updated.
-        kDisallowPeerSockAddrUpdate, ///< Peer socket address cannot be updated.
-    };
-
-    /**
      * Initializes the `Link` object.
      *
      * @param[in]  aInstance  A reference to the OpenThread instance.
+     *
      */
     explicit Link(Instance &aInstance);
 
@@ -97,27 +90,32 @@ public:
      * Sets the PAN Identifier.
      *
      * @param[in] aPanId   A PAN Identifier.
+     *
      */
     void SetPanId(Mac::PanId aPanId) { mPanId = aPanId; }
 
     /**
      * Notifies TREL radio link that device's extended MAC address has changed for it to update any
      * internal address/state.
+     *
      */
     void HandleExtAddressChange(void) { mInterface.HandleExtAddressChange(); }
 
     /**
      * Enables the TREL radio link.
+     *
      */
     void Enable(void);
 
     /**
      * Disables the TREL radio link.
+     *
      */
     void Disable(void);
 
     /**
      * Requests TREL radio link to transition to Sleep mode
+     *
      */
     void Sleep(void);
 
@@ -127,6 +125,7 @@ public:
      * `Mac::HandleReceivedFrame()` is used to notify MAC layer upon receiving a frame.
      *
      * @param[in] aChannel   The channel to receive on.
+     *
      */
     void Receive(uint8_t aChannel);
 
@@ -134,6 +133,7 @@ public:
      * Gets the radio transmit frame for TREL radio link.
      *
      * @returns The transmit frame.
+     *
      */
     Mac::TxFrame &GetTransmitFrame(void) { return mTxFrame; }
 
@@ -144,19 +144,9 @@ public:
      *
      * `Mac::RecordFrameTransmitStatus()` and `Mac::HandleTransmitDone()` are used to notify the success or error status
      * of frame transmission upon completion of send.
+     *
      */
     void Send(void);
-
-    /**
-     * Checks the address/port from the last received TREL packet against the ones recorded in the corresponding `Peer`
-     * entry and acts if there is a discrepancy.
-     *
-     * This method signals to the platform about the discrepancy. Based on @p aMode, it may also update the `Peer`
-     * entry information directly to match the new address/port information.
-     *
-     * @param[in] aMode   Determines whether to update the `Peer` entry if there is a discrepancy.
-     */
-    void CheckPeerAddrOnRxSuccess(PeerSockAddrUpdateMode aMode);
 
 private:
     static constexpr uint16_t kMaxHeaderSize   = sizeof(Header);
@@ -164,8 +154,6 @@ private:
     static constexpr int8_t   kRxRssi          = -20; // The RSSI value used for received frames on TREL radio link.
     static constexpr uint32_t kAckWaitWindow   = 750; // (in msec)
     static constexpr uint16_t kFcfFramePending = 1 << 4;
-
-    typedef Interface::Peer Peer;
 
     enum State : uint8_t
     {
@@ -180,7 +168,7 @@ private:
     void BeginTransmit(void);
     void InvokeSendDone(Error aError) { InvokeSendDone(aError, nullptr); }
     void InvokeSendDone(Error aError, Mac::RxFrame *aAckFrame);
-    void ProcessReceivedPacket(Packet &aPacket, const Ip6::SockAddr &aSockAddr);
+    void ProcessReceivedPacket(Packet &aPacket);
     void HandleAck(Packet &aAckPacket);
     void SendAck(Packet &aRxPacket);
     void ReportDeferredAckStatus(Neighbor &aNeighbor, Error aError);
@@ -194,26 +182,25 @@ private:
     using TxTasklet    = TaskletIn<Link, &Link::HandleTxTasklet>;
     using TimeoutTimer = TimerMilliIn<Link, &Link::HandleTimer>;
 
-    State         mState;
-    uint8_t       mRxChannel;
-    Mac::PanId    mPanId;
-    uint32_t      mTxPacketNumber;
-    TxTasklet     mTxTasklet;
-    TimeoutTimer  mTimer;
-    Interface     mInterface;
-    Ip6::SockAddr mRxPacketSenderAddr;
-    Peer         *mRxPacketPeer;
-    Mac::RxFrame  mRxFrame;
-    Mac::TxFrame  mTxFrame;
-    uint8_t       mTxPacketBuffer[kMaxHeaderSize + kMtuSize];
-    uint8_t       mAckPacketBuffer[kMaxHeaderSize];
-    uint8_t       mAckFrameBuffer[k154AckFrameSize];
+    State        mState;
+    uint8_t      mRxChannel;
+    Mac::PanId   mPanId;
+    uint32_t     mTxPacketNumber;
+    TxTasklet    mTxTasklet;
+    TimeoutTimer mTimer;
+    Interface    mInterface;
+    Mac::RxFrame mRxFrame;
+    Mac::TxFrame mTxFrame;
+    uint8_t      mTxPacketBuffer[kMaxHeaderSize + kMtuSize];
+    uint8_t      mAckPacketBuffer[kMaxHeaderSize];
+    uint8_t      mAckFrameBuffer[k154AckFrameSize];
 };
 
 /**
  * Defines all the neighbor info required for TREL link.
  *
  * `Neighbor` class publicly inherits from this class.
+ *
  */
 class NeighborInfo
 {
@@ -252,6 +239,7 @@ private:
 
 /**
  * @}
+ *
  */
 
 } // namespace Trel

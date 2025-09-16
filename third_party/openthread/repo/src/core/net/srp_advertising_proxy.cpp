@@ -35,6 +35,12 @@
 
 #if OPENTHREAD_CONFIG_SRP_SERVER_ADVERTISING_PROXY_ENABLE
 
+#include "common/as_core_type.hpp"
+#include "common/debug.hpp"
+#include "common/locator_getters.hpp"
+#include "common/log.hpp"
+#include "common/serial_number.hpp"
+#include "common/type_traits.hpp"
 #include "instance/instance.hpp"
 
 namespace ot {
@@ -938,7 +944,7 @@ void AdvertisingProxy::RegisterHost(Host &aHost)
 
     for (const Ip6::Address &address : aHost.mAddresses)
     {
-        if (!address.IsLinkLocalUnicast() && !Get<Mle::Mle>().IsMeshLocalAddress(address))
+        if (!address.IsLinkLocal() && !Get<Mle::Mle>().IsMeshLocalAddress(address))
         {
             IgnoreError(hostAddresses.PushBack(address));
         }
@@ -1247,19 +1253,23 @@ exit:
 
 void AdvertisingProxy::HandleTimer(void)
 {
-    NextFireTime        nextTime;
+    TimeMilli           now      = TimerMilli::GetNow();
+    TimeMilli           nextTime = now.GetDistantFuture();
     OwningList<AdvInfo> expiredList;
 
     VerifyOrExit(mState == kStateRunning);
 
-    mAdvInfoList.RemoveAllMatching(expiredList, AdvInfo::ExpirationChecker(nextTime.GetNow()));
+    mAdvInfoList.RemoveAllMatching(AdvInfo::ExpirationChecker(now), expiredList);
 
     for (AdvInfo &adv : mAdvInfoList)
     {
-        nextTime.UpdateIfEarlier(adv.mExpireTime);
+        nextTime = Min(adv.mExpireTime, nextTime);
     }
 
-    mTimer.FireAtIfEarlier(nextTime);
+    if (nextTime != now.GetDistantFuture())
+    {
+        mTimer.FireAtIfEarlier(nextTime);
+    }
 
     for (AdvInfo &adv : expiredList)
     {
@@ -1281,7 +1291,7 @@ void AdvertisingProxy::HandleTasklet(void)
     {
         OwningList<AdvInfo> completedList;
 
-        mAdvInfoList.RemoveAllMatching(completedList, AdvInfo::CompletionChecker());
+        mAdvInfoList.RemoveAllMatching(AdvInfo::CompletionChecker(), completedList);
 
         VerifyOrExit(!completedList.IsEmpty());
 

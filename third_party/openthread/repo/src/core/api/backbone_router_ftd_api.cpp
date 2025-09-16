@@ -39,7 +39,7 @@
 #include <openthread/backbone_router_ftd.h>
 
 #include "common/as_core_type.hpp"
-#include "instance/instance.hpp"
+#include "common/locator_getters.hpp"
 
 using namespace ot;
 

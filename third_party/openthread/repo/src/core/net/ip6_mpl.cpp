@@ -33,7 +33,14 @@
 
 #include "ip6_mpl.hpp"
 
+#include "common/code_utils.hpp"
+#include "common/debug.hpp"
+#include "common/locator_getters.hpp"
+#include "common/message.hpp"
+#include "common/random.hpp"
+#include "common/serial_number.hpp"
 #include "instance/instance.hpp"
+#include "net/ip6.hpp"
 
 namespace ot {
 namespace Ip6 {
@@ -69,7 +76,7 @@ void MplOption::Init(SeedIdLength aSeedIdLength)
 
 void Mpl::InitOption(MplOption &aOption, const Address &aAddress)
 {
-    if (aAddress == Get<Mle::Mle>().GetMeshLocalRloc())
+    if (aAddress == Get<Mle::Mle>().GetMeshLocal16())
     {
         // Seed ID can be elided when `aAddress` is RLOC.
         aOption.Init(MplOption::kSeedIdLength0);
@@ -83,14 +90,14 @@ void Mpl::InitOption(MplOption &aOption, const Address &aAddress)
     aOption.SetSequence(mSequence++);
 }
 
-Error Mpl::ProcessOption(Message &aMessage, const OffsetRange &aOffsetRange, const Address &aAddress, bool &aReceive)
+Error Mpl::ProcessOption(Message &aMessage, uint16_t aOffset, const Address &aAddress, bool &aReceive)
 {
     Error     error;
     MplOption option;
 
     // Read the min size bytes first, then check the expected
     // `SeedIdLength` and read the full `MplOption` if needed.
-    SuccessOrExit(error = aMessage.Read(aOffsetRange, &option, MplOption::kMinSize));
+    SuccessOrExit(error = aMessage.Read(aOffset, &option, MplOption::kMinSize));
 
     switch (option.GetSeedIdLength())
     {
@@ -101,7 +108,7 @@ Error Mpl::ProcessOption(Message &aMessage, const OffsetRange &aOffsetRange, con
         break;
 
     case MplOption::kSeedIdLength2:
-        SuccessOrExit(error = aMessage.Read(aOffsetRange, option));
+        SuccessOrExit(error = aMessage.Read(aOffset, option));
         break;
 
     case MplOption::kSeedIdLength8:
@@ -376,7 +383,8 @@ exit:
 
 void Mpl::HandleRetransmissionTimer(void)
 {
-    NextFireTime nextTime;
+    TimeMilli now      = TimerMilli::GetNow();
+    TimeMilli nextTime = now.GetDistantFuture();
 
     for (Message &message : mBufferedMessageSet)
     {
@@ -386,9 +394,9 @@ void Mpl::HandleRetransmissionTimer(void)
 
         metadata.ReadFrom(message);
 
-        if (nextTime.GetNow() < metadata.mTransmissionTime)
+        if (now < metadata.mTransmissionTime)
         {
-            nextTime.UpdateIfEarlier(metadata.mTransmissionTime);
+            nextTime = Min(nextTime, metadata.mTransmissionTime);
             continue;
         }
 
@@ -409,10 +417,10 @@ void Mpl::HandleRetransmissionTimer(void)
 
         if (metadata.mTransmissionCount < maxRetx)
         {
-            metadata.GenerateNextTransmissionTime(nextTime.GetNow(), kDataMessageInterval);
+            metadata.GenerateNextTransmissionTime(now, kDataMessageInterval);
             metadata.UpdateIn(message);
 
-            nextTime.UpdateIfEarlier(metadata.mTransmissionTime);
+            nextTime = Min(nextTime, metadata.mTransmissionTime);
 
             messageCopy = message.Clone();
         }
@@ -443,8 +451,23 @@ void Mpl::HandleRetransmissionTimer(void)
         }
     }
 
-    mRetransmissionTimer.FireAt(nextTime);
+    if (nextTime < now.GetDistantFuture())
+    {
+        mRetransmissionTimer.FireAt(nextTime);
+    }
 }
+
+void Mpl::Metadata::ReadFrom(const Message &aMessage)
+{
+    uint16_t length = aMessage.GetLength();
+
+    OT_ASSERT(length >= sizeof(*this));
+    IgnoreError(aMessage.Read(length - sizeof(*this), *this));
+}
+
+void Mpl::Metadata::RemoveFrom(Message &aMessage) const { aMessage.RemoveFooter(sizeof(*this)); }
+
+void Mpl::Metadata::UpdateIn(Message &aMessage) const { aMessage.Write(aMessage.GetLength() - sizeof(*this), *this); }
 
 void Mpl::Metadata::GenerateNextTransmissionTime(TimeMilli aCurrentTime, uint8_t aInterval)
 {

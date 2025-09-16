@@ -52,10 +52,12 @@ extern "C" {
  *   The functions in this module require `OPENTHREAD_CONFIG_JOINER_ENABLE=1`.
  *
  * @{
+ *
  */
 
 /**
  * Defines the Joiner State.
+ *
  */
 typedef enum otJoinerState
 {
@@ -71,6 +73,7 @@ typedef enum otJoinerState
 
 /**
  * Represents a Joiner Discerner.
+ *
  */
 typedef struct otJoinerDiscerner
 {
@@ -86,6 +89,7 @@ typedef struct otJoinerDiscerner
  *                       OT_ERROR_NOT_FOUND if no joinable network was discovered.
  *                       OT_ERROR_RESPONSE_TIMEOUT if a response timed out.
  * @param[in]  aContext  A pointer to application-specific context.
+ *
  */
 typedef void (*otJoinerCallback)(otError aError, void *aContext);
 
@@ -106,6 +110,7 @@ typedef void (*otJoinerCallback)(otError aError, void *aContext);
  * @retval OT_ERROR_BUSY              The previous attempt is still on-going.
  * @retval OT_ERROR_INVALID_ARGS      @p aPskd or @p aProvisioningUrl is invalid.
  * @retval OT_ERROR_INVALID_STATE     The IPv6 stack is not enabled or Thread stack is fully enabled.
+ *
  */
 otError otJoinerStart(otInstance      *aInstance,
                       const char      *aPskd,
@@ -121,6 +126,7 @@ otError otJoinerStart(otInstance      *aInstance,
  * Disables the Thread Joiner role.
  *
  * @param[in]  aInstance  A pointer to an OpenThread instance.
+ *
  */
 void otJoinerStop(otInstance *aInstance);
 
@@ -130,6 +136,7 @@ void otJoinerStop(otInstance *aInstance);
  * @param[in]  aInstance  A pointer to an OpenThread instance.
  *
  * @returns The joiner state.
+ *
  */
 otJoinerState otJoinerGetState(otInstance *aInstance);
 
@@ -144,6 +151,7 @@ otJoinerState otJoinerGetState(otInstance *aInstance);
  * @param[in]   aInstance  A pointer to the OpenThread instance.
  *
  * @returns A pointer to the Joiner ID.
+ *
  */
 const otExtAddress *otJoinerGetId(otInstance *aInstance);
 
@@ -160,6 +168,7 @@ const otExtAddress *otJoinerGetId(otInstance *aInstance);
  * @retval OT_ERROR_NONE           The Joiner Discerner updated successfully.
  * @retval OT_ERROR_INVALID_ARGS   @p aDiscerner is not valid (specified length is not within valid range).
  * @retval OT_ERROR_INVALID_STATE  There is an ongoing Joining process so Joiner Discerner could not be changed.
+ *
  */
 otError otJoinerSetDiscerner(otInstance *aInstance, otJoinerDiscerner *aDiscerner);
 
@@ -169,6 +178,7 @@ otError otJoinerSetDiscerner(otInstance *aInstance, otJoinerDiscerner *aDiscerne
  * @param[in]   aInstance       A pointer to the OpenThread instance.
  *
  * @returns A pointer to Joiner Discerner or NULL if none is set.
+ *
  */
 const otJoinerDiscerner *otJoinerGetDiscerner(otInstance *aInstance);
 
@@ -178,11 +188,13 @@ const otJoinerDiscerner *otJoinerGetDiscerner(otInstance *aInstance);
  * @param[in] aState   The joiner state.
  *
  * @returns A human-readable string representation of @p aState.
+ *
  */
 const char *otJoinerStateToString(otJoinerState aState);
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

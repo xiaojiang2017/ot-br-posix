@@ -57,6 +57,7 @@ extern "C" {
  * the CSL channel.
  *
  * @{
+ *
  */
 
 /**
@@ -69,6 +70,7 @@ extern "C" {
  *
  * @param[in]  aInstance          A pointer to an OpenThread instance.
  * @param[in]  aChannel           The new channel for the Thread network.
+ *
  */
 void otChannelManagerRequestChannelChange(otInstance *aInstance, uint8_t aChannel);
 
@@ -76,6 +78,7 @@ void otChannelManagerRequestChannelChange(otInstance *aInstance, uint8_t aChanne
  * Gets the channel from the last successful call to `otChannelManagerRequestChannelChange()`
  *
  * @returns The last requested channel or zero if there has been no channel change request yet.
+ *
  */
 uint8_t otChannelManagerGetRequestedChannel(otInstance *aInstance);
 
@@ -87,6 +90,7 @@ uint8_t otChannelManagerGetRequestedChannel(otInstance *aInstance);
  * @param[in]  aInstance          A pointer to an OpenThread instance.
  *
  * @returns The delay (in seconds) for channel change.
+ *
  */
 uint16_t otChannelManagerGetDelay(otInstance *aInstance);
 
@@ -101,6 +105,7 @@ uint16_t otChannelManagerGetDelay(otInstance *aInstance);
  *
  * @retval OT_ERROR_NONE          Delay was updated successfully.
  * @retval OT_ERROR_INVALID_ARGS  The given delay @p aDelay is too short.
+ *
  */
 otError otChannelManagerSetDelay(otInstance *aInstance, uint16_t aDelay);
 
@@ -130,6 +135,7 @@ otError otChannelManagerSetDelay(otInstance *aInstance, uint16_t aDelay);
  *
  * @retval OT_ERROR_NONE               Channel selection finished successfully.
  * @retval OT_ERROR_NOT_FOUND          Supported channel mask is empty, therefore could not select a channel.
+ *
  */
 otError otChannelManagerRequestChannelSelect(otInstance *aInstance, bool aSkipQualityCheck);
 
@@ -160,6 +166,7 @@ otError otChannelManagerRequestChannelSelect(otInstance *aInstance, bool aSkipQu
  *
  * @retval OT_ERROR_NONE               Channel selection finished successfully.
  * @retval OT_ERROR_NOT_FOUND          Supported channel mask is empty, therefore could not select a channel.
+ *
  */
 otError otChannelManagerRequestCslChannelSelect(otInstance *aInstance, bool aSkipQualityCheck);
 
@@ -171,6 +178,7 @@ otError otChannelManagerRequestCslChannelSelect(otInstance *aInstance, bool aSki
  *
  * @param[in]  aInstance    A pointer to an OpenThread instance.
  * @param[in]  aEnabled     Indicates whether to enable or disable this functionality.
+ *
  */
 void otChannelManagerSetAutoChannelSelectionEnabled(otInstance *aInstance, bool aEnabled);
 
@@ -180,6 +188,7 @@ void otChannelManagerSetAutoChannelSelectionEnabled(otInstance *aInstance, bool 
  * @param[in]  aInstance    A pointer to an OpenThread instance.
  *
  * @returns TRUE if enabled, FALSE if disabled.
+ *
  */
 bool otChannelManagerGetAutoChannelSelectionEnabled(otInstance *aInstance);
 
@@ -193,6 +202,7 @@ bool otChannelManagerGetAutoChannelSelectionEnabled(otInstance *aInstance);
  *
  * @param[in]  aInstance    A pointer to an OpenThread instance.
  * @param[in]  aEnabled     Indicates whether to enable or disable this functionality.
+ *
  */
 void otChannelManagerSetAutoCslChannelSelectionEnabled(otInstance *aInstance, bool aEnabled);
 
@@ -205,6 +215,7 @@ void otChannelManagerSetAutoCslChannelSelectionEnabled(otInstance *aInstance, bo
  * @param[in]  aInstance    A pointer to an OpenThread instance.
  *
  * @returns TRUE if enabled, FALSE if disabled.
+ *
  */
 bool otChannelManagerGetAutoCslChannelSelectionEnabled(otInstance *aInstance);
 
@@ -216,6 +227,7 @@ bool otChannelManagerGetAutoCslChannelSelectionEnabled(otInstance *aInstance);
  *
  * @retval OT_ERROR_NONE           The interval was set successfully.
  * @retval OT_ERROR_INVALID_ARGS   The @p aInterval is not valid (zero).
+ *
  */
 otError otChannelManagerSetAutoChannelSelectionInterval(otInstance *aInstance, uint32_t aInterval);
 
@@ -225,6 +237,7 @@ otError otChannelManagerSetAutoChannelSelectionInterval(otInstance *aInstance, u
  * @param[in]  aInstance    A pointer to an OpenThread instance.
  *
  * @returns The interval in seconds.
+ *
  */
 uint32_t otChannelManagerGetAutoChannelSelectionInterval(otInstance *aInstance);
 
@@ -234,6 +247,7 @@ uint32_t otChannelManagerGetAutoChannelSelectionInterval(otInstance *aInstance);
  * @param[in]  aInstance       A pointer to an OpenThread instance.
  *
  * @returns  The supported channels as a bit-mask.
+ *
  */
 uint32_t otChannelManagerGetSupportedChannels(otInstance *aInstance);
 
@@ -242,6 +256,7 @@ uint32_t otChannelManagerGetSupportedChannels(otInstance *aInstance);
  *
  * @param[in]  aInstance     A pointer to an OpenThread instance.
  * @param[in]  aChannelMask  A channel mask.
+ *
  */
 void otChannelManagerSetSupportedChannels(otInstance *aInstance, uint32_t aChannelMask);
 
@@ -251,6 +266,7 @@ void otChannelManagerSetSupportedChannels(otInstance *aInstance, uint32_t aChann
  * @param[in]  aInstance       A pointer to an OpenThread instance.
  *
  * @returns  The favored channels as a bit-mask.
+ *
  */
 uint32_t otChannelManagerGetFavoredChannels(otInstance *aInstance);
 
@@ -259,6 +275,7 @@ uint32_t otChannelManagerGetFavoredChannels(otInstance *aInstance);
  *
  * @param[in]  aInstance     A pointer to an OpenThread instance.
  * @param[in]  aChannelMask  A channel mask.
+ *
  */
 void otChannelManagerSetFavoredChannels(otInstance *aInstance, uint32_t aChannelMask);
 
@@ -268,6 +285,7 @@ void otChannelManagerSetFavoredChannels(otInstance *aInstance, uint32_t aChannel
  * @param[in]  aInstance     A pointer to an OpenThread instance.
  *
  * @returns  The CCA failure rate threshold. Value 0 maps to 0% and 0xffff maps to 100%.
+ *
  */
 uint16_t otChannelManagerGetCcaFailureRateThreshold(otInstance *aInstance);
 
@@ -276,11 +294,13 @@ uint16_t otChannelManagerGetCcaFailureRateThreshold(otInstance *aInstance);
  *
  * @param[in]  aInstance     A pointer to an OpenThread instance.
  * @param[in]  aThreshold    A CCA failure rate threshold. Value 0 maps to 0% and 0xffff maps to 100%.
+ *
  */
 void otChannelManagerSetCcaFailureRateThreshold(otInstance *aInstance, uint16_t aThreshold);
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

@@ -1,11 +1,15 @@
 /*
- *  Mbed TLS SSL context deserializer from base64 code
+ *  MbedTLS SSL context deserializer from base64 code
  *
  *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
  */
 
-#include "mbedtls/build_info.h"
+#if !defined(MBEDTLS_CONFIG_FILE)
+#include "mbedtls/config.h"
+#else
+#include MBEDTLS_CONFIG_FILE
+#endif
 #include "mbedtls/debug.h"
 #include "mbedtls/platform.h"
 
@@ -36,6 +40,7 @@ int main(void)
 #include "mbedtls/error.h"
 #include "mbedtls/base64.h"
 #include "mbedtls/md.h"
+#include "mbedtls/md_internal.h"
 #include "mbedtls/x509_crt.h"
 #include "mbedtls/ssl_ciphersuites.h"
 
@@ -435,7 +440,6 @@ size_t read_next_b64_code(uint8_t **b64, size_t *max_len)
     return 0;
 }
 
-#if !defined(MBEDTLS_X509_REMOVE_INFO)
 /*
  * This function deserializes and prints to the stdout all obtained information
  * about the certificates from provided data.
@@ -482,7 +486,6 @@ void print_deserialized_ssl_cert(const uint8_t *ssl, uint32_t len)
 
     mbedtls_x509_crt_free(&crt);
 }
-#endif /* !MBEDTLS_X509_REMOVE_INFO */
 
 /*
  * This function deserializes and prints to the stdout all obtained information
@@ -545,33 +548,25 @@ void print_deserialized_ssl_session(const uint8_t *ssl, uint32_t len,
     if (ciphersuite_info == NULL) {
         printf_err("Cannot find ciphersuite info\n");
     } else {
-#if defined(MBEDTLS_MD_C)
-        const mbedtls_md_info_t *md_info;
-#endif
-
-        printf("\tciphersuite    : %s\n", mbedtls_ssl_ciphersuite_get_name(ciphersuite_info));
-        printf("\tcipher flags   : 0x%02X\n", ciphersuite_info->MBEDTLS_PRIVATE(flags));
-
-#if defined(MBEDTLS_CIPHER_C)
         const mbedtls_cipher_info_t *cipher_info;
-        cipher_info = mbedtls_cipher_info_from_type(ciphersuite_info->MBEDTLS_PRIVATE(cipher));
+        const mbedtls_md_info_t *md_info;
+
+        printf("\tciphersuite    : %s\n", ciphersuite_info->name);
+        printf("\tcipher flags   : 0x%02X\n", ciphersuite_info->flags);
+
+        cipher_info = mbedtls_cipher_info_from_type(ciphersuite_info->cipher);
         if (cipher_info == NULL) {
             printf_err("Cannot find cipher info\n");
         } else {
-            printf("\tcipher         : %s\n", mbedtls_cipher_info_get_name(cipher_info));
+            printf("\tcipher         : %s\n", cipher_info->name);
         }
-#else /* MBEDTLS_CIPHER_C */
-        printf("\tcipher type     : %d\n", ciphersuite_info->MBEDTLS_PRIVATE(cipher));
-#endif /* MBEDTLS_CIPHER_C */
 
-#if defined(MBEDTLS_MD_C)
-        md_info = mbedtls_md_info_from_type(ciphersuite_info->MBEDTLS_PRIVATE(mac));
+        md_info = mbedtls_md_info_from_type(ciphersuite_info->mac);
         if (md_info == NULL) {
             printf_err("Cannot find Message-Digest info\n");
         } else {
-            printf("\tMessage-Digest : %s\n", mbedtls_md_get_name(md_info));
+            printf("\tMessage-Digest : %s\n", md_info->name);
         }
-#endif /* MBEDTLS_MD_C */
     }
 
     CHECK_SSL_END(1);
@@ -610,9 +605,7 @@ void print_deserialized_ssl_session(const uint8_t *ssl, uint32_t len,
 
             if (cert_len > 0) {
                 CHECK_SSL_END(cert_len);
-#if !defined(MBEDTLS_X509_REMOVE_INFO)
                 print_deserialized_ssl_cert(ssl, cert_len);
-#endif
                 ssl += cert_len;
             }
         } else {
@@ -622,6 +615,12 @@ void print_deserialized_ssl_session(const uint8_t *ssl, uint32_t len,
             switch ((mbedtls_md_type_t) *ssl++) {
                 case MBEDTLS_MD_NONE:
                     printf("none\n");
+                    break;
+                case MBEDTLS_MD_MD2:
+                    printf("MD2\n");
+                    break;
+                case MBEDTLS_MD_MD4:
+                    printf("MD4\n");
                     break;
                 case MBEDTLS_MD_MD5:
                     printf("MD5\n");
@@ -777,6 +776,7 @@ void print_deserialized_ssl_context(const uint8_t *ssl, size_t len)
     print_if_bit("MBEDTLS_HAVE_TIME", SESSION_CONFIG_TIME_BIT, session_cfg_flag);
     print_if_bit("MBEDTLS_X509_CRT_PARSE_C", SESSION_CONFIG_CRT_BIT, session_cfg_flag);
     print_if_bit("MBEDTLS_SSL_MAX_FRAGMENT_LENGTH", SESSION_CONFIG_MFL_BIT, session_cfg_flag);
+    print_if_bit("MBEDTLS_SSL_TRUNCATED_HMAC", SESSION_CONFIG_TRUNC_HMAC_BIT, session_cfg_flag);
     print_if_bit("MBEDTLS_SSL_ENCRYPT_THEN_MAC", SESSION_CONFIG_ETM_BIT, session_cfg_flag);
     print_if_bit("MBEDTLS_SSL_SESSION_TICKETS", SESSION_CONFIG_TICKET_BIT, session_cfg_flag);
     print_if_bit("MBEDTLS_SSL_SESSION_TICKETS and client",
@@ -785,6 +785,9 @@ void print_deserialized_ssl_context(const uint8_t *ssl, size_t len)
 
     print_if_bit("MBEDTLS_SSL_DTLS_CONNECTION_ID",
                  CONTEXT_CONFIG_DTLS_CONNECTION_ID_BIT,
+                 context_cfg_flag);
+    print_if_bit("MBEDTLS_SSL_DTLS_BADMAC_LIMIT",
+                 CONTEXT_CONFIG_DTLS_BADMAC_LIMIT_BIT,
                  context_cfg_flag);
     print_if_bit("MBEDTLS_SSL_DTLS_ANTI_REPLAY",
                  CONTEXT_CONFIG_DTLS_ANTI_REPLAY_BIT,

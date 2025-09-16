@@ -7,9 +7,13 @@
  *  SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
  */
 
-#include <test/helpers.h>
+#if !defined(MBEDTLS_CONFIG_FILE)
+#include "mbedtls/config.h"
+#else
+#include MBEDTLS_CONFIG_FILE
+#endif
 
-#if defined(PSA_CRYPTO_DRIVER_TEST)
+#if defined(MBEDTLS_PSA_CRYPTO_DRIVERS) && defined(PSA_CRYPTO_DRIVER_TEST)
 #include "psa/crypto.h"
 #include "psa_crypto_core.h"
 #include "psa_crypto_ecp.h"
@@ -21,6 +25,7 @@
 #include "test/drivers/signature.h"
 #include "test/drivers/hash.h"
 
+#include "mbedtls/md.h"
 #include "mbedtls/ecdsa.h"
 
 #include "test/random.h"
@@ -49,7 +54,7 @@ psa_status_t sign_hash(
     size_t signature_size,
     size_t *signature_length)
 {
-    if (attributes->type == PSA_KEY_TYPE_RSA_KEY_PAIR) {
+    if (attributes->core.type == PSA_KEY_TYPE_RSA_KEY_PAIR) {
         if (PSA_ALG_IS_RSA_PKCS1V15_SIGN(alg) ||
             PSA_ALG_IS_RSA_PSS(alg)) {
 #if defined(MBEDTLS_TEST_LIBTESTDRIVER1) && \
@@ -71,7 +76,7 @@ psa_status_t sign_hash(
         } else {
             return PSA_ERROR_INVALID_ARGUMENT;
         }
-    } else if (PSA_KEY_TYPE_IS_ECC(attributes->type)) {
+    } else if (PSA_KEY_TYPE_IS_ECC(attributes->core.type)) {
         if (PSA_ALG_IS_ECDSA(alg)) {
 #if defined(MBEDTLS_TEST_LIBTESTDRIVER1) && \
             (defined(LIBTESTDRIVER1_MBEDTLS_PSA_BUILTIN_ALG_ECDSA) || \
@@ -116,7 +121,7 @@ psa_status_t verify_hash(
     const uint8_t *signature,
     size_t signature_length)
 {
-    if (PSA_KEY_TYPE_IS_RSA(attributes->type)) {
+    if (PSA_KEY_TYPE_IS_RSA(attributes->core.type)) {
         if (PSA_ALG_IS_RSA_PKCS1V15_SIGN(alg) ||
             PSA_ALG_IS_RSA_PSS(alg)) {
 #if defined(MBEDTLS_TEST_LIBTESTDRIVER1) && \
@@ -138,7 +143,7 @@ psa_status_t verify_hash(
         } else {
             return PSA_ERROR_INVALID_ARGUMENT;
         }
-    } else if (PSA_KEY_TYPE_IS_ECC(attributes->type)) {
+    } else if (PSA_KEY_TYPE_IS_ECC(attributes->core.type)) {
         if (PSA_ALG_IS_ECDSA(alg)) {
 #if defined(MBEDTLS_TEST_LIBTESTDRIVER1) && \
             (defined(LIBTESTDRIVER1_MBEDTLS_PSA_BUILTIN_ALG_ECDSA) || \
@@ -401,4 +406,4 @@ psa_status_t mbedtls_test_opaque_signature_verify_hash(
     return PSA_ERROR_NOT_SUPPORTED;
 }
 
-#endif /* PSA_CRYPTO_DRIVER_TEST */
+#endif /* MBEDTLS_PSA_CRYPTO_DRIVERS && PSA_CRYPTO_DRIVER_TEST */

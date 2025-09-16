@@ -29,6 +29,7 @@
 /**
  * @file
  *   This file includes compile-time configurations for the SRP (Service Registration Protocol) Server.
+ *
  */
 
 #ifndef CONFIG_SRP_SERVER_H_
@@ -41,12 +42,14 @@
  *   This module includes configuration variables for the SRP Server.
  *
  * @{
+ *
  */
 
 /**
  * @def OPENTHREAD_CONFIG_SRP_SERVER_ENABLE
  *
  * Define to 1 to enable SRP Server support.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_SRP_SERVER_ENABLE
 #define OPENTHREAD_CONFIG_SRP_SERVER_ENABLE 0
@@ -61,6 +64,7 @@
  * published in the Thread Network Data.
  *
  * The value of this configuration should be from `otSrpServerAddressMode` enumeration.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_SRP_SERVER_DEFAULT_ADDRESS_MODE
 #define OPENTHREAD_CONFIG_SRP_SERVER_DEFAULT_ADDRESS_MODE OT_SRP_SERVER_ADDRESS_MODE_UNICAST
@@ -70,6 +74,7 @@
  * @def OPENTHREAD_CONFIG_SRP_SERVER_UDP_PORT_MIN
  *
  * Specifies the min port number in the port range reserved for SRP server.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_SRP_SERVER_UDP_PORT_MIN
 #define OPENTHREAD_CONFIG_SRP_SERVER_UDP_PORT_MIN 53535
@@ -79,6 +84,7 @@
  * @def OPENTHREAD_CONFIG_SRP_SERVER_UDP_PORT_MAX
  *
  * Specifies the max port number in the port range reserved for SRP server.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_SRP_SERVER_UDP_PORT_MAX
 #define OPENTHREAD_CONFIG_SRP_SERVER_UDP_PORT_MAX 53554
@@ -92,6 +98,7 @@
  * When enabled, the SRP server will save its port in the non-volatile settings. On a server
  * restart (e.g., due to a device reset) it will restore the port and change to a different one. The info is written to
  * Settings after the first service has been registered due to receiving an SRP Update.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_SRP_SERVER_PORT_SWITCH_ENABLE
 #define OPENTHREAD_CONFIG_SRP_SERVER_PORT_SWITCH_ENABLE 1
@@ -106,6 +113,7 @@
  * and a loose IPC timeout of 250ms. It is recommended that this configuration should
  * not use a value smaller than the default value here, if an Advertising Proxy is used
  * to handle the service update events.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_SRP_SERVER_SERVICE_UPDATE_TIMEOUT
 #define OPENTHREAD_CONFIG_SRP_SERVER_SERVICE_UPDATE_TIMEOUT ((4 * 250u) + 250u)
@@ -115,6 +123,7 @@
  * @def OPENTHREAD_CONFIG_SRP_SERVER_ADVERTISING_PROXY_ENABLE
  *
  * Define to 1 to enable Advertising Proxy for SRP Sever.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_SRP_SERVER_ADVERTISING_PROXY_ENABLE
 #define OPENTHREAD_CONFIG_SRP_SERVER_ADVERTISING_PROXY_ENABLE 0
@@ -122,6 +131,7 @@
 
 /**
  * @}
+ *
  */
 
 #endif // CONFIG_SRP_SERVER_H_

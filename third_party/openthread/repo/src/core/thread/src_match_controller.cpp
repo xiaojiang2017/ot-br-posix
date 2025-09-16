@@ -35,7 +35,16 @@
 
 #if OPENTHREAD_FTD
 
+#include "common/code_utils.hpp"
+#include "common/debug.hpp"
+#include "common/locator_getters.hpp"
+#include "common/log.hpp"
 #include "instance/instance.hpp"
+#include "mac/mac_types.hpp"
+#include "radio/radio.hpp"
+#include "thread/child.hpp"
+#include "thread/mesh_forwarder.hpp"
+#include "thread/thread_netif.hpp"
 
 namespace ot {
 
@@ -147,7 +156,10 @@ Error SourceMatchController::AddAddress(const Child &aChild)
     }
     else
     {
-        error = Get<Radio>().AddSrcMatchExtEntry(aChild.GetExtAddress());
+        Mac::ExtAddress address;
+
+        address.Set(aChild.GetExtAddress().m8, Mac::ExtAddress::kReverseByteOrder);
+        error = Get<Radio>().AddSrcMatchExtEntry(address);
 
         LogDebg("Adding addr: %s -- %s (%d)", aChild.GetExtAddress().ToString().AsCString(), ErrorToString(error),
                 error);
@@ -175,7 +187,10 @@ void SourceMatchController::ClearEntry(Child &aChild)
     }
     else
     {
-        error = Get<Radio>().ClearSrcMatchExtEntry(aChild.GetExtAddress());
+        Mac::ExtAddress address;
+
+        address.Set(aChild.GetExtAddress().m8, Mac::ExtAddress::kReverseByteOrder);
+        error = Get<Radio>().ClearSrcMatchExtEntry(address);
 
         LogDebg("Clearing addr: %s -- %s (%d)", aChild.GetExtAddress().ToString().AsCString(), ErrorToString(error),
                 error);

@@ -39,6 +39,7 @@ namespace TypeTraits {
 
 /**
  * Represents a true value (contains a `true` static `kValue` member variable).
+ *
  */
 struct TrueValue
 {
@@ -47,6 +48,7 @@ struct TrueValue
 
 /**
  * Represents a false value (contains a `false` static `kValue` member variable).
+ *
  */
 struct FalseValue
 {
@@ -60,6 +62,7 @@ struct FalseValue
  * would be `false`.
  *
  * @tparam Type    A type to check if is a pointer.
+ *
  */
 template <typename Type> struct IsPointer : public FalseValue
 {
@@ -91,6 +94,7 @@ template <typename Type> struct IsPointer<const volatile Type *> : TrueValue
  *
  * @tparam FirstType     The first type.
  * @tparam SecondType    The second type.
+ *
  */
 template <typename FirstType, typename SecondType> struct IsSame : public FalseValue
 {
@@ -109,6 +113,7 @@ template <typename Type> struct IsSame<Type, Type> : public TrueValue
  * @tparam kCondition   The boolean condition which is used to select between the two types.
  * @tparam TypeOnTrue   The type to select when `kCondition` is `true`.
  * @tparam TypeOnFalse  The type to select when `kCondition` is `false`.
+ *
  */
 template <bool kCondition, typename TypeOnTrue, typename TypeOnFalse> struct Conditional
 {
@@ -128,6 +133,7 @@ template <typename TypeOnTrue, typename TypeOnFalse> struct Conditional<true, Ty
  * For example, `ReturnTypeOf<Error (*)(void *aContext)>::Type` would be `Error`.
  *
  * @tparam HandlerType   The function pointer type.
+ *
  */
 template <typename HandlerType> struct ReturnTypeOf;
 
@@ -144,6 +150,7 @@ template <typename RetType, typename... Args> struct ReturnTypeOf<RetType (*)(Ar
  * For example, `ReturnTypeOf<Error (*)(void *aContext)>::Type` would be `void *`.
  *
  * @tparam HandlerType   The function pointer type.
+ *
  */
 template <typename HandlerType> struct FirstArgTypeOf;
 

@@ -210,7 +210,7 @@ exit:
  * Starts the CoAP Secure service. @moreinfo{@coaps}.
  * @sa otCoapSecureStart
  * @sa otCoapSecureSetSslAuthMode
- * @sa otCoapSecureSetClientConnectEventCallback
+ * @sa otCoapSecureSetClientConnectedCallback
  */
 template <> otError CoapSecure::Process<Cmd("start")>(Arg aArgs[])
 {
@@ -235,7 +235,7 @@ template <> otError CoapSecure::Process<Cmd("start")>(Arg aArgs[])
     }
 
     otCoapSecureSetSslAuthMode(GetInstancePtr(), verifyPeerCert);
-    otCoapSecureSetClientConnectEventCallback(GetInstancePtr(), &CoapSecure::HandleConnectEvent, this);
+    otCoapSecureSetClientConnectedCallback(GetInstancePtr(), &CoapSecure::HandleConnected, this);
 
 #if CLI_COAP_SECURE_USE_COAP_DEFAULT_HANDLER
     otCoapSecureSetDefaultHandler(GetInstancePtr(), &CoapSecure::DefaultHandler, this);
@@ -629,7 +629,7 @@ template <> otError CoapSecure::Process<Cmd("connect")>(Arg aArgs[])
         SuccessOrExit(error = aArgs[1].ParseAsUint16(sockaddr.mPort));
     }
 
-    SuccessOrExit(error = otCoapSecureConnect(GetInstancePtr(), &sockaddr, &CoapSecure::HandleConnectEvent, this));
+    SuccessOrExit(error = otCoapSecureConnect(GetInstancePtr(), &sockaddr, &CoapSecure::HandleConnected, this));
 
 exit:
     return error;
@@ -783,14 +783,14 @@ void CoapSecure::Stop(void)
     otCoapSecureStop(GetInstancePtr());
 }
 
-void CoapSecure::HandleConnectEvent(otCoapSecureConnectEvent aEvent, void *aContext)
+void CoapSecure::HandleConnected(bool aConnected, void *aContext)
 {
-    static_cast<CoapSecure *>(aContext)->HandleConnectEvent(aEvent);
+    static_cast<CoapSecure *>(aContext)->HandleConnected(aConnected);
 }
 
-void CoapSecure::HandleConnectEvent(otCoapSecureConnectEvent aEvent)
+void CoapSecure::HandleConnected(bool aConnected)
 {
-    if (aEvent == OT_COAP_SECURE_CONNECTED)
+    if (aConnected)
     {
         OutputLine("coaps connected");
     }

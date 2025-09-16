@@ -103,10 +103,6 @@
 
 #define MBEDTLS_SSL_CIPHERSUITES MBEDTLS_TLS_ECJPAKE_WITH_AES_128_CCM_8
 
-#include "mbedtls/version.h"
-#if (MBEDTLS_VERSION_NUMBER < 0x03000000)
-    // Configuration sanity check. Done automatically in Mbed TLS >= 3.0.
-    #include "mbedtls/check_config.h"
-#endif
+#include "mbedtls/check_config.h"
 
 #endif // OTBR_MBEDTLS_CONFIG_H_

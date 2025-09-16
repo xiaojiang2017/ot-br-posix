@@ -56,6 +56,7 @@ namespace ot {
  *   This module includes definition for radio selector (for multi radio links).
  *
  * @{
+ *
  */
 
 class Neighbor;
@@ -67,6 +68,7 @@ public:
      * Defines all the neighbor info required for multi radio link and radio selection.
      *
      * `Neighbor` class publicly inherits from this class.
+     *
      */
     class NeighborInfo
     {
@@ -75,6 +77,7 @@ public:
     public:
         /**
          * Represents multi radio information associated with a neighbor.
+         *
          */
         typedef otMultiRadioNeighborInfo MultiRadioInfo;
 
@@ -82,6 +85,7 @@ public:
          * Returns the supported radio types by the neighbor.
          *
          * @returns The supported radio types set.
+         *
          */
         Mac::RadioTypes GetSupportedRadioTypes(void) const { return mSupportedRadioTypes; }
 
@@ -89,6 +93,7 @@ public:
          * Retrieves the multi radio information `otMultiRadioNeighborInfo` associated with the neighbor.
          *
          * @param[out] aInfo  A reference to `MultiRadioInfo` to populate with neighbor info.
+         *
          */
         void PopulateMultiRadioInfo(MultiRadioInfo &aInfo);
 
@@ -108,6 +113,7 @@ public:
      * Initializes the RadioSelector object.
      *
      * @param[in]  aInstance     A reference to the OpenThread instance.
+     *
      */
     explicit RadioSelector(Instance &aInstance);
 
@@ -121,6 +127,7 @@ public:
      * @param[in] aNeighbor     The neighbor for which a frame/message was received.
      * @param[in] aRadioType    The radio link type on which the frame/message was received.
      * @param[in] aIsDuplicate  Indicates whether the received frame/message is a duplicate or not.
+     *
      */
     void UpdateOnReceive(Neighbor &aNeighbor, Mac::RadioType aRadioType, bool aIsDuplicate);
 
@@ -132,6 +139,7 @@ public:
      *
      * @param[in] aFrame     A transmitted frame.
      * @param[in] aTxError   The transmission error.
+     *
      */
     void UpdateOnSendDone(Mac::TxFrame &aFrame, Error aTxError);
 
@@ -144,6 +152,7 @@ public:
      * @param[in]  aNeighbor              The neighbor from which ack was expected
      * @param[in]  aError                 The deferred ack status (`kErrorNone` indicates ack was received).
      * @param[out] aAllowNeighborRemove   Boolean variable to output whether the neighbor is allowed to be removed.
+     *
      */
     void UpdateOnDeferredAck(Neighbor &aNeighbor, Error aTxError, bool &aAllowNeighborRemove);
 #endif
@@ -154,6 +163,7 @@ public:
      * @param[in] aParent  The parent to which the data poll frame will be sent.
      *
      * @returns The radio type on which the data poll frame should be sent.
+     *
      */
     Mac::RadioType SelectPollFrameRadio(const Neighbor &aParent);
 
@@ -168,6 +178,7 @@ public:
      * @param[in,out] aTxFrames  The set of TxFrames for all radio links.
      *
      * @returns  A reference to `mTxFrame` to use when preparing the frame for tx.
+     *
      */
     Mac::TxFrame &SelectRadio(Message &aMessage, const Mac::Address &aMacDest, Mac::TxFrames &aTxFrames);
 
@@ -197,6 +208,7 @@ private:
 
 /**
  * @}
+ *
  */
 
 } // namespace ot

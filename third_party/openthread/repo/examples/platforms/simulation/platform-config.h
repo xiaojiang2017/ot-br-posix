@@ -29,12 +29,14 @@
 /**
  * @file
  *   This file includes the platform-specific configuration.
+ *
  */
 
 /**
  * @def OPENTHREAD_SIMULATION_UART_BAUDRATE
  *
  * This setting configures the baud rate of the UART.
+ *
  */
 #ifndef OPENTHREAD_SIMULATION_UART_BAUDRATE
 #define OPENTHREAD_SIMULATION_UART_BAUDRATE B115200
@@ -44,6 +46,7 @@
  * @def OPENTHREAD_SIMULATION_VIRTUAL_TIME
  *
  * This setting configures whether to use virtual time (used for simulation) in simulation platform.
+ *
  */
 #ifndef OPENTHREAD_SIMULATION_VIRTUAL_TIME
 #define OPENTHREAD_SIMULATION_VIRTUAL_TIME 0
@@ -53,6 +56,7 @@
  * @def OPENTHREAD_SIMULATION_VIRTUAL_TIME_UART
  *
  * This setting configures whether to use virtual time for UART.
+ *
  */
 #ifndef OPENTHREAD_SIMULATION_VIRTUAL_TIME_UART
 #define OPENTHREAD_SIMULATION_VIRTUAL_TIME_UART 0
@@ -62,6 +66,7 @@
  * @def OPENTHREAD_PLATFORM_USE_PSEUDO_RESET
  *
  * Define as 1 to enable pseudo-reset.
+ *
  */
 #ifndef OPENTHREAD_PLATFORM_USE_PSEUDO_RESET
 #define OPENTHREAD_PLATFORM_USE_PSEUDO_RESET 0
@@ -71,6 +76,7 @@
  * @def OPENTHREAD_CONFIG_NCP_SPI_ENABLE
  *
  * Define as 1 to enable SPI NCP interface.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_NCP_SPI_ENABLE
 #define OPENTHREAD_CONFIG_NCP_SPI_ENABLE 0
@@ -78,6 +84,7 @@
 
 /**
  * Check OTNS configurations
+ *
  */
 #if OPENTHREAD_CONFIG_OTNS_ENABLE
 
@@ -91,6 +98,7 @@
  * @def OPENTHREAD_SIMULATION_MAX_NETWORK_SIZE
  *
  * This setting configures the maximum network size in simulation.
+ *
  */
 #ifndef OPENTHREAD_SIMULATION_MAX_NETWORK_SIZE
 #define OPENTHREAD_SIMULATION_MAX_NETWORK_SIZE 33
@@ -103,25 +111,8 @@
  * socket.
  *
  * This is intended for testing of the OpenThread Multicast DNS (mDNS) module.
+ *
  */
 #ifndef OPENTHREAD_SIMULATION_MDNS_SOCKET_IMPLEMENT_POSIX
 #define OPENTHREAD_SIMULATION_MDNS_SOCKET_IMPLEMENT_POSIX 0
-#endif
-
-/**
- * @def OPENTHREAD_SIMULATION_IMPLMENT_INFRA_IF
- *
- * Define as 1 for the simulation platform to provide implementation of `otPlatInfra` APIs.
- */
-#ifndef OPENTHREAD_SIMULATION_IMPLEMENT_INFRA_IF
-#define OPENTHREAD_SIMULATION_IMPLEMENT_INFRA_IF 1
-#endif
-
-/**
- * @def OPENTHREAD_SIMULATION_IMPLEMENT_DNSSD
- *
- * Define as 1 for the simulation platform to provide implementation of `otPlatDnssd` APIs.
- */
-#ifndef OPENTHREAD_SIMULATION_IMPLEMENT_DNSSD
-#define OPENTHREAD_SIMULATION_IMPLEMENT_DNSSD 1
 #endif

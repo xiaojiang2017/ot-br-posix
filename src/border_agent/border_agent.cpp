@@ -50,16 +50,13 @@
 
 #include <openthread/border_agent.h>
 #include <openthread/border_routing.h>
-#include <openthread/random_crypto.h>
 #include <openthread/random_noncrypto.h>
-#include <openthread/thread.h>
 #include <openthread/thread_ftd.h>
-#include <openthread/verhoeff_checksum.h>
 #include <openthread/platform/settings.h>
 #include <openthread/platform/toolchain.h>
 
 #include "agent/uris.hpp"
-#include "host/rcp_host.hpp"
+#include "ncp/ncp_openthread.hpp"
 #if OTBR_ENABLE_BACKBONE_ROUTER
 #include "backbone_router/backbone_agent.hpp"
 #endif
@@ -70,19 +67,14 @@
 #include "common/types.hpp"
 #include "utils/hex.hpp"
 
-#if !(OTBR_ENABLE_MDNS_AVAHI || OTBR_ENABLE_MDNS_MDNSSD || OTBR_ENABLE_MDNS_MOJO)
-#error "Border Agent feature requires at least one `OTBR_MDNS` implementation"
-#endif
-
 namespace otbr {
 
-static const char    kBorderAgentServiceType[]      = "_meshcop._udp";   ///< Border agent service type of mDNS
-static const char    kBorderAgentEpskcServiceType[] = "_meshcop-e._udp"; ///< Border agent ePSKc service
-static constexpr int kBorderAgentServiceDummyPort   = 49152;
-static constexpr int kEpskcRandomGenLen             = 8;
+static const char    kBorderAgentServiceType[]    = "_meshcop._udp"; ///< Border agent service type of mDNS
+static constexpr int kBorderAgentServiceDummyPort = 49152;
 
 /**
  * Locators
+ *
  */
 enum
 {
@@ -108,14 +100,6 @@ enum : uint8_t
 
 enum : uint8_t
 {
-    kThreadRoleDisabledOrDetached = 0,
-    kThreadRoleChild              = 1,
-    kThreadRoleRouter             = 2,
-    kThreadRoleLeader             = 3,
-};
-
-enum : uint8_t
-{
     kAvailabilityInfrequent = 0,
     kAvailabilityHigh       = 1,
 };
@@ -127,7 +111,6 @@ struct StateBitmap
     uint32_t mAvailability : 2;
     uint32_t mBbrIsActive : 1;
     uint32_t mBbrIsPrimary : 1;
-    uint32_t mThreadRole : 2;
     uint32_t mEpskcSupported : 1;
 
     StateBitmap(void)
@@ -136,8 +119,7 @@ struct StateBitmap
         , mAvailability(0)
         , mBbrIsActive(0)
         , mBbrIsPrimary(0)
-        , mThreadRole(kThreadRoleDisabledOrDetached)
-        , mEpskcSupported(0)
+        , mEpskcSupported(OTBR_ENABLE_EPSKC)
     {
     }
 
@@ -150,76 +132,36 @@ struct StateBitmap
         bitmap |= mAvailability << 5;
         bitmap |= mBbrIsActive << 7;
         bitmap |= mBbrIsPrimary << 8;
-        bitmap |= mThreadRole << 9;
         bitmap |= mEpskcSupported << 11;
         return bitmap;
     }
 };
 
-BorderAgent::BorderAgent(otbr::Host::RcpHost &aHost, Mdns::Publisher &aPublisher)
-    : mHost(aHost)
+BorderAgent::BorderAgent(otbr::Ncp::ControllerOpenThread &aNcp, Mdns::Publisher &aPublisher)
+    : mNcp(aNcp)
     , mPublisher(aPublisher)
     , mIsEnabled(false)
-    , mIsEphemeralKeyEnabled(otThreadGetVersion() >= OT_THREAD_VERSION_1_4)
     , mVendorName(OTBR_VENDOR_NAME)
     , mProductName(OTBR_PRODUCT_NAME)
     , mBaseServiceInstanceName(OTBR_MESHCOP_SERVICE_INSTANCE_NAME)
 {
-    mHost.AddThreadStateChangedCallback([this](otChangedFlags aFlags) { HandleThreadStateChanged(aFlags); });
-    otbrLogInfo("Ephemeral Key is: %s during initialization", (mIsEphemeralKeyEnabled ? "enabled" : "disabled"));
+    mNcp.AddThreadStateChangedCallback([this](otChangedFlags aFlags) { HandleThreadStateChanged(aFlags); });
 }
 
-otbrError BorderAgent::CreateEphemeralKey(std::string &aEphemeralKey)
-{
-    std::string digitString;
-    char        checksum;
-    uint8_t     candidateBuffer[1];
-    otbrError   error = OTBR_ERROR_NONE;
-
-    for (uint8_t i = 0; i < kEpskcRandomGenLen; ++i)
-    {
-        while (true)
-        {
-            SuccessOrExit(otRandomCryptoFillBuffer(candidateBuffer, 1), error = OTBR_ERROR_ABORTED);
-            // Generates a random number in the range [0, 9] with equal probability.
-            if (candidateBuffer[0] < 250)
-            {
-                digitString += static_cast<char>('0' + candidateBuffer[0] % 10);
-                break;
-            }
-        }
-    }
-    SuccessOrExit(otVerhoeffChecksumCalculate(digitString.c_str(), &checksum), error = OTBR_ERROR_INVALID_ARGS);
-    aEphemeralKey = digitString + checksum;
-
-exit:
-    return error;
-}
-
-otbrError BorderAgent::SetMeshCopServiceValues(const std::string              &aServiceInstanceName,
-                                               const std::string              &aProductName,
-                                               const std::string              &aVendorName,
-                                               const std::vector<uint8_t>     &aVendorOui,
-                                               const Mdns::Publisher::TxtList &aNonStandardTxtEntries)
+otbrError BorderAgent::SetMeshCopServiceValues(const std::string          &aServiceInstanceName,
+                                               const std::string          &aProductName,
+                                               const std::string          &aVendorName,
+                                               const std::vector<uint8_t> &aVendorOui)
 {
     otbrError error = OTBR_ERROR_NONE;
 
     VerifyOrExit(aProductName.size() <= kMaxProductNameLength, error = OTBR_ERROR_INVALID_ARGS);
     VerifyOrExit(aVendorName.size() <= kMaxVendorNameLength, error = OTBR_ERROR_INVALID_ARGS);
     VerifyOrExit(aVendorOui.empty() || aVendorOui.size() == kVendorOuiLength, error = OTBR_ERROR_INVALID_ARGS);
-    for (const auto &txtEntry : aNonStandardTxtEntries)
-    {
-        VerifyOrExit(!txtEntry.mKey.empty() && txtEntry.mKey.front() == 'v', error = OTBR_ERROR_INVALID_ARGS);
-    }
 
     mProductName = aProductName;
     mVendorName  = aVendorName;
     mVendorOui   = aVendorOui;
-    mMeshCopTxtUpdate.clear();
-    for (const auto &txtEntry : aNonStandardTxtEntries)
-    {
-        mMeshCopTxtUpdate[txtEntry.mKey] = txtEntry.mValue;
-    }
 
     mBaseServiceInstanceName = aServiceInstanceName;
 
@@ -243,129 +185,29 @@ exit:
     return;
 }
 
-void BorderAgent::SetEphemeralKeyEnabled(bool aIsEnabled)
-{
-    VerifyOrExit(GetEphemeralKeyEnabled() != aIsEnabled);
-    mIsEphemeralKeyEnabled = aIsEnabled;
-
-    if (!mIsEphemeralKeyEnabled)
-    {
-        // If the ePSKc feature is enabled, we call the stop function which
-        // will wait for the session to close if it is in active use before
-        // removing ephemeral key and unpublishing the service.
-        otBorderAgentEphemeralKeyStop(mHost.GetInstance());
-    }
-
-    UpdateMeshCopService();
-
-exit:
-    return;
-}
-
 void BorderAgent::Start(void)
 {
     otbrLogInfo("Start Thread Border Agent");
 
 #if OTBR_ENABLE_DBUS_SERVER
-    mHost.GetThreadHelper()->SetUpdateMeshCopTxtHandler([this](std::map<std::string, std::vector<uint8_t>> aUpdate) {
+    mNcp.GetThreadHelper()->SetUpdateMeshCopTxtHandler([this](std::map<std::string, std::vector<uint8_t>> aUpdate) {
         HandleUpdateVendorMeshCoPTxtEntries(std::move(aUpdate));
     });
-    mHost.RegisterResetHandler([this]() {
-        mHost.GetThreadHelper()->SetUpdateMeshCopTxtHandler(
-            [this](std::map<std::string, std::vector<uint8_t>> aUpdate) {
-                HandleUpdateVendorMeshCoPTxtEntries(std::move(aUpdate));
-            });
+    mNcp.RegisterResetHandler([this]() {
+        mNcp.GetThreadHelper()->SetUpdateMeshCopTxtHandler([this](std::map<std::string, std::vector<uint8_t>> aUpdate) {
+            HandleUpdateVendorMeshCoPTxtEntries(std::move(aUpdate));
+        });
     });
 #endif
 
     mServiceInstanceName = GetServiceInstanceNameWithExtAddr(mBaseServiceInstanceName);
     UpdateMeshCopService();
-
-    otBorderAgentEphemeralKeySetCallback(mHost.GetInstance(), BorderAgent::HandleEpskcStateChanged, this);
 }
 
 void BorderAgent::Stop(void)
 {
     otbrLogInfo("Stop Thread Border Agent");
     UnpublishMeshCopService();
-}
-
-void BorderAgent::HandleEpskcStateChanged(void *aContext)
-{
-    static_cast<BorderAgent *>(aContext)->HandleEpskcStateChanged();
-}
-
-void BorderAgent::HandleEpskcStateChanged(void)
-{
-    switch (otBorderAgentEphemeralKeyGetState(mHost.GetInstance()))
-    {
-    case OT_BORDER_AGENT_STATE_STARTED:
-    case OT_BORDER_AGENT_STATE_CONNECTED:
-    case OT_BORDER_AGENT_STATE_ACCEPTED:
-        PublishEpskcService();
-        break;
-    case OT_BORDER_AGENT_STATE_DISABLED:
-    case OT_BORDER_AGENT_STATE_STOPPED:
-        UnpublishEpskcService();
-        break;
-    }
-
-    for (auto &ephemeralKeyCallback : mEphemeralKeyChangedCallbacks)
-    {
-        ephemeralKeyCallback();
-    }
-}
-
-void BorderAgent::PublishEpskcService()
-{
-    otInstance *instance = mHost.GetInstance();
-    int         port     = otBorderAgentEphemeralKeyGetUdpPort(instance);
-
-    otbrLogInfo("Publish meshcop-e service %s.%s.local. port %d", mServiceInstanceName.c_str(),
-                kBorderAgentEpskcServiceType, port);
-
-    mPublisher.PublishService(/* aHostName */ "", mServiceInstanceName, kBorderAgentEpskcServiceType,
-                              Mdns::Publisher::SubTypeList{}, port, /* aTxtData */ {}, [this](otbrError aError) {
-                                  if (aError == OTBR_ERROR_ABORTED)
-                                  {
-                                      // OTBR_ERROR_ABORTED is thrown when an ongoing service registration is
-                                      // cancelled. This can happen when the meshcop-e service is being updated
-                                      // frequently. To avoid false alarms, it should not be logged like a real error.
-                                      otbrLogInfo("Cancelled previous publishing meshcop-e service %s.%s.local",
-                                                  mServiceInstanceName.c_str(), kBorderAgentEpskcServiceType);
-                                  }
-                                  else
-                                  {
-                                      otbrLogResult(aError, "Result of publish meshcop-e service %s.%s.local",
-                                                    mServiceInstanceName.c_str(), kBorderAgentEpskcServiceType);
-                                  }
-
-                                  if (aError == OTBR_ERROR_DUPLICATED)
-                                  {
-                                      // Try to unpublish current service in case we are trying to register
-                                      // multiple new services simultaneously when the original service name
-                                      // is conflicted.
-                                      // Potential risk that instance name is not the same with meshcop service.
-                                      UnpublishEpskcService();
-                                      mServiceInstanceName = GetAlternativeServiceInstanceName();
-                                      PublishEpskcService();
-                                  }
-                              });
-}
-
-void BorderAgent::UnpublishEpskcService()
-{
-    otbrLogInfo("Unpublish meshcop-e service %s.%s.local", mServiceInstanceName.c_str(), kBorderAgentEpskcServiceType);
-
-    mPublisher.UnpublishService(mServiceInstanceName, kBorderAgentEpskcServiceType, [this](otbrError aError) {
-        otbrLogResult(aError, "Result of unpublish meshcop-e service %s.%s.local", mServiceInstanceName.c_str(),
-                      kBorderAgentEpskcServiceType);
-    });
-}
-
-void BorderAgent::AddEphemeralKeyChangedCallback(EphemeralKeyChangedCallback aCallback)
-{
-    mEphemeralKeyChangedCallbacks.push_back(std::move(aCallback));
 }
 
 void BorderAgent::HandleMdnsState(Mdns::Publisher::State aState)
@@ -424,24 +266,12 @@ StateBitmap GetStateBitmap(otInstance &aInstance)
     {
     case OT_DEVICE_ROLE_DISABLED:
         state.mThreadIfStatus = kThreadIfStatusNotInitialized;
-        state.mThreadRole     = kThreadRoleDisabledOrDetached;
         break;
     case OT_DEVICE_ROLE_DETACHED:
         state.mThreadIfStatus = kThreadIfStatusInitialized;
-        state.mThreadRole     = kThreadRoleDisabledOrDetached;
         break;
-    case OT_DEVICE_ROLE_CHILD:
+    default:
         state.mThreadIfStatus = kThreadIfStatusActive;
-        state.mThreadRole     = kThreadRoleChild;
-        break;
-    case OT_DEVICE_ROLE_ROUTER:
-        state.mThreadIfStatus = kThreadIfStatusActive;
-        state.mThreadRole     = kThreadRoleRouter;
-        break;
-    case OT_DEVICE_ROLE_LEADER:
-        state.mThreadIfStatus = kThreadIfStatusActive;
-        state.mThreadRole     = kThreadRoleLeader;
-        break;
     }
 
 #if OTBR_ENABLE_BACKBONE_ROUTER
@@ -489,6 +319,7 @@ void AppendActiveTimestampTxtEntry(otInstance &aInstance, Mdns::Publisher::TxtLi
     }
 }
 
+#if OTBR_ENABLE_DBUS_SERVER
 void AppendVendorTxtEntries(const std::map<std::string, std::vector<uint8_t>> &aVendorEntries,
                             Mdns::Publisher::TxtList                          &aTxtList)
 {
@@ -514,12 +345,13 @@ void AppendVendorTxtEntries(const std::map<std::string, std::vector<uint8_t>> &a
         }
     }
 }
+#endif
 
 void BorderAgent::PublishMeshCopService(void)
 {
     StateBitmap              state;
     uint32_t                 stateUint32;
-    otInstance              *instance    = mHost.GetInstance();
+    otInstance              *instance    = mNcp.GetInstance();
     const otExtendedPanId   *extPanId    = otThreadGetExtendedPanId(instance);
     const otExtAddress      *extAddr     = otLinkGetExtendedAddress(instance);
     const char              *networkName = otThreadGetNetworkName(instance);
@@ -563,13 +395,13 @@ void BorderAgent::PublishMeshCopService(void)
     }
     txtList.emplace_back("nn", networkName);
     txtList.emplace_back("xp", extPanId->m8, sizeof(extPanId->m8));
-    txtList.emplace_back("tv", mHost.GetThreadVersion());
+    txtList.emplace_back("tv", mNcp.GetThreadVersion());
 
     // "xa" stands for Extended MAC Address (64-bit) of the Thread Interface of the Border Agent.
     txtList.emplace_back("xa", extAddr->m8, sizeof(extAddr->m8));
-    state                 = GetStateBitmap(*instance);
-    state.mEpskcSupported = GetEphemeralKeyEnabled();
-    stateUint32           = htobe32(state.ToUint32());
+
+    state       = GetStateBitmap(*instance);
+    stateUint32 = htobe32(state.ToUint32());
     txtList.emplace_back("sb", reinterpret_cast<uint8_t *>(&stateUint32), sizeof(stateUint32));
 
     if (state.mThreadIfStatus == kThreadIfStatusActive)
@@ -587,10 +419,11 @@ void BorderAgent::PublishMeshCopService(void)
 #if OTBR_ENABLE_BORDER_ROUTING
     AppendOmrTxtEntry(*instance, txtList);
 #endif
-
+#if OTBR_ENABLE_DBUS_SERVER
     AppendVendorTxtEntries(mMeshCopTxtUpdate, txtList);
+#endif
 
-    if (otBorderAgentIsActive(instance))
+    if (otBorderAgentGetState(instance) != OT_BORDER_AGENT_STATE_STOPPED)
     {
         port = otBorderAgentGetUdpPort(instance);
     }
@@ -682,14 +515,14 @@ exit:
 
 bool BorderAgent::IsThreadStarted(void) const
 {
-    otDeviceRole role = mHost.GetDeviceRole();
+    otDeviceRole role = otThreadGetDeviceRole(mNcp.GetInstance());
 
     return role == OT_DEVICE_ROLE_CHILD || role == OT_DEVICE_ROLE_ROUTER || role == OT_DEVICE_ROLE_LEADER;
 }
 
 std::string BorderAgent::GetServiceInstanceNameWithExtAddr(const std::string &aServiceInstanceName) const
 {
-    const otExtAddress *extAddress = otLinkGetExtendedAddress(mHost.GetInstance());
+    const otExtAddress *extAddress = otLinkGetExtendedAddress(mNcp.GetInstance());
     std::stringstream   ss;
 
     ss << aServiceInstanceName << " #";

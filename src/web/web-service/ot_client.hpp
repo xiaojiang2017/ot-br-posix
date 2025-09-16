@@ -62,6 +62,7 @@ struct WpanNetworkInfo
 
 /**
  * This class implements functionality of OpenThread client.
+ *
  */
 class OpenThreadClient
 {
@@ -70,11 +71,13 @@ public:
      * This constructor creates an OpenThread client.
      *
      * @param[in] aNetifName  The Thread network interface name.
+     *
      */
     OpenThreadClient(const char *aNetifName);
 
     /**
      * This destructor destories an OpenThread client.
+     *
      */
     ~OpenThreadClient(void);
 
@@ -83,6 +86,7 @@ public:
      *
      * @retval TRUE   Successfully connected to the daemon.
      * @retval FALSE  Failed to connected to the daemon.
+     *
      */
     bool Connect(void);
 
@@ -93,6 +97,7 @@ public:
      * @param[in] ...      C style format arguments.
      *
      * @returns A pointer to the output if succeeded, otherwise nullptr.
+     *
      */
     char *Execute(const char *aFormat, ...);
 
@@ -103,6 +108,7 @@ public:
      * @param[in] aTimeout   Timeout for the read, in ms.
      *
      * @returns A pointer to the output if the expected response is found, otherwise nullptr.
+     *
      */
     char *Read(const char *aResponse, int aTimeout);
 
@@ -113,11 +119,13 @@ public:
      * @param[in]  aLength    Number of entries in @p aNetworks.
      *
      * @returns Number of entries found. 0 if none found.
+     *
      */
     int Scan(WpanNetworkInfo *aNetworks, int aLength);
 
     /**
      * This method performs factory reset.
+     *
      */
     bool FactoryReset(void);
 

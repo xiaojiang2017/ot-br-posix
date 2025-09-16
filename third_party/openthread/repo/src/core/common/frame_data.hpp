@@ -46,6 +46,7 @@ namespace ot {
  *
  * It provide helper method to parse the content. As data is parsed and read, the `FrameData` is updated to skip over
  * the read content.
+ *
  */
 class FrameData : public Data<kWithUint16Length>
 {
@@ -58,6 +59,7 @@ public:
      *
      * @retval TRUE   There are enough remaining bytes to read @p aLength bytes.
      * @retval FALSE  There are not enough remaining bytes to read @p aLength bytes.
+     *
      */
     bool CanRead(uint16_t aLength) const { return GetLength() >= aLength; }
 
@@ -70,6 +72,7 @@ public:
      *
      * @retval kErrorNone   Successfully read `uint8_t` value and skipped over it.
      * @retval kErrorParse  Not enough bytes remaining to read.
+     *
      */
     Error ReadUint8(uint8_t &aUint8);
 
@@ -82,6 +85,7 @@ public:
      *
      * @retval kErrorNone   Successfully read `uint16_t` value and skipped over it.
      * @retval kErrorParse  Not enough bytes remaining to read.
+     *
      */
     Error ReadBigEndianUint16(uint16_t &aUint16);
 
@@ -94,6 +98,7 @@ public:
      *
      * @retval kErrorNone   Successfully read `uint32_t` value and skipped over it.
      * @retval kErrorParse  Not enough bytes remaining to read.
+     *
      */
     Error ReadBigEndianUint32(uint32_t &aUint32);
 
@@ -106,6 +111,7 @@ public:
      *
      * @retval kErrorNone   Successfully read `uint16_t` value and skipped over it.
      * @retval kErrorParse  Not enough bytes remaining to read.
+     *
      */
     Error ReadLittleEndianUint16(uint16_t &aUint16);
 
@@ -118,6 +124,7 @@ public:
      *
      * @retval kErrorNone   Successfully read `uint32_t` value and skipped over it.
      * @retval kErrorParse  Not enough bytes remaining to read.
+     *
      */
     Error ReadLittleEndianUint32(uint32_t &aUint32);
 
@@ -131,6 +138,7 @@ public:
      *
      * @retval kErrorNone   Successfully read @p aLength bytes into @p aBuffer and skipped over them.
      * @retval kErrorParse  Not enough bytes remaining to read @p aLength.
+     *
      */
     Error ReadBytes(void *aBuffer, uint16_t aLength);
 
@@ -143,6 +151,7 @@ public:
      *
      * @retval kErrorNone     Successfully read @p aObject and skipped over the read content.
      * @retval kErrorParse    Not enough bytes remaining to read the entire object.
+     *
      */
     template <typename ObjectType> Error Read(ObjectType &aObject)
     {
@@ -158,6 +167,7 @@ public:
      * this method is undefined.
      *
      * @param[in] aLength   The length (number of bytes) to skip over.
+     *
      */
     void SkipOver(uint16_t aLength);
 };

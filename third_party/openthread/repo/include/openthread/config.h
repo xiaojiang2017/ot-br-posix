@@ -39,6 +39,7 @@
  * @def OPENTHREAD_CONFIG_FILE
  *
  * The OpenThread feature configuration file.
+ *
  */
 #if defined(OPENTHREAD_CONFIG_FILE)
 #include OPENTHREAD_CONFIG_FILE

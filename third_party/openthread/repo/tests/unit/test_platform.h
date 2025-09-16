@@ -33,7 +33,6 @@
 
 #include <openthread/config.h>
 #include <openthread/platform/alarm-milli.h>
-#include <openthread/platform/diag.h>
 #include <openthread/platform/dns.h>
 #include <openthread/platform/dnssd.h>
 #include <openthread/platform/dso_transport.h>

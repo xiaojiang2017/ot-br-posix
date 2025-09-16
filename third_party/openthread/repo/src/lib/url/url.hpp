@@ -36,6 +36,7 @@
  * @struct otUrl
  *
  * Represents a URL.
+ *
  */
 struct otUrl
 {
@@ -50,6 +51,7 @@ namespace Url {
 
 /**
  * Implements the URL processing.
+ *
  */
 class Url : public otUrl
 {
@@ -63,6 +65,7 @@ public:
      *
      * @retval  OT_ERROR_NONE   Successfully parsed the URL.
      * @retval  OT_ERROR_PARSE  Failed to parse the string as a URL.
+     *
      */
     otError Init(char *aUrl);
 
@@ -70,6 +73,7 @@ public:
      * Gets the path in URL.
      *
      * @returns The path in URL.
+     *
      */
     const char *GetPath(void) const { return mPath; }
 
@@ -80,6 +84,7 @@ public:
      * @param[in] aLastValue  The last iterated parameter value, nullptr for the first value.
      *
      * @returns The parameter value.
+     *
      */
     const char *GetValue(const char *aName, const char *aLastValue = nullptr) const;
 
@@ -87,6 +92,7 @@ public:
      * Returns the URL protocol.
      *
      * @returns The URL protocol.
+     *
      */
     const char *GetProtocol(void) const { return mProtocol; }
 
@@ -97,6 +103,7 @@ public:
      *
      * @retval TRUE   The url contains the parameter.
      * @retval FALSE  The url doesn't support the parameter.
+     *
      */
     bool HasParam(const char *aName) const { return (GetValue(aName) != nullptr); }
 
@@ -112,6 +119,7 @@ public:
      * @retval OT_ERROR_NONE          The parameter value was parsed successfully.
      * @retval OT_ERROR_NOT_FOUND     The parameter name was not found.
      * @retval OT_ERROR_INVALID_ARGS  The parameter value was not contain valid number (e.g., value out of range).
+     *
      */
     otError ParseUint32(const char *aName, uint32_t &aValue) const;
 
@@ -127,6 +135,7 @@ public:
      * @retval OT_ERROR_NONE          The parameter value was parsed successfully.
      * @retval OT_ERROR_NOT_FOUND     The parameter name was not found.
      * @retval OT_ERROR_INVALID_ARGS  The parameter value was not contain valid number (e.g., value out of range).
+     *
      */
     otError ParseUint16(const char *aName, uint16_t &aValue) const;
 
@@ -142,6 +151,7 @@ public:
      * @retval OT_ERROR_NONE          The parameter value was parsed successfully.
      * @retval OT_ERROR_NOT_FOUND     The parameter name was not found.
      * @retval OT_ERROR_INVALID_ARGS  The parameter value was not contain valid number (e.g., value out of range).
+     *
      */
     otError ParseUint8(const char *aName, uint8_t &aValue) const;
 
@@ -158,6 +168,7 @@ public:
      * @retval OT_ERROR_NONE          The parameter value was parsed successfully.
      * @retval OT_ERROR_NOT_FOUND     The parameter name was not found.
      * @retval OT_ERROR_INVALID_ARGS  The parameter value was not contain valid number (e.g., value out of range).
+     *
      */
     otError ParseInt32(const char *aName, int32_t &aValue) const;
 
@@ -174,6 +185,7 @@ public:
      * @retval OT_ERROR_NONE          The parameter value was parsed successfully.
      * @retval OT_ERROR_NOT_FOUND     The parameter name was not found.
      * @retval OT_ERROR_INVALID_ARGS  The parameter value was not contain valid number (e.g., value out of range).
+     *
      */
     otError ParseInt16(const char *aName, int16_t &aValue) const;
 
@@ -190,6 +202,7 @@ public:
      * @retval OT_ERROR_NONE          The parameter value was parsed successfully.
      * @retval OT_ERROR_NOT_FOUND     The parameter name was not found.
      * @retval OT_ERROR_INVALID_ARGS  The parameter value was not contain valid number (e.g., value out of range).
+     *
      */
     otError ParseInt8(const char *aName, int8_t &aValue) const;
 };

@@ -51,6 +51,7 @@ extern "C" {
  *   This module includes functions that control DNS communication.
  *
  * @{
+ *
  */
 
 #define OT_DNS_MAX_NAME_SIZE 255 ///< Maximum name string size (includes null char at the end of string).
@@ -71,6 +72,7 @@ extern "C" {
  *
  * An array of `otDnsTxtEntry` entries are used in `otSrpClientService` to specify the full TXT record (a list of
  * entries).
+ *
  */
 typedef struct otDnsTxtEntry
 {
@@ -87,6 +89,7 @@ typedef struct otDnsTxtEntry
      *
      * If `mKey` is NULL, then `mValue` buffer is treated as an already encoded TXT-DATA and is appended as is in the
      * DNS message.
+     *
      */
     const char    *mKey;
     const uint8_t *mValue;       ///< The TXT record value or already encoded TXT-DATA (depending on `mKey`).
@@ -97,6 +100,7 @@ typedef struct otDnsTxtEntry
  * Represents an iterator for TXT record entries (key/value pairs).
  *
  * The data fields in this structure are intended for use by OpenThread core and caller should not read or change them.
+ *
  */
 typedef struct otDnsTxtEntryIterator
 {
@@ -114,6 +118,7 @@ typedef struct otDnsTxtEntryIterator
  * @param[in] aIterator       A pointer to the iterator to initialize (MUST NOT be NULL).
  * @param[in] aTxtData        A pointer to buffer containing the encoded TXT data.
  * @param[in] aTxtDataLength  The length (number of bytes) of @p aTxtData.
+ *
  */
 void otDnsInitTxtEntryIterator(otDnsTxtEntryIterator *aIterator, const uint8_t *aTxtData, uint16_t aTxtDataLength);
 
@@ -134,6 +139,7 @@ void otDnsInitTxtEntryIterator(otDnsTxtEntryIterator *aIterator, const uint8_t *
  * @retval OT_ERROR_NONE       The next entry was parsed successfully. @p aEntry is updated.
  * @retval OT_ERROR_NOT_FOUND  No more entries in the TXT data.
  * @retval OT_ERROR_PARSE      The TXT data from @p aIterator is not well-formed.
+ *
  */
 otError otDnsGetNextTxtEntry(otDnsTxtEntryIterator *aIterator, otDnsTxtEntry *aEntry);
 
@@ -148,6 +154,7 @@ otError otDnsGetNextTxtEntry(otDnsTxtEntryIterator *aIterator, otDnsTxtEntry *aE
  * @retval OT_ERROR_NONE          Encoded TXT data successfully, @p aTxtData and @p aTxtDataLength are updated.
  * @retval OT_ERROR_INVALID_ARGS  The @p aTxtEntries is not valid.
  * @retval OT_ERROR_NO_BUS        Could not fit the encoded data in @p aTxtData buffer with its @p aTxtDataLength.
+ *
  */
 otError otDnsEncodeTxtData(const otDnsTxtEntry *aTxtEntries,
                            uint16_t             aNumTxtEntries,
@@ -166,6 +173,7 @@ otError otDnsEncodeTxtData(const otDnsTxtEntry *aTxtEntries,
  * instances (i.e., calling this function enables/disables the compression mode on all OpenThread instances).
  *
  * @param[in] aEnabled   TRUE to enable the "DNS name compression" mode, FALSE to disable.
+ *
  */
 void otDnsSetNameCompressionEnabled(bool aEnabled);
 
@@ -175,11 +183,13 @@ void otDnsSetNameCompressionEnabled(bool aEnabled);
  * This is intended for testing only and available when `OPENTHREAD_CONFIG_REFERENCE_DEVICE_ENABLE` config is enabled.
  *
  * @returns TRUE if the "DNS name compression" mode is enabled, FALSE otherwise.
+ *
  */
 bool otDnsIsNameCompressionEnabled(void);
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

@@ -29,6 +29,7 @@
 /**
  * @file
  *   This file implements an entropy source based on /dev/urandom or pseudo-random generator.
+ *
  */
 
 #include "openthread-posix-config.h"

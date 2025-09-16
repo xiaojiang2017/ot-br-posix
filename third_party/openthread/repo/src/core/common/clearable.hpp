@@ -48,6 +48,7 @@ namespace ot {
  * @tparam ObjectType    The object type.
  *
  * @param[in] aObject    A reference to the object of type `ObjectType` to clear all its bytes.
+ *
  */
 template <typename ObjectType> void ClearAllBytes(ObjectType &aObject)
 {
@@ -63,6 +64,7 @@ template <typename ObjectType> void ClearAllBytes(ObjectType &aObject)
  *
  * Users of this class should follow CRTP-style inheritance, i.e., the `Type` class itself should publicly inherit
  * from `Clearable<Type>`.
+ *
  */
 template <typename Type> class Clearable
 {

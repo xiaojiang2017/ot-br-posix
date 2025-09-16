@@ -62,6 +62,7 @@ public:
      *
      * @param[in]  aJamState  `true` if jam is detected, `false` if jam is cleared.
      * @param[in]  aContext  A pointer to application-specific context.
+     *
      */
     typedef void (*Handler)(bool aJamState, void *aContext);
 
@@ -69,6 +70,7 @@ public:
      * Initializes the object.
      *
      * @param[in]  aInstance     A reference to the OpenThread instance.
+     *
      */
     explicit JamDetector(Instance &aInstance);
 
@@ -80,6 +82,7 @@ public:
      *
      * @retval kErrorNone            Successfully started the jamming detection.
      * @retval kErrorAlready         Jam detection has been started before.
+     *
      */
     Error Start(Handler aHandler, void *aContext);
 
@@ -88,6 +91,7 @@ public:
      *
      * @retval kErrorNone            Successfully stopped the jamming detection.
      * @retval kErrorAlready         Jam detection is already stopped.
+     *
      */
     Error Stop(void);
 
@@ -109,6 +113,7 @@ public:
      * Set the Jam Detection RSSI Threshold (in dBm).
      *
      * @param[in]  aThreshold  The RSSI threshold.
+     *
      */
     void SetRssiThreshold(int8_t aThreshold);
 
@@ -126,6 +131,7 @@ public:
      *
      * @retval kErrorNone          Successfully set the window.
      * @retval kErrorInvalidArgs   The given input parameter not within valid range (1-63)
+     *
      */
     Error SetWindow(uint8_t aWindow);
 
@@ -147,6 +153,7 @@ public:
      *
      * @retval kErrorNone           Successfully set the window.
      * @retval kErrorInvalidArgs    The given input is not within the valid range.
+     *
      */
     Error SetBusyPeriod(uint8_t aBusyPeriod);
 
@@ -203,6 +210,7 @@ private:
 
 /**
  * @}
+ *
  */
 
 } // namespace Utils

@@ -35,6 +35,8 @@
 
 #if OPENTHREAD_FTD
 
+#include "common/code_utils.hpp"
+#include "common/locator_getters.hpp"
 #include "instance/instance.hpp"
 
 namespace ot {
@@ -190,7 +192,7 @@ Error ChildTable::GetChildInfoById(uint16_t aChildId, Child::Info &aChildInfo)
         aChildId = Mle::ChildIdFromRloc16(aChildId);
     }
 
-    rloc16 = Get<Mle::Mle>().GetRloc16() | aChildId;
+    rloc16 = Get<Mac::Mac>().GetShortAddress() | aChildId;
     child  = FindChild(rloc16, Child::kInStateValidOrRestoring);
     VerifyOrExit(child != nullptr, error = kErrorNotFound);
 
@@ -311,22 +313,6 @@ void ChildTable::RefreshStoredChildren(void)
 
 exit:
     return;
-}
-
-bool ChildTable::HasMinimalChild(uint16_t aRloc16) const
-{
-    bool         hasMinimalChild = false;
-    const Child *child;
-
-    VerifyOrExit(Get<Mle::Mle>().HasMatchingRouterIdWith(aRloc16));
-
-    child = FindChild(Child::AddressMatcher(aRloc16, Child::kInStateValidOrRestoring));
-    VerifyOrExit(child != nullptr);
-
-    hasMinimalChild = !child->IsFullThreadDevice();
-
-exit:
-    return hasMinimalChild;
 }
 
 bool ChildTable::HasSleepyChildWithAddress(const Ip6::Address &aIp6Address) const

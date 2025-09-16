@@ -52,12 +52,14 @@ namespace otbr {
 /**
  * This class implements the Task Runner that executes
  * tasks on the mainloop.
+ *
  */
 class TaskRunner : public MainloopProcessor, private NonCopyable
 {
 public:
     /**
      * This type represents the generic executable task.
+     *
      */
     template <class T> using Task = std::function<T(void)>;
 
@@ -65,16 +67,19 @@ public:
      * This type represents a unique task ID to an delayed task.
      *
      * Note: A valid task ID is never zero.
+     *
      */
     typedef uint64_t TaskId;
 
     /**
      * This constructor initializes the Task Runner instance.
+     *
      */
     TaskRunner(void);
 
     /**
      * This destructor destroys the Task Runner instance.
+     *
      */
     ~TaskRunner(void) override;
 
@@ -85,6 +90,7 @@ public:
      * It is safe to call this method in different threads concurrently.
      *
      * @param[in] aTask  The task to be executed.
+     *
      */
     void Post(Task<void> aTask);
 
@@ -98,6 +104,7 @@ public:
      * @param[in] aTask   The task to be executed.
      *
      * @returns  The unique task ID of the delayed task.
+     *
      */
     TaskId Post(Milliseconds aDelay, Task<void> aTask);
 
@@ -106,6 +113,7 @@ public:
      * It is safe to call this method in different threads concurrently.
      *
      * @param[in] aTaskId  The unique task ID of the delayed task to cancel.
+     *
      */
     void Cancel(TaskId aTaskId);
 
@@ -117,6 +125,7 @@ public:
      * the caller will be blocked forever.
      *
      * @returns The result returned by the task @p aTask.
+     *
      */
     template <class T> T PostAndWait(const Task<T> &aTask)
     {

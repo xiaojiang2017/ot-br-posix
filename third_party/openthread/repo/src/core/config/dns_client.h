@@ -29,6 +29,7 @@
 /**
  * @file
  *   This file includes compile-time configurations for the DNS Client.
+ *
  */
 
 #ifndef CONFIG_DNS_CLIENT_H_
@@ -41,6 +42,7 @@
  *   This module includes configuration variables for the DNS client.
  *
  * @{
+ *
  */
 
 #include "config/ip6.h"
@@ -50,6 +52,7 @@
  * @def OPENTHREAD_CONFIG_DNS_CLIENT_ENABLE
  *
  * Define to 1 to enable DNS Client support.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_DNS_CLIENT_ENABLE
 #define OPENTHREAD_CONFIG_DNS_CLIENT_ENABLE 0
@@ -60,6 +63,7 @@
  *
  * Define to 1 to enable support for NAT64 address translation (from IPv4 to IPv6) during address resolution by DNS
  * client.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_DNS_CLIENT_NAT64_ENABLE
 #define OPENTHREAD_CONFIG_DNS_CLIENT_NAT64_ENABLE 1
@@ -70,6 +74,7 @@
  *
  * Specifies the default NAT64 mode, i.e., whether to allow or disallow NAT64 address translation during DNS client
  * address resolution. This mode is only available when `OPENTHREAD_CONFIG_DNS_CLIENT_NAT64_ENABLE` is enabled.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_NAT64_ALLOWED
 #define OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_NAT64_ALLOWED 1
@@ -79,6 +84,7 @@
  * @def OPENTHREAD_CONFIG_DNS_CLIENT_SERVICE_DISCOVERY_ENABLE
  *
  * Define to 1 to enable DNS based Service Discovery (DNS-SD) client.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_DNS_CLIENT_SERVICE_DISCOVERY_ENABLE
 #define OPENTHREAD_CONFIG_DNS_CLIENT_SERVICE_DISCOVERY_ENABLE 1
@@ -93,6 +99,7 @@
  * This feature requires SRP client and its auto-start feature to be also enabled. SRP client will then monitor the
  * Thread Network Data for DNS/SRP Service entries to select an SRP server. The selected SRP server address is also set
  * as the DNS server address in the default config.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_SERVER_ADDRESS_AUTO_SET_ENABLE
 #define OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_SERVER_ADDRESS_AUTO_SET_ENABLE \
@@ -107,6 +114,7 @@
  * It MUST be a C string representation of the server IPv6 address.
  *
  * Default value is set to "2001:4860:4860::8888" which is the Google Public DNS IPv6 address.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_SERVER_IP6_ADDRESS
 #define OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_SERVER_IP6_ADDRESS "2001:4860:4860::8888"
@@ -116,6 +124,7 @@
  * @def OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_SERVER_PORT
  *
  * Specifies the default DNS server port number.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_SERVER_PORT
 #define OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_SERVER_PORT 53
@@ -125,6 +134,7 @@
  * @def OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_RESPONSE_TIMEOUT
  *
  * Specifies the default wait time that DNS client waits for a response from server (in milliseconds).
+ *
  */
 #ifndef OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_RESPONSE_TIMEOUT
 #define OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_RESPONSE_TIMEOUT 6000
@@ -134,6 +144,7 @@
  * @def OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_MAX_TX_ATTEMPTS
  *
  * Specifies the default maximum number of DNS query tx attempts with no response before reporting failure.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_MAX_TX_ATTEMPTS
 #define OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_MAX_TX_ATTEMPTS 3
@@ -144,6 +155,7 @@
  *
  * Specifies the default "recursion desired" flag (indicates whether the server can resolve the query recursively or
  * not).
+ *
  */
 #ifndef OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_RECURSION_DESIRED_FLAG
 #define OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_RECURSION_DESIRED_FLAG 1
@@ -153,6 +165,7 @@
  * @def OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_SERVICE_MODE
  *
  * Specifies the default `otDnsServiceMode` to use. The value MUST be from `otDnsServiceMode` enumeration.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_SERVICE_MODE
 #define OPENTHREAD_CONFIG_DNS_CLIENT_DEFAULT_SERVICE_MODE OT_DNS_SERVICE_MODE_SRV_TXT_OPTIMIZE
@@ -162,6 +175,7 @@
  * @def OPENTHREAD_CONFIG_DNS_CLIENT_OVER_TCP_ENABLE
  *
  * Enables support for sending DNS Queries over TCP.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_DNS_CLIENT_OVER_TCP_ENABLE
 #define OPENTHREAD_CONFIG_DNS_CLIENT_OVER_TCP_ENABLE 0
@@ -171,6 +185,7 @@
  * @def OPENTHREAD_CONFIG_DNS_CLIENT_OVER_TCP_QUERY_MAX_SIZE
  *
  * Specifies size of receive and transmit buffers of TCP sockets for DNS query over TCP.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_DNS_CLIENT_OVER_TCP_QUERY_MAX_SIZE
 #define OPENTHREAD_CONFIG_DNS_CLIENT_OVER_TCP_QUERY_MAX_SIZE 1024
@@ -178,6 +193,7 @@
 
 /**
  * @}
+ *
  */
 
 #endif // CONFIG_DNS_CLIENT_H_

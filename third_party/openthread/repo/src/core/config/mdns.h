@@ -29,6 +29,7 @@
 /**
  * @file
  *   This file includes compile-time configurations for the Multicast DNS (mDNS).
+ *
  */
 
 #ifndef CONFIG_MULTICAST_DNS_H_
@@ -41,12 +42,14 @@
  *   This module includes configuration variables for the Multicast DNS (mDNS).
  *
  * @{
+ *
  */
 
 /**
  * @def OPENTHREAD_CONFIG_MULTICAST_DNS_ENABLE
  *
  * Define to 1 to enable Multicast DNS (mDNS) support.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_MULTICAST_DNS_ENABLE
 #define OPENTHREAD_CONFIG_MULTICAST_DNS_ENABLE 0
@@ -59,19 +62,10 @@
  *
  * The OpenThread mDNS module is mainly intended for use by other OT core modules, so the public APIs are by default
  * not provided.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_MULTICAST_DNS_PUBLIC_API_ENABLE
 #define OPENTHREAD_CONFIG_MULTICAST_DNS_PUBLIC_API_ENABLE 0
-#endif
-
-/**
- * @def OPENTHREAD_CONFIG_MULTICAST_DNS_ENTRY_ITERATION_API_ENABLE
- *
- * Define to 1 for mDNS module to provide mechanisms and public APIs to iterate over registered host, service, and
- * key entries, as well as browsers and resolvers.
- */
-#ifndef OPENTHREAD_CONFIG_MULTICAST_DNS_ENTRY_ITERATION_API_ENABLE
-#define OPENTHREAD_CONFIG_MULTICAST_DNS_ENTRY_ITERATION_API_ENABLE OPENTHREAD_CONFIG_MULTICAST_DNS_PUBLIC_API_ENABLE
 #endif
 
 /**
@@ -79,6 +73,7 @@
  *
  * Define to 1 for mDNS module to be automatically enabled/disabled on the same infra-if used for border routing
  * based on infra-if state.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_MULTICAST_DNS_AUTO_ENABLE_ON_INFRA_IF
 #define OPENTHREAD_CONFIG_MULTICAST_DNS_AUTO_ENABLE_ON_INFRA_IF OPENTHREAD_CONFIG_BORDER_ROUTING_ENABLE
@@ -90,6 +85,7 @@
  * Specified the default value for `otMdnsIsQuestionUnicastAllowed()` which indicates whether mDNS core is allowed to
  * send "QU" questions (questions requesting unicast response). When allowed, the first probe will be sent as "QU"
  * question. The `otMdnsSetQuestionUnicastAllowed()` can be used to change the default value at run-time.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_MULTICAST_DNS_DEFAULT_QUESTION_UNICAST_ALLOWED
 #define OPENTHREAD_CONFIG_MULTICAST_DNS_DEFAULT_QUESTION_UNICAST_ALLOWED 1
@@ -101,6 +97,7 @@
  * Define to 1 to add mock (empty) implementation of mDNS platform APIs.
  *
  * This is intended for generating code size report only and should not be used otherwise.
+ *
  */
 #ifndef OPENTHREAD_CONFIG_MULTICAST_DNS_MOCK_PLAT_APIS_ENABLE
 #define OPENTHREAD_CONFIG_MULTICAST_DNS_MOCK_PLAT_APIS_ENABLE 0
@@ -108,6 +105,7 @@
 
 /**
  * @}
+ *
  */
 
 #endif // CONFIG_MULTICAST_DNS_H_

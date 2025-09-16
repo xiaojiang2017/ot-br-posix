@@ -305,7 +305,7 @@ otError otPlatUdpBindToNetif(otUdpSocket *aUdpSocket, otNetifIdentifier aNetifId
 #endif // __linux__
         break;
     }
-    case OT_NETIF_THREAD_HOST:
+    case OT_NETIF_THREAD:
     {
 #ifdef __linux__
         VerifyOrExit(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, &gNetifName, strlen(gNetifName)) == 0,
@@ -341,9 +341,6 @@ otError otPlatUdpBindToNetif(otUdpSocket *aUdpSocket, otNetifIdentifier aNetifId
 
         break;
     }
-
-    case OT_NETIF_THREAD_INTERNAL:
-        assert(false);
     }
 
     VerifyOrExit(setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, &zero, sizeof(zero)) == 0, error = OT_ERROR_FAILED);
@@ -474,7 +471,7 @@ otError otPlatUdpJoinMulticastGroup(otUdpSocket        *aUdpSocket,
     {
     case OT_NETIF_UNSPECIFIED:
         break;
-    case OT_NETIF_THREAD_HOST:
+    case OT_NETIF_THREAD:
         mreq.ipv6mr_interface = gNetifIndex;
         break;
     case OT_NETIF_BACKBONE:
@@ -484,8 +481,6 @@ otError otPlatUdpJoinMulticastGroup(otUdpSocket        *aUdpSocket,
         ExitNow(error = OT_ERROR_NOT_IMPLEMENTED);
 #endif
         break;
-    case OT_NETIF_THREAD_INTERNAL:
-        assert(false);
     }
 
     VerifyOrExit(setsockopt(fd, IPPROTO_IPV6, IPV6_JOIN_GROUP, &mreq, sizeof(mreq)) == 0 || errno == EADDRINUSE,
@@ -517,7 +512,7 @@ otError otPlatUdpLeaveMulticastGroup(otUdpSocket        *aUdpSocket,
     {
     case OT_NETIF_UNSPECIFIED:
         break;
-    case OT_NETIF_THREAD_HOST:
+    case OT_NETIF_THREAD:
         mreq.ipv6mr_interface = gNetifIndex;
         break;
     case OT_NETIF_BACKBONE:
@@ -527,9 +522,6 @@ otError otPlatUdpLeaveMulticastGroup(otUdpSocket        *aUdpSocket,
         ExitNow(error = OT_ERROR_NOT_IMPLEMENTED);
 #endif
         break;
-
-    case OT_NETIF_THREAD_INTERNAL:
-        assert(false);
     }
 
     VerifyOrExit(setsockopt(fd, IPPROTO_IPV6, IPV6_LEAVE_GROUP, &mreq, sizeof(mreq)) == 0 || errno == EADDRINUSE,

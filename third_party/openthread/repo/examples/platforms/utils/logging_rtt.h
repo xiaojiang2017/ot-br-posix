@@ -51,6 +51,7 @@ extern "C" {
  * @def LOG_RTT_BUFFER_INDEX
  *
  * RTT's buffer index.
+ *
  */
 #ifndef LOG_RTT_BUFFER_INDEX
 #define LOG_RTT_BUFFER_INDEX 0
@@ -61,6 +62,7 @@ extern "C" {
  *
  * RTT's name. Only used if LOG_RTT_BUFFER_INDEX is not 0. Otherwise,
  * the buffer name is fixed to "Terminal".
+ *
  */
 #ifndef LOG_RTT_BUFFER_NAME
 #define LOG_RTT_BUFFER_NAME "Terminal"
@@ -72,6 +74,7 @@ extern "C" {
  * LOG RTT's buffer size. Only used if LOG_RTT_BUFFER_INDEX is not 0. To
  * configure buffer #0 size, check the BUFFER_SIZE_UP definition in
  * SEGGER_RTT_Conf.h
+ *
  */
 #ifndef LOG_RTT_BUFFER_SIZE
 #define LOG_RTT_BUFFER_SIZE 256
@@ -81,6 +84,7 @@ extern "C" {
  * @def LOG_RTT_COLOR_ENABLE
  *
  * Enable colors on RTT Viewer.
+ *
  */
 #ifndef LOG_RTT_COLOR_ENABLE
 #define LOG_RTT_COLOR_ENABLE 1
@@ -91,16 +95,17 @@ extern "C" {
  *
  * LOG buffer used to parse print format. It will be locally allocated on the
  * stack.
+ *
  */
 #ifndef LOG_PARSE_BUFFER_SIZE
-#define LOG_PARSE_BUFFER_SIZE \
-    (19 /* Timestamp */ + 8 /* RTT color code */ + OPENTHREAD_CONFIG_LOG_MAX_SIZE + 1 /* \n */)
+#define LOG_PARSE_BUFFER_SIZE 128
 #endif
 
 /**
  * @def LOG_TIMESTAMP_ENABLE
  *
  * Enable timestamp in the logs.
+ *
  */
 #ifndef LOG_TIMESTAMP_ENABLE
 #define LOG_TIMESTAMP_ENABLE 1
@@ -108,11 +113,13 @@ extern "C" {
 
 /**
  * Initialization of Logger driver.
+ *
  */
 void utilsLogRttInit(void);
 
 /**
  * Deinitialization of Logger driver.
+ *
  */
 void utilsLogRttDeinit(void);
 
@@ -123,6 +130,7 @@ void utilsLogRttDeinit(void);
  * @param[in]  aLogRegion  The log region.
  * @param[in]  aFormat     A pointer to the format string.
  * @param[in]  ap          va_list matching information for aFormat
+ *
  */
 void utilsLogRttOutput(otLogLevel aLogLevel, otLogRegion aLogRegion, const char *aFormat, va_list ap);
 

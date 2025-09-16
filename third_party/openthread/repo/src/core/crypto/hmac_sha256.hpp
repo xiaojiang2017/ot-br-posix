@@ -55,26 +55,31 @@ namespace Crypto {
  * @addtogroup core-security
  *
  * @{
+ *
  */
 
 /**
  * Implements HMAC SHA-256 computation.
+ *
  */
 class HmacSha256
 {
 public:
     /**
      * Represents a HMAC SHA-256 hash.
+     *
      */
     typedef Sha256::Hash Hash;
 
     /**
      * Constructor for `HmacSha256`.
+     *
      */
     HmacSha256(void);
 
     /**
      * Destructor for `HmacSha256`.
+     *
      */
     ~HmacSha256(void);
 
@@ -82,6 +87,7 @@ public:
      * Sets the key and starts the HMAC computation.
      *
      * @param[in]  aKey      The key to use.
+     *
      */
     void Start(const Key &aKey);
 
@@ -90,6 +96,7 @@ public:
      *
      * @param[in]  aBuf        A pointer to the input buffer.
      * @param[in]  aBufLength  The length of @p aBuf in bytes.
+     *
      */
     void Update(const void *aBuf, uint16_t aBufLength);
 
@@ -99,6 +106,7 @@ public:
      * @tparam    ObjectType   The object type.
      *
      * @param[in] aObject      A reference to the object.
+     *
      */
     template <typename ObjectType> void Update(const ObjectType &aObject)
     {
@@ -112,6 +120,7 @@ public:
      * @param[in] aMessage    The message to read the data from.
      * @param[in] aOffset     The offset into @p aMessage to start to read.
      * @param[in] aLength     The number of bytes to read.
+     *
      */
     void Update(const Message &aMessage, uint16_t aOffset, uint16_t aLength);
 
@@ -119,6 +128,7 @@ public:
      * Finalizes the hash computation.
      *
      * @param[out]  aHash  A reference to a `Hash` to output the calculated hash.
+     *
      */
     void Finish(Hash &aHash);
 
@@ -129,6 +139,7 @@ private:
 
 /**
  * @}
+ *
  */
 
 } // namespace Crypto

@@ -312,9 +312,6 @@ class Node(object):
     def get_rloc16(self):
         return self._cli_single_output('rloc16')
 
-    def get_mac_alt_short_addr(self):
-        return self._cli_single_output('mac altshortaddr')
-
     def get_ip_addrs(self, verbose=None):
         return self.cli('ipaddr', verbose)
 
@@ -342,35 +339,17 @@ class Node(object):
     def add_ip_maddr(self, maddr):
         return self._cli_no_output('ipmaddr add', maddr)
 
-    def get_leader_weight(self):
-        return self._cli_single_output('leaderweight')
-
-    def set_leader_weight(self, weight):
-        self._cli_no_output('leaderweight', weight)
-
     def get_pollperiod(self):
         return self._cli_single_output('pollperiod')
 
     def set_pollperiod(self, period):
         self._cli_no_output('pollperiod', period)
 
-    def get_child_timeout(self):
-        return self._cli_single_output('childtimeout')
-
-    def set_child_timeout(self, timeout):
-        self._cli_no_output('childtimeout', timeout)
-
     def get_partition_id(self):
         return self._cli_single_output('partitionid')
 
     def get_nexthop(self, rloc16):
         return self._cli_single_output('nexthop', rloc16)
-
-    def get_child_max(self):
-        return self._cli_single_output('childmax')
-
-    def set_child_max(self, childmax):
-        self._cli_no_output('childmax', childmax)
 
     def get_parent_info(self):
         outputs = self.cli('parent')
@@ -382,9 +361,6 @@ class Node(object):
 
     def get_child_table(self):
         return Node.parse_table(self.cli('child table'))
-
-    def get_child_ip(self):
-        return self.cli('childip')
 
     def get_neighbor_table(self):
         return Node.parse_table(self.cli('neighbor table'))
@@ -493,12 +469,6 @@ class Node(object):
     def get_mle_counter(self):
         return self.cli('counters mle')
 
-    def get_ip_counters(self):
-        return Node.parse_list(self.cli('counters ip'))
-
-    def get_mac_counters(self):
-        return Node.parse_list(self.cli('counters mac'))
-
     def get_br_counter_unicast_outbound_packets(self):
         outputs = self.cli('counters br')
         for line in outputs:
@@ -525,20 +495,14 @@ class Node(object):
     def ba_get_port(self):
         return self._cli_single_output('ba port')
 
-    def ba_ephemeral_key_get_state(self):
+    def ba_is_ephemeral_key_active(self):
         return self._cli_single_output('ba ephemeralkey')
 
-    def ba_ephemeral_key_set_enabled(self, enable):
-        self._cli_no_output('ba ephemeralkey', 'enable' if enable else 'disable')
+    def ba_set_ephemeral_key(self, keystring, timeout=None, port=None):
+        self._cli_no_output('ba ephemeralkey set', keystring, timeout, port)
 
-    def ba_ephemeral_key_start(self, keystring, timeout=None, port=None):
-        self._cli_no_output('ba ephemeralkey start', keystring, timeout, port)
-
-    def ba_ephemeral_key_stop(self):
-        self._cli_no_output('ba ephemeralkey stop')
-
-    def ba_ephemeral_key_get_port(self):
-        return self._cli_single_output('ba ephemeralkey port')
+    def ba_clear_ephemeral_key(self):
+        self._cli_no_output('ba ephemeralkey clear')
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     # UDP
@@ -829,9 +793,6 @@ class Node(object):
     def br_get_local_onlinkprefix(self):
         return self._cli_single_output('br onlinkprefix local')
 
-    def br_set_test_local_onlinkprefix(self, prefix):
-        self._cli_no_output('br onlinkprefix test', prefix)
-
     def br_get_routeprf(self):
         return self._cli_single_output('br routeprf')
 
@@ -843,31 +804,6 @@ class Node(object):
 
     def br_get_routers(self):
         return self.cli('br routers')
-
-    def br_get_peer_brs(self):
-        return self.cli('br peers')
-
-    def br_count_peers(self):
-        return self._cli_single_output('br peers count')
-
-    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    # trel
-
-    def trel_get_peers(self):
-        peers = self.cli('trel peers ')
-        return Node.parse_table(peers)
-
-    def trel_test_get_sock_addr(self):
-        return self._cli_single_output('treltest sockaddr')
-
-    def trel_test_change_sock_addr(self):
-        return self._cli_no_output('treltest changesockaddr')
-
-    def trel_test_change_sock_port(self):
-        return self._cli_no_output('treltest changesockport')
-
-    def trel_test_get_notify_addr_counter(self):
-        return self._cli_single_output('treltest notifyaddrcounter')
 
     # ------------------------------------------------------------------------------------------------------------------
     # Helper methods
@@ -920,15 +856,6 @@ class Node(object):
 
     def un_allowlist_node(self, node):
         """Removes a given node (of node `Node) from the allowlist"""
-        self._cli_no_output('macfilter addr remove', node.get_ext_addr())
-
-    def denylist_node(self, node):
-        """Adds a given node to the denylist of `self` and enables denylisting on `self`"""
-        self._cli_no_output('macfilter addr add', node.get_ext_addr())
-        self._cli_no_output('macfilter addr denylist')
-
-    def un_denylist_node(self, node):
-        """Removes a given node (of node `Node) from the denylist"""
         self._cli_no_output('macfilter addr remove', node.get_ext_addr())
 
     def set_macfilter_lqi_to_node(self, node, lqi):

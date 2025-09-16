@@ -50,6 +50,7 @@ class VerhoeffChecksum
 public:
     /**
      * Specifies the maximum length of decimal string input.
+     *
      */
     static constexpr uint16_t kMaxStringLength = OT_VERHOEFF_CHECKSUM_MAX_STRING_LENGTH;
 
@@ -63,6 +64,7 @@ public:
      * @retval kErrorNone          Successfully calculated the checksum, @p aChecksum is updated.
      * @retval kErrorInvalidArgs   The @p aDecimalString is not valid, i.e. it either contains chars other than
      *                             ['0'-'9'], or is longer than `kMaxStringLength`.
+     *
      */
     static Error Calculate(const char *aDecimalString, char &aChecksum);
 
@@ -75,6 +77,7 @@ public:
      * @retval kErrorFailed          Checksum is not valid.
      * @retval kErrorInvalidArgs     The @p aDecimalString is not valid, i.e. it either contains chars other than
      *                               ['0'-'9'], or is longer than `kMaxStringLength`.
+     *
      */
     static Error Validate(const char *aDecimalString);
 

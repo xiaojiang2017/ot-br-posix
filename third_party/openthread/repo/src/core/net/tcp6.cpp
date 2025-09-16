@@ -31,11 +31,23 @@
  *   This file implements TCP/IPv6 sockets.
  */
 
-#include "tcp6.hpp"
+#include "openthread-core-config.h"
 
 #if OPENTHREAD_CONFIG_TCP_ENABLE
 
+#include "tcp6.hpp"
+
+#include "common/as_core_type.hpp"
+#include "common/code_utils.hpp"
+#include "common/error.hpp"
+#include "common/locator_getters.hpp"
+#include "common/log.hpp"
+#include "common/num_utils.hpp"
+#include "common/random.hpp"
 #include "instance/instance.hpp"
+#include "net/checksum.hpp"
+#include "net/ip6.hpp"
+#include "net/netif.hpp"
 
 #include "../../third_party/tcplp/tcplp.h"
 
@@ -625,7 +637,10 @@ Error Tcp::HandleMessage(ot::Ip6::Header &aIp6Header, Message &aMessage, Message
     struct tcphdr  *tcpHeader;
 
     Endpoint *endpoint;
+    Endpoint *endpointPrev;
+
     Listener *listener;
+    Listener *listenerPrev;
 
     struct tcplp_signals sig;
     int                  nextAction;
@@ -647,8 +662,7 @@ Error Tcp::HandleMessage(ot::Ip6::Header &aIp6Header, Message &aMessage, Message
     aMessageInfo.mPeerPort = BigEndian::HostSwap16(tcpHeader->th_sport);
     aMessageInfo.mSockPort = BigEndian::HostSwap16(tcpHeader->th_dport);
 
-    endpoint = mEndpoints.FindMatching(aMessageInfo);
-
+    endpoint = mEndpoints.FindMatching(aMessageInfo, endpointPrev);
     if (endpoint != nullptr)
     {
         struct tcpcb *tp = &endpoint->GetTcb();
@@ -657,7 +671,7 @@ Error Tcp::HandleMessage(ot::Ip6::Header &aIp6Header, Message &aMessage, Message
         size_t          priorBacklog = endpoint->GetSendBufferBytes() - endpoint->GetInFlightBytes();
 
         ClearAllBytes(sig);
-        nextAction = tcplp_input(ip6Header, tcpHeader, &aMessage, tp, nullptr, &sig);
+        nextAction = tcp_input(ip6Header, tcpHeader, &aMessage, tp, nullptr, &sig);
         if (nextAction != RELOOKUP_REQUIRED)
         {
             ProcessSignals(*endpoint, priorHead, priorBacklog, sig);
@@ -666,14 +680,13 @@ Error Tcp::HandleMessage(ot::Ip6::Header &aIp6Header, Message &aMessage, Message
         /* If the matching socket was in the TIME-WAIT state, then we try passive sockets. */
     }
 
-    listener = mListeners.FindMatching(aMessageInfo);
-
+    listener = mListeners.FindMatching(aMessageInfo, listenerPrev);
     if (listener != nullptr)
     {
         struct tcpcb_listen *tpl = &listener->GetTcbListen();
 
         ClearAllBytes(sig);
-        nextAction = tcplp_input(ip6Header, tcpHeader, &aMessage, nullptr, tpl, &sig);
+        nextAction = tcp_input(ip6Header, tcpHeader, &aMessage, nullptr, tpl, &sig);
         OT_ASSERT(nextAction != RELOOKUP_REQUIRED);
         if (sig.accepted_connection != nullptr)
         {

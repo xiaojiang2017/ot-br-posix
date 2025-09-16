@@ -49,10 +49,12 @@ extern "C" {
  *   This module includes functions that control network time synchronization service.
  *
  * @{
+ *
  */
 
 /**
  * Represents OpenThread time synchronization status.
+ *
  */
 typedef enum otNetworkTimeStatus
 {
@@ -63,11 +65,13 @@ typedef enum otNetworkTimeStatus
 
 /**
  * Pointer is called when a network time sync or status change occurs.
+ *
  */
 typedef void (*otNetworkTimeSyncCallbackFn)(void *aCallbackContext);
 
 /**
  * zero is considered as invalid time synchronization sequence.
+ *
  */
 #define OT_TIME_SYNC_INVALID_SEQ 0
 
@@ -78,6 +82,7 @@ typedef void (*otNetworkTimeSyncCallbackFn)(void *aCallbackContext);
  * @param[in,out] aNetworkTime  The Thread network time in microseconds.
  *
  * @returns The time synchronization status.
+ *
  */
 otNetworkTimeStatus otNetworkTimeGet(otInstance *aInstance, uint64_t *aNetworkTime);
 
@@ -91,6 +96,7 @@ otNetworkTimeStatus otNetworkTimeGet(otInstance *aInstance, uint64_t *aNetworkTi
  *
  * @retval OT_ERROR_NONE           Successfully set the time sync period.
  * @retval OT_ERROR_INVALID_STATE  Thread protocols are enabled.
+ *
  */
 otError otNetworkTimeSetSyncPeriod(otInstance *aInstance, uint16_t aTimeSyncPeriod);
 
@@ -100,6 +106,7 @@ otError otNetworkTimeSetSyncPeriod(otInstance *aInstance, uint16_t aTimeSyncPeri
  * @param[in] aInstance  The OpenThread instance structure.
  *
  * @returns The time synchronization period.
+ *
  */
 uint16_t otNetworkTimeGetSyncPeriod(otInstance *aInstance);
 
@@ -113,6 +120,7 @@ uint16_t otNetworkTimeGetSyncPeriod(otInstance *aInstance);
  *
  * @retval OT_ERROR_NONE           Successfully set the time sync period.
  * @retval OT_ERROR_INVALID_STATE  Thread protocols are enabled.
+ *
  */
 otError otNetworkTimeSetXtalThreshold(otInstance *aInstance, uint16_t aXTALThreshold);
 
@@ -122,6 +130,7 @@ otError otNetworkTimeSetXtalThreshold(otInstance *aInstance, uint16_t aXTALThres
  * @param[in] aInstance  The OpenThread instance structure.
  *
  * @returns The XTAL accuracy threshold for Router, in PPM.
+ *
  */
 uint16_t otNetworkTimeGetXtalThreshold(otInstance *aInstance);
 
@@ -134,6 +143,7 @@ uint16_t otNetworkTimeGetXtalThreshold(otInstance *aInstance);
  * @param[in] aInstance The OpenThread instance structure.
  * @param[in] aCallbackFn The callback function to be called
  * @param[in] aCallbackContext The context to be passed to the callback function upon invocation
+ *
  */
 void otNetworkTimeSyncSetCallback(otInstance                 *aInstance,
                                   otNetworkTimeSyncCallbackFn aCallbackFn,
@@ -141,6 +151,7 @@ void otNetworkTimeSyncSetCallback(otInstance                 *aInstance,
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

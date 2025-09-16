@@ -48,6 +48,7 @@ namespace Cli {
 
 /**
  * Implements the MAC Filter CLI interpreter.
+ *
  */
 class MacFilter : private Utils
 {
@@ -57,6 +58,7 @@ public:
      *
      * @param[in]  aInstance            The OpenThread Instance.
      * @param[in]  aOutputImplementer   An `OutputImplementer`.
+     *
      */
     MacFilter(otInstance *aInstance, OutputImplementer &aOutputImplementer)
         : Utils(aInstance, aOutputImplementer)
@@ -73,6 +75,7 @@ public:
      * @retval OT_ERROR_INVALID_COMMAND   Invalid or unknown CLI command.
      * @retval OT_ERROR_INVALID_ARGS      Invalid arguments.
      * @retval ...                        Error during execution of the CLI command.
+     *
      */
     otError Process(Arg aArgs[]);
 

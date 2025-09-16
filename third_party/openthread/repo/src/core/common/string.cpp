@@ -158,11 +158,6 @@ bool StringEndsWith(const char *aString, const char *aSubString, StringMatchMode
     return (subLen > 0) && (len >= subLen) && (Match(&aString[len - subLen], aSubString, aMode) != kNoMatch);
 }
 
-bool StringMatch(const char *aFirstString, const char *aSecondString)
-{
-    return Match(aFirstString, aSecondString, kStringExactMatch) == kFullMatch;
-}
-
 bool StringMatch(const char *aFirstString, const char *aSecondString, StringMatchMode aMode)
 {
     return Match(aFirstString, aSecondString, aMode) == kFullMatch;
@@ -207,15 +202,13 @@ Error StringParseUint8(const char *&aString, uint8_t &aUint8, uint8_t aMaxValue)
     Error       error = kErrorParse;
     const char *cur   = aString;
     uint16_t    value = 0;
-    uint8_t     digit;
 
-    while (ParseDigit(*cur, digit) == kErrorNone)
+    for (; (*cur >= '0') && (*cur <= '9'); cur++)
     {
         value *= 10;
-        value += digit;
+        value += static_cast<uint8_t>(*cur - '0');
         VerifyOrExit(value <= aMaxValue, error = kErrorParse);
         error = kErrorNone;
-        cur++;
     }
 
     aString = cur;
@@ -243,7 +236,7 @@ void StringConvertToUppercase(char *aString)
 
 char ToLowercase(char aChar)
 {
-    if (IsUppercase(aChar))
+    if ((aChar >= 'A') && (aChar <= 'Z'))
     {
         aChar += 'a' - 'A';
     }
@@ -253,49 +246,12 @@ char ToLowercase(char aChar)
 
 char ToUppercase(char aChar)
 {
-    if (IsLowercase(aChar))
+    if ((aChar >= 'a') && (aChar <= 'z'))
     {
         aChar -= 'a' - 'A';
     }
 
     return aChar;
-}
-
-bool IsDigit(char aChar) { return ('0' <= aChar && aChar <= '9'); }
-
-bool IsUppercase(char aChar) { return ('A' <= aChar && aChar <= 'Z'); }
-
-bool IsLowercase(char aChar) { return ('a' <= aChar && aChar <= 'z'); }
-
-Error ParseDigit(char aDigitChar, uint8_t &aValue)
-{
-    Error error = kErrorNone;
-
-    VerifyOrExit(IsDigit(aDigitChar), error = kErrorInvalidArgs);
-    aValue = static_cast<uint8_t>(aDigitChar - '0');
-
-exit:
-    return error;
-}
-
-Error ParseHexDigit(char aHexChar, uint8_t &aValue)
-{
-    Error error = kErrorNone;
-
-    if (('A' <= aHexChar) && (aHexChar <= 'F'))
-    {
-        ExitNow(aValue = static_cast<uint8_t>(aHexChar - 'A' + 10));
-    }
-
-    if (('a' <= aHexChar) && (aHexChar <= 'f'))
-    {
-        ExitNow(aValue = static_cast<uint8_t>(aHexChar - 'a' + 10));
-    }
-
-    error = ParseDigit(aHexChar, aValue);
-
-exit:
-    return error;
 }
 
 const char *ToYesNo(bool aBool)

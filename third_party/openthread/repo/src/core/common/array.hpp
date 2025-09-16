@@ -55,6 +55,7 @@ namespace ot {
  * @tparam  kArrayLength  The array length.
  *
  * @returns The array length (number of elements in the array).
+ *
  */
 template <typename Type, uint16_t kArrayLength> constexpr inline uint16_t GetArrayLength(const Type (&)[kArrayLength])
 {
@@ -73,6 +74,7 @@ template <typename Type, uint16_t kArrayLength> constexpr inline uint16_t GetArr
  * @param[in] aArray   A reference to the array.
  *
  * @returns Pointer to the past-the-end element.
+ *
  */
 template <typename Type, uint16_t kArrayLength> inline Type *GetArrayEnd(Type (&aArray)[kArrayLength])
 {
@@ -91,6 +93,7 @@ template <typename Type, uint16_t kArrayLength> inline Type *GetArrayEnd(Type (&
  * @param[in] aArray   A reference to the array.
  *
  * @returns Pointer to the past-the-end element.
+ *
  */
 template <typename Type, uint16_t kArrayLength> inline const Type *GetArrayEnd(const Type (&aArray)[kArrayLength])
 {
@@ -105,6 +108,7 @@ template <typename Type, uint16_t kArrayLength> inline const Type *GetArrayEnd(c
  * @tparam SizeType    The type to be used for array size, length, and index. If not specified, a default `uint` type
  *                     is determined based on `kMaxSize`, i.e., if `kMaxSize <= 255` then `uint8_t` will be used,
  *                     otherwise `uint16_t` will be used.
+ *
  */
 template <typename Type,
           uint16_t kMaxSize,
@@ -119,11 +123,13 @@ public:
      * Represents the length or index in array.
      *
      * It is typically either `uint8_t` or `uint16_t` (determined based on the maximum array size (`kMaxSize`)).
+     *
      */
     typedef SizeType IndexType;
 
     /**
      * Initializes the array as empty.
+     *
      */
     Array(void)
         : mLength(0)
@@ -137,6 +143,7 @@ public:
      * the array.
      *
      * @param[in] aOtherArray  Another array to copy from.
+     *
      */
     Array(const Array &aOtherArray) { *this = aOtherArray; }
 
@@ -147,6 +154,7 @@ public:
      * Uses method `Init(Instance &aInstance)` on `Type`.
      *
      * @param[in] aInstance  The OpenThread instance.
+     *
      */
     explicit Array(Instance &aInstance)
         : mLength(0)
@@ -159,6 +167,7 @@ public:
 
     /**
      * Clears the array.
+     *
      */
     void Clear(void) { mLength = 0; }
 
@@ -167,6 +176,7 @@ public:
      *
      * @retval TRUE when array is empty.
      * @retval FALSE when array is not empty.
+     *
      */
     bool IsEmpty(void) const { return (mLength == 0); }
 
@@ -175,6 +185,7 @@ public:
      *
      * @retval TRUE when array is full.
      * @retval FALSE when array is not full.
+     *
      */
     bool IsFull(void) const { return (mLength == GetMaxSize()); }
 
@@ -182,6 +193,7 @@ public:
      * Returns the maximum array size (max number of elements).
      *
      * @returns The maximum array size (max number of elements that can be added to the array).
+     *
      */
     IndexType GetMaxSize(void) const { return static_cast<IndexType>(kMaxSize); }
 
@@ -189,6 +201,7 @@ public:
      * Returns the current length of array (number of elements).
      *
      * @returns The current array length.
+     *
      */
     IndexType GetLength(void) const { return mLength; }
 
@@ -196,6 +209,7 @@ public:
      * Sets the current length (number of elements) of the array.
      *
      * @param[in] aLength   The array length.
+     *
      */
     void SetLength(IndexType aLength) { mLength = aLength; }
 
@@ -203,6 +217,7 @@ public:
      * Returns the pointer to the start of underlying C array buffer serving as `Array` storage.
      *
      * @return The pointer to start of underlying C array buffer.
+     *
      */
     Type *GetArrayBuffer(void) { return mElements; }
 
@@ -210,6 +225,7 @@ public:
      * Returns the pointer to the start of underlying C array buffer serving as `Array` storage.
      *
      * @return The pointer to start of underlying C array buffer.
+     *
      */
     const Type *GetArrayBuffer(void) const { return mElements; }
 
@@ -221,6 +237,7 @@ public:
      * @param[in] aIndex  The index to get.
      *
      * @returns A reference to the element in array at @p aIndex.
+     *
      */
     Type &operator[](IndexType aIndex) { return mElements[aIndex]; }
 
@@ -232,6 +249,7 @@ public:
      * @param[in] aIndex  The index to get.
      *
      * @returns A reference to the element in array at @p aIndex.
+     *
      */
     const Type &operator[](IndexType aIndex) const { return mElements[aIndex]; }
 
@@ -243,6 +261,7 @@ public:
      * @param[in] aIndex  The index to get.
      *
      * @returns A pointer to element in array at @p aIndex or `nullptr` if @p aIndex is not valid.
+     *
      */
     Type *At(IndexType aIndex) { return (aIndex < mLength) ? &mElements[aIndex] : nullptr; }
 
@@ -254,6 +273,7 @@ public:
      * @param[in] aIndex  The index to get.
      *
      * @returns A pointer to element in array at @p aIndex or `nullptr` if @p aIndex is not valid.
+     *
      */
     const Type *At(IndexType aIndex) const { return (aIndex < mLength) ? &mElements[aIndex] : nullptr; }
 
@@ -261,6 +281,7 @@ public:
      * Gets a pointer to the element at the front of the array (first element).
      *
      * @returns A pointer to the front element or `nullptr` if array is empty.
+     *
      */
     Type *Front(void) { return At(0); }
 
@@ -268,6 +289,7 @@ public:
      * Gets a pointer to the element at the front of the array (first element).
      *
      * @returns A pointer to the front element or `nullptr` if array is empty.
+     *
      */
     const Type *Front(void) const { return At(0); }
 
@@ -275,6 +297,7 @@ public:
      * Gets a pointer to the element at the back of the array (last element).
      *
      * @returns A pointer to the back element or `nullptr` if array is empty.
+     *
      */
     Type *Back(void) { return At(mLength - 1); }
 
@@ -282,6 +305,7 @@ public:
      * Gets a pointer to the element at the back of the array (last element).
      *
      * @returns A pointer to the back element or `nullptr` if array is empty.
+     *
      */
     const Type *Back(void) const { return At(mLength - 1); }
 
@@ -294,6 +318,7 @@ public:
      *
      * @retval kErrorNone    Successfully pushed back @p aEntry to the end of the array.
      * @retval kErrorNoBufs  Could not append the new element since array is full.
+     *
      */
     Error PushBack(const Type &aEntry) { return IsFull() ? kErrorNoBufs : (mElements[mLength++] = aEntry, kErrorNone); }
 
@@ -304,6 +329,7 @@ public:
      * initialize and use.
      *
      * @return A pointer to the newly appended element or `nullptr` if array is full.
+     *
      */
     Type *PushBack(void) { return IsFull() ? nullptr : &mElements[mLength++]; }
 
@@ -311,6 +337,7 @@ public:
      * Removes the last element in the array.
      *
      * @returns A pointer to the removed element from the array, or `nullptr` if array is empty.
+     *
      */
     Type *PopBack(void) { return IsEmpty() ? nullptr : &mElements[--mLength]; }
 
@@ -322,6 +349,7 @@ public:
      * @param[in] aElement  A reference to an element in the array.
      *
      * @returns The index of @p aElement in the array.
+     *
      */
     IndexType IndexOf(const Type &aElement) const { return static_cast<IndexType>(&aElement - &mElements[0]); }
 
@@ -334,6 +362,7 @@ public:
      * change after a call to this method.
      *
      * The method uses assignment `=` operator on `Type` to copy the last element in place of @p aElement.
+     *
      */
     void Remove(Type &aElement)
     {
@@ -353,6 +382,7 @@ public:
      * @param[in] aEntry   The entry to search for within the array.
      *
      * @returns A pointer to matched array element, or `nullptr` if a match could not be found.
+     *
      */
     Type *Find(const Type &aEntry) { return AsNonConst(AsConst(this)->Find(aEntry)); }
 
@@ -364,6 +394,7 @@ public:
      * @param[in] aEntry   The entry to search for within the array.
      *
      * @returns A pointer to matched array element, or `nullptr` if a match could not be found.
+     *
      */
     const Type *Find(const Type &aEntry) const
     {
@@ -390,6 +421,7 @@ public:
      *
      * @retval TRUE   The array contains a matching element with @p aEntry.
      * @retval FALSE  The array does not contain a matching element with @p aEntry.
+     *
      */
     bool Contains(const Type &aEntry) const { return Find(aEntry) != nullptr; }
 
@@ -405,6 +437,7 @@ public:
      * @param[in]  aIndicator  An indicator to match with elements in the array.
      *
      * @returns A pointer to the matched array element, or `nullptr` if a match could not be found.
+     *
      */
     template <typename Indicator> Type *FindMatching(const Indicator &aIndicator)
     {
@@ -423,6 +456,7 @@ public:
      * @param[in]  aIndicator  An indicator to match with elements in the array.
      *
      * @returns A pointer to the matched array element, or `nullptr` if a match could not be found.
+     *
      */
     template <typename Indicator> const Type *FindMatching(const Indicator &aIndicator) const
     {
@@ -453,6 +487,7 @@ public:
      *
      * @retval TRUE   The array contains a matching element with @p aIndicator.
      * @retval FALSE  The array does not contain a matching element with @p aIndicator.
+     *
      */
     template <typename Indicator> bool ContainsMatching(const Indicator &aIndicator) const
     {
@@ -473,6 +508,7 @@ public:
      *     bool Type::Matches(const Indicator &aIndicator) const
      *
      * @param[in]  aIndicator  An indicator to match with elements in the array.
+     *
      */
     template <typename Indicator> void RemoveMatching(const Indicator &aIndicator)
     {
@@ -497,6 +533,7 @@ public:
      *     bool Type::Matches(const Indicator &aIndicator) const
      *
      * @param[in]  aIndicator  An indicator to match with elements in the array.
+     *
      */
     template <typename Indicator> void RemoveAllMatching(const Indicator &aIndicator)
     {
@@ -526,6 +563,7 @@ public:
      * the array.
      *
      * @param[in] aOtherArray  Another array to copy from.
+     *
      */
     Array &operator=(const Array &aOtherArray)
     {
@@ -549,6 +587,7 @@ public:
      *
      * @retval TRUE  The @p aEntry is from the array.
      * @retval FALSE The @p aEntry is not from the array.
+     *
      */
     bool IsInArrayBuffer(const Type *aEntry) const
     {

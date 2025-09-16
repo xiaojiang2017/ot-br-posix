@@ -55,6 +55,7 @@ namespace Mle {
 
 /**
  * Implements MLE Discover Scan.
+ *
  */
 class DiscoverScanner : public InstanceLocator, private NonCopyable
 {
@@ -65,11 +66,13 @@ class DiscoverScanner : public InstanceLocator, private NonCopyable
 public:
     /**
      * Default scan duration (per channel), in milliseconds.
+     *
      */
     static constexpr uint32_t kDefaultScanDuration = Mac::kScanDurationDefault;
 
     /**
      * Represents Discover Scan result.
+     *
      */
     typedef otActiveScanResult ScanResult;
 
@@ -79,6 +82,7 @@ public:
      *
      * The handler function format is `void (*oHandler)(ScanResult *aResult, void *aContext);`. End of scan is
      * indicated by `aResult` pointer being set to `nullptr`.
+     *
      */
     typedef otHandleActiveScanResult Handler;
 
@@ -88,6 +92,7 @@ public:
      *
      * This is used when filtering is enabled during Discover Scan, i.e., received MLE Discovery Responses with steering
      * data (bloom filter) not containing the given indexes are filtered.
+     *
      */
     typedef MeshCoP::SteeringData::HashBitIndexes FilterIndexes;
 
@@ -95,6 +100,7 @@ public:
      * Initializes the object.
      *
      * @param[in]  aInstance     A reference to the OpenThread instance.
+     *
      */
     explicit DiscoverScanner(Instance &aInstance);
 
@@ -116,6 +122,7 @@ public:
      * @retval kErrorInvalidState   The IPv6 interface is not enabled (netif is not up).
      * @retval kErrorNoBufs         Could not allocate message for Discovery Request.
      * @retval kErrorBusy           Thread Discovery Scan is already in progress.
+     *
      */
     Error Discover(const Mac::ChannelMask &aScanChannels,
                    Mac::PanId              aPanId,
@@ -129,6 +136,7 @@ public:
      * Indicates whether or not an MLE Thread Discovery Scan is currently in progress.
      *
      * @returns true if an MLE Thread Discovery Scan is in progress, false otherwise.
+     *
      */
     bool IsInProgress(void) const { return (mState != kStateIdle); }
 
@@ -141,6 +149,7 @@ public:
      *
      * @retval kErrorNone           Successfully set Joiner Advertisement.
      * @retval kErrorInvalidArgs    Invalid AdvData.
+     *
      */
     Error SetJoinerAdvertisement(uint32_t aOui, const uint8_t *aAdvData, uint8_t aAdvDataLength);
 

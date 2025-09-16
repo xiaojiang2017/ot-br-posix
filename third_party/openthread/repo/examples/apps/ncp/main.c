@@ -56,6 +56,7 @@
  * Initializes the NCP app.
  *
  * @param[in]  aInstance  The OpenThread instance structure.
+ *
  */
 extern void otAppNcpInit(otInstance *aInstance);
 extern void otAppNcpInitMulti(otInstance **aInstances, uint8_t count);
@@ -65,6 +66,8 @@ OT_TOOL_WEAK void *otPlatCAlloc(size_t aNum, size_t aSize) { return calloc(aNum,
 
 OT_TOOL_WEAK void otPlatFree(void *aPtr) { free(aPtr); }
 #endif
+
+void otTaskletsSignalPending(otInstance *aInstance) { OT_UNUSED_VARIABLE(aInstance); }
 
 int main(int argc, char *argv[])
 {

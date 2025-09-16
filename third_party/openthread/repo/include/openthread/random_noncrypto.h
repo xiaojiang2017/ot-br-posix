@@ -48,12 +48,14 @@ extern "C" {
  *   This module includes functions that generates non cryptographic random numbers.
  *
  * @{
+ *
  */
 
 /**
  * Generates and returns a random `uint32_t` value.
  *
  * @returns    A random `uint32_t` value.
+ *
  */
 uint32_t otRandomNonCryptoGetUint32(void);
 
@@ -61,6 +63,7 @@ uint32_t otRandomNonCryptoGetUint32(void);
  * Generates and returns a random byte.
  *
  * @returns A random `uint8_t` value.
+ *
  */
 uint8_t otRandomNonCryptoGetUint8(void);
 
@@ -68,6 +71,7 @@ uint8_t otRandomNonCryptoGetUint8(void);
  * Generates and returns a random `uint16_t` value.
  *
  * @returns A random `uint16_t` value.
+ *
  */
 uint16_t otRandomNonCryptoGetUint16(void);
 
@@ -102,6 +106,7 @@ uint16_t otRandomNonCryptoGetUint16InRange(uint16_t aMin, uint16_t aMax);
  * @param[in]  aMax  A maximum value (this value is excluded from returned random result).
  *
  * @returns    A random `uint32_t` value in the given range (i.e., aMin <= random value < aMax).
+ *
  */
 uint32_t otRandomNonCryptoGetUint32InRange(uint32_t aMin, uint32_t aMax);
 
@@ -110,6 +115,7 @@ uint32_t otRandomNonCryptoGetUint32InRange(uint32_t aMin, uint32_t aMax);
  *
  * @param[out] aBuffer  A pointer to a buffer to fill with the random bytes.
  * @param[in]  aSize    Size of buffer (number of bytes to fill).
+ *
  */
 void otRandomNonCryptoFillBuffer(uint8_t *aBuffer, uint16_t aSize);
 
@@ -120,11 +126,13 @@ void otRandomNonCryptoFillBuffer(uint8_t *aBuffer, uint16_t aSize);
  * @param[in]  aJitter    Maximum jitter. Random jitter is selected from the range `[-aJitter, aJitter]`.
  *
  * @returns    The given value with an added random jitter.
+ *
  */
 uint32_t otRandomNonCryptoAddJitter(uint32_t aValue, uint16_t aJitter);
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

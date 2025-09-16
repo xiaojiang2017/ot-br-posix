@@ -45,16 +45,19 @@ namespace otbr {
  * @addtogroup core-security
  *
  * @{
+ *
  */
 
 /**
  * This class implements SHA-256 computation.
+ *
  */
 class Sha256
 {
 public:
     /**
      * This type represents a SHA-256 hash.
+     *
      */
     class Hash : public otCryptoSha256Hash
     {
@@ -65,22 +68,26 @@ public:
          * This method returns a pointer to a byte array containing the hash value.
          *
          * @returns A pointer to a byte array containing the hash.
+         *
          */
         const uint8_t *GetBytes(void) const { return m8; }
     };
 
     /**
      * Constructor for `Sha256` object.
+     *
      */
     Sha256(void);
 
     /**
      * Destructor for `Sha256` object.
+     *
      */
     ~Sha256(void);
 
     /**
      * This method starts the SHA-256 computation.
+     *
      */
     void Start(void);
 
@@ -89,6 +96,7 @@ public:
      *
      * @param[in]  aBuf        A pointer to the input buffer.
      * @param[in]  aBufLength  The length of @p aBuf in bytes.
+     *
      */
     void Update(const void *aBuf, uint16_t aBufLength);
 
@@ -96,6 +104,7 @@ public:
      * This method finalizes the hash computation.
      *
      * @param[out]  aHash  A reference to a `Hash` to output the calculated hash.
+     *
      */
     void Finish(Hash &aHash);
 

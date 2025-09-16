@@ -45,6 +45,7 @@ extern "C" {
 
 /**
  * Represents exit codes used when OpenThread exits.
+ *
  */
 enum
 {
@@ -96,6 +97,7 @@ enum
  * @param[in]  aExitCode  An exit code.
  *
  * @returns  A string representation of an exit code.
+ *
  */
 const char *otExitCodeToString(uint8_t aExitCode);
 
@@ -105,6 +107,7 @@ const char *otExitCodeToString(uint8_t aExitCode);
  *
  * @param[in]   aCondition  The condition to verify
  * @param[in]   aExitCode   The exit code.
+ *
  */
 #define VerifyOrDie(aCondition, aExitCode)                                                         \
     do                                                                                             \
@@ -124,6 +127,7 @@ const char *otExitCodeToString(uint8_t aExitCode);
  * and both records exit status and terminates the program if the error code is unsuccessful.
  *
  * @param[in]  aError  An error code to be evaluated against OT_ERROR_NONE.
+ *
  */
 #define SuccessOrDie(aError)             \
     VerifyOrDie(aError == OT_ERROR_NONE, \
@@ -133,6 +137,7 @@ const char *otExitCodeToString(uint8_t aExitCode);
  * Unconditionally both records exit status and terminates the program.
  *
  * @param[in]   aExitCode   The exit code.
+ *
  */
 #define DieNow(aExitCode) VerifyOrDie(false, aExitCode)
 
@@ -141,6 +146,7 @@ const char *otExitCodeToString(uint8_t aExitCode);
  *
  * @param[in]   aMessage    The exit message.
  * @param[in]   aExitCode   The exit code.
+ *
  */
 #define DieNowWithMessage(aMessage, aExitCode)                                                 \
     do                                                                                         \

@@ -30,6 +30,7 @@
  * @file
  * @brief
  *   This file defines the platform DNS interface.
+ *
  */
 
 #ifndef OPENTHREAD_PLATFORM_DNS_H_
@@ -49,10 +50,12 @@ extern "C" {
  *   This module includes the platform abstraction for sending recursive DNS query to upstream DNS servers.
  *
  * @{
+ *
  */
 
 /**
  * This opaque type represents an upstream DNS query transaction.
+ *
  */
 typedef struct otPlatDnsUpstreamQuery otPlatDnsUpstreamQuery;
 
@@ -68,6 +71,7 @@ typedef struct otPlatDnsUpstreamQuery otPlatDnsUpstreamQuery;
  * @param[in] aInstance  The OpenThread instance structure.
  * @param[in] aTxn       A pointer to the opaque DNS query transaction object.
  * @param[in] aQuery     A message buffer of the DNS payload that should be sent to upstream DNS server.
+ *
  */
 void otPlatDnsStartUpstreamQuery(otInstance *aInstance, otPlatDnsUpstreamQuery *aTxn, const otMessage *aQuery);
 
@@ -78,6 +82,7 @@ void otPlatDnsStartUpstreamQuery(otInstance *aInstance, otPlatDnsUpstreamQuery *
  *
  * @param[in] aInstance  The OpenThread instance structure.
  * @param[in] aTxn       A pointer to the opaque DNS query transaction object.
+ *
  */
 void otPlatDnsCancelUpstreamQuery(otInstance *aInstance, otPlatDnsUpstreamQuery *aTxn);
 
@@ -93,11 +98,13 @@ void otPlatDnsCancelUpstreamQuery(otInstance *aInstance, otPlatDnsUpstreamQuery 
  * @param[in] aTxn       A pointer to the opaque DNS query transaction object.
  * @param[in] aResponse  A message buffer of the DNS response payload or `nullptr` to close a transaction without a
  *                       response.
+ *
  */
 extern void otPlatDnsUpstreamQueryDone(otInstance *aInstance, otPlatDnsUpstreamQuery *aTxn, otMessage *aResponse);
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

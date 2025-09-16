@@ -38,25 +38,28 @@
 /* First include Mbed TLS headers to get the Mbed TLS configuration and
  * platform definitions that we'll use in this program. Also include
  * standard C headers for functions we'll use here. */
-#include "mbedtls/build_info.h"
+#if !defined(MBEDTLS_CONFIG_FILE)
+#include "mbedtls/config.h"
+#else
+#include MBEDTLS_CONFIG_FILE
+#endif
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "mbedtls/platform.h" // for mbedtls_setbuf
 #include "mbedtls/platform_util.h" // for mbedtls_platform_zeroize
 
 #include <psa/crypto.h>
 
 /* If the build options we need are not enabled, compile a placeholder. */
-#if !defined(PSA_WANT_ALG_SHA_256) || !defined(MBEDTLS_MD_C) ||      \
+#if !defined(MBEDTLS_SHA256_C) || !defined(MBEDTLS_MD_C) ||      \
     !defined(MBEDTLS_AES_C) || !defined(MBEDTLS_CCM_C) ||        \
     !defined(MBEDTLS_PSA_CRYPTO_C) || !defined(MBEDTLS_FS_IO) || \
     defined(MBEDTLS_PSA_CRYPTO_KEY_ID_ENCODES_OWNER)
 int main(void)
 {
-    printf("PSA_WANT_ALG_SHA_256 and/or MBEDTLS_MD_C and/or "
+    printf("MBEDTLS_SHA256_C and/or MBEDTLS_MD_C and/or "
            "MBEDTLS_AES_C and/or MBEDTLS_CCM_C and/or "
            "MBEDTLS_PSA_CRYPTO_C and/or MBEDTLS_FS_IO "
            "not defined and/or MBEDTLS_PSA_CRYPTO_KEY_ID_ENCODES_OWNER "
@@ -164,8 +167,6 @@ static psa_status_t save_key(psa_key_id_t key,
                              key_data, sizeof(key_data),
                              &key_size));
     SYS_CHECK((key_file = fopen(output_file_name, "wb")) != NULL);
-    /* Ensure no stdio buffering of secrets, as such buffers cannot be wiped. */
-    mbedtls_setbuf(key_file, NULL);
     SYS_CHECK(fwrite(key_data, 1, key_size, key_file) == key_size);
     SYS_CHECK(fclose(key_file) == 0);
     key_file = NULL;
@@ -221,8 +222,6 @@ static psa_status_t import_key_from_file(psa_key_usage_t usage,
     unsigned char extra_byte;
 
     SYS_CHECK((key_file = fopen(key_file_name, "rb")) != NULL);
-    /* Ensure no stdio buffering of secrets, as such buffers cannot be wiped. */
-    mbedtls_setbuf(key_file, NULL);
     SYS_CHECK((key_size = fread(key_data, 1, sizeof(key_data),
                                 key_file)) != 0);
     if (fread(&extra_byte, 1, 1, key_file) != 0) {
@@ -361,8 +360,6 @@ static psa_status_t wrap_data(const char *input_file_name,
 
     /* Find the size of the data to wrap. */
     SYS_CHECK((input_file = fopen(input_file_name, "rb")) != NULL);
-    /* Ensure no stdio buffering of secrets, as such buffers cannot be wiped. */
-    mbedtls_setbuf(input_file, NULL);
     SYS_CHECK(fseek(input_file, 0, SEEK_END) == 0);
     SYS_CHECK((input_position = ftell(input_file)) != -1);
 #if LONG_MAX > SIZE_MAX
@@ -407,8 +404,6 @@ static psa_status_t wrap_data(const char *input_file_name,
 
     /* Write the output. */
     SYS_CHECK((output_file = fopen(output_file_name, "wb")) != NULL);
-    /* Ensure no stdio buffering of secrets, as such buffers cannot be wiped. */
-    mbedtls_setbuf(output_file, NULL);
     SYS_CHECK(fwrite(&header, 1, sizeof(header),
                      output_file) == sizeof(header));
     SYS_CHECK(fwrite(buffer, 1, ciphertext_size,
@@ -447,8 +442,6 @@ static psa_status_t unwrap_data(const char *input_file_name,
 
     /* Load and validate the header. */
     SYS_CHECK((input_file = fopen(input_file_name, "rb")) != NULL);
-    /* Ensure no stdio buffering of secrets, as such buffers cannot be wiped. */
-    mbedtls_setbuf(input_file, NULL);
     SYS_CHECK(fread(&header, 1, sizeof(header),
                     input_file) == sizeof(header));
     if (memcmp(&header.magic, WRAPPED_DATA_MAGIC,
@@ -500,8 +493,6 @@ static psa_status_t unwrap_data(const char *input_file_name,
 
     /* Write the output. */
     SYS_CHECK((output_file = fopen(output_file_name, "wb")) != NULL);
-    /* Ensure no stdio buffering of secrets, as such buffers cannot be wiped. */
-    mbedtls_setbuf(output_file, NULL);
     SYS_CHECK(fwrite(buffer, 1, plaintext_size,
                      output_file) == plaintext_size);
     SYS_CHECK(fclose(output_file) == 0);
@@ -686,6 +677,6 @@ usage_failure:
     usage();
     return EXIT_FAILURE;
 }
-#endif /* PSA_WANT_ALG_SHA_256 && MBEDTLS_MD_C &&
+#endif /* MBEDTLS_SHA256_C && MBEDTLS_MD_C &&
           MBEDTLS_AES_C && MBEDTLS_CCM_C &&
           MBEDTLS_PSA_CRYPTO_C && MBEDTLS_FS_IO */

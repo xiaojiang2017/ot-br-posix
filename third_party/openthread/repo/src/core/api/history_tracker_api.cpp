@@ -35,7 +35,11 @@
 
 #if OPENTHREAD_CONFIG_HISTORY_TRACKER_ENABLE
 
-#include "instance/instance.hpp"
+#include <openthread/history_tracker.h>
+
+#include "common/as_core_type.hpp"
+#include "common/locator_getters.hpp"
+#include "utils/history_tracker.hpp"
 
 using namespace ot;
 

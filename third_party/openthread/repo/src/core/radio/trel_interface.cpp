@@ -34,7 +34,17 @@
 
 #if OPENTHREAD_CONFIG_RADIO_LINK_TREL_ENABLE
 
+#include <string.h>
+
+#include "common/array.hpp"
+#include "common/as_core_type.hpp"
+#include "common/code_utils.hpp"
+#include "common/debug.hpp"
+#include "common/locator_getters.hpp"
+#include "common/log.hpp"
+#include "common/string.hpp"
 #include "instance/instance.hpp"
+#include "net/dns_types.hpp"
 
 namespace ot {
 namespace Trel {
@@ -107,16 +117,6 @@ void Interface::Disable(void)
 
 exit:
     return;
-}
-
-Interface::Peer *Interface::FindPeer(const Mac::ExtAddress &aExtAddress)
-{
-    return mPeerTable.FindMatching(aExtAddress);
-}
-
-void Interface::NotifyPeerSocketAddressDifference(const Ip6::SockAddr &aPeerSockAddr, const Ip6::SockAddr &aRxSockAddr)
-{
-    otPlatTrelNotifyPeerSocketAddressDifference(&GetInstance(), &aPeerSockAddr, &aRxSockAddr);
 }
 
 void Interface::HandleExtAddressChange(void)
@@ -198,7 +198,7 @@ void Interface::HandleDiscoveredPeerInfo(const Peer::Info &aInfo)
 
     if (aInfo.IsRemoved())
     {
-        entry = FindPeer(extAddress);
+        entry = mPeerTable.FindMatching(extAddress);
         VerifyOrExit(entry != nullptr);
         RemovePeerEntry(*entry);
         ExitNow();
@@ -271,14 +271,14 @@ Error Interface::ParsePeerInfoTxtData(const Peer::Info       &aInfo,
             continue;
         }
 
-        if (StringMatch(entry.mKey, kTxtRecordExtAddressKey))
+        if (strcmp(entry.mKey, kTxtRecordExtAddressKey) == 0)
         {
             VerifyOrExit(!parsedExtAddress, error = kErrorParse);
             VerifyOrExit(entry.mValueLength == sizeof(Mac::ExtAddress), error = kErrorParse);
             aExtAddress.Set(entry.mValue);
             parsedExtAddress = true;
         }
-        else if (StringMatch(entry.mKey, kTxtRecordExtPanIdKey))
+        else if (strcmp(entry.mKey, kTxtRecordExtPanIdKey) == 0)
         {
             VerifyOrExit(!parsedExtPanId, error = kErrorParse);
             VerifyOrExit(entry.mValueLength == sizeof(MeshCoP::ExtendedPanId), error = kErrorParse);
@@ -390,28 +390,25 @@ exit:
     return error;
 }
 
-extern "C" void otPlatTrelHandleReceived(otInstance       *aInstance,
-                                         uint8_t          *aBuffer,
-                                         uint16_t          aLength,
-                                         const otSockAddr *aSenderAddress)
+extern "C" void otPlatTrelHandleReceived(otInstance *aInstance, uint8_t *aBuffer, uint16_t aLength)
 {
     Instance &instance = AsCoreType(aInstance);
 
     VerifyOrExit(instance.IsInitialized());
-    instance.Get<Interface>().HandleReceived(aBuffer, aLength, AsCoreType(aSenderAddress));
+    instance.Get<Interface>().HandleReceived(aBuffer, aLength);
 
 exit:
     return;
 }
 
-void Interface::HandleReceived(uint8_t *aBuffer, uint16_t aLength, const Ip6::SockAddr &aSenderAddr)
+void Interface::HandleReceived(uint8_t *aBuffer, uint16_t aLength)
 {
     LogDebg("HandleReceived(aLength:%u)", aLength);
 
     VerifyOrExit(mInitialized && mEnabled && !mFiltered);
 
     mRxPacket.Init(aBuffer, aLength);
-    Get<Link>().ProcessReceivedPacket(mRxPacket, aSenderAddr);
+    Get<Link>().ProcessReceivedPacket(mRxPacket);
 
 exit:
     return;

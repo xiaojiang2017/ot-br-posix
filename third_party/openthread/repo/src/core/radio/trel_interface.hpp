@@ -56,32 +56,29 @@ namespace Trel {
 
 class Link;
 
-extern "C" void otPlatTrelHandleReceived(otInstance       *aInstance,
-                                         uint8_t          *aBuffer,
-                                         uint16_t          aLength,
-                                         const otSockAddr *aSenderAddr);
+extern "C" void otPlatTrelHandleReceived(otInstance *aInstance, uint8_t *aBuffer, uint16_t aLength);
 extern "C" void otPlatTrelHandleDiscoveredPeerInfo(otInstance *aInstance, const otPlatTrelPeerInfo *aInfo);
 
 /**
  * Represents a group of TREL counters.
+ *
  */
 typedef otTrelCounters Counters;
 
 /**
  * Represents a TREL link interface.
+ *
  */
 class Interface : public InstanceLocator
 {
     friend class Link;
-    friend void otPlatTrelHandleReceived(otInstance       *aInstance,
-                                         uint8_t          *aBuffer,
-                                         uint16_t          aLength,
-                                         const otSockAddr *aSenderAddr);
+    friend void otPlatTrelHandleReceived(otInstance *aInstance, uint8_t *aBuffer, uint16_t aLength);
     friend void otPlatTrelHandleDiscoveredPeerInfo(otInstance *aInstance, const otPlatTrelPeerInfo *aInfo);
 
 public:
     /**
      * Represents information about a discovered TREL peer.
+     *
      */
     class Peer : public otTrelPeer
     {
@@ -93,6 +90,7 @@ public:
          * Returns the Extended MAC Address of the discovered TREL peer.
          *
          * @returns The Extended MAC Address of the TREL peer.
+         *
          */
         const Mac::ExtAddress &GetExtAddress(void) const { return static_cast<const Mac::ExtAddress &>(mExtAddress); }
 
@@ -100,6 +98,7 @@ public:
          * Returns the Extended PAN Identifier of the discovered TREL peer.
          *
          * @returns The Extended PAN Identifier of the TREL peer.
+         *
          */
         const MeshCoP::ExtendedPanId &GetExtPanId(void) const
         {
@@ -109,16 +108,10 @@ public:
         /**
          * Returns the IPv6 socket address of the discovered TREL peer.
          *
-         * @returns The IPv6 socket address of the TREL peer.
+         * @returns The IPv6 socket address of the TREP peer.
+         *
          */
         const Ip6::SockAddr &GetSockAddr(void) const { return static_cast<const Ip6::SockAddr &>(mSockAddr); }
-
-        /**
-         * Set the IPv6 socket address of the discovered TREL peer.
-         *
-         * @param[in] aSockAddr   The IPv6 socket address.
-         */
-        void SetSockAddr(const Ip6::SockAddr &aSockAddr) { mSockAddr = aSockAddr; }
 
         /**
          * Indicates whether the peer matches a given Extended Address.
@@ -127,6 +120,7 @@ public:
          *
          * @retval TRUE if the peer matches @p aExtAddress.
          * @retval FALSE if the peer does not match @p aExtAddress.
+         *
          */
         bool Matches(const Mac::ExtAddress &aExtAddress) const { return GetExtAddress() == aExtAddress; }
 
@@ -137,6 +131,7 @@ public:
          *
          * @retval TRUE if the peer matches @p aSockAddr.
          * @retval FALSE if the peer does not match @p aSockAddr.
+         *
          */
         bool Matches(const Ip6::SockAddr &aSockAddr) const { return GetSockAddr() == aSockAddr; }
 
@@ -152,11 +147,13 @@ public:
 
         void SetExtAddress(const Mac::ExtAddress &aExtAddress) { mExtAddress = aExtAddress; }
         void SetExtPanId(const MeshCoP::ExtendedPanId &aExtPanId) { mExtPanId = aExtPanId; }
+        void SetSockAddr(const Ip6::SockAddr &aSockAddr) { mSockAddr = aSockAddr; }
         void Log(const char *aAction) const;
     };
 
     /**
      * Represents an iterator for iterating over TREL peer table entries.
+     *
      */
     typedef otTrelPeerIterator PeerIterator;
 
@@ -174,6 +171,7 @@ public:
      * to discover other devices supporting TREL. Device also registers a new service to be advertised using DNS-SD,
      * with the service name is "_trel._udp" indicating its support for TREL. Device is ready to receive TREL messages
      * from peers.
+     *
      */
     void Enable(void);
 
@@ -182,6 +180,7 @@ public:
      *
      * This call stops the DNS-SD browse on the service name "_trel._udp", stops advertising TREL DNS-SD service, and
      * clears the TREL peer table.
+     *
      */
     void Disable(void);
 
@@ -190,6 +189,7 @@ public:
      *
      * @retval TRUE if the TREL interface is enabled.
      * @retval FALSE if the TREL interface is disabled.
+     *
      */
     bool IsEnabled(void) const { return mEnabled; }
 
@@ -197,6 +197,7 @@ public:
      * Initializes a peer table iterator.
      *
      * @param[in] aIterator   The iterator to initialize.
+     *
      */
     void InitIterator(PeerIterator &aIterator) const { aIterator = 0; }
 
@@ -206,6 +207,7 @@ public:
      * @param[in] aIterator   The iterator. MUST be initialized.
      *
      * @returns A pointer to the next `Peer` entry or `nullptr` if no more entries in the table.
+     *
      */
     const Peer *GetNextPeer(PeerIterator &aIterator) const;
 
@@ -213,6 +215,7 @@ public:
      * Returns the number of TREL peers.
      *
      * @returns  The number of TREL peers.
+     *
      */
     uint16_t GetNumberOfPeers(void) const { return mPeerTable.GetLength(); }
 
@@ -226,6 +229,7 @@ public:
      * TREL interface continues to be enabled.
      *
      * @param[in] aFiltered  TRUE to enable filter mode, FALSE to disable filter mode.
+     *
      */
     void SetFilterEnabled(bool aEnable) { mFiltered = aEnable; }
 
@@ -234,6 +238,7 @@ public:
      *
      * @retval TRUE if the TREL filter mode is enabled.
      * @retval FALSE if the TREL filter mode is disabled.
+     *
      */
     bool IsFilterEnabled(void) const { return mFiltered; }
 
@@ -241,38 +246,15 @@ public:
      * Gets the TREL counters.
      *
      * The counters are initialized to zero when the TREL platform is initialized.
+     *
      */
     const Counters *GetCounters(void) const;
 
     /**
      * Resets the TREL counters.
+     *
      */
     void ResetCounters(void);
-
-    /**
-     * Returns the TREL UDP port.
-     *
-     * @returns The TREL UDP port.
-     */
-    uint16_t GetUdpPort(void) const { return mUdpPort; }
-
-    /**
-     * Finds the TREL peer associated with a given Extended Address.
-     *
-     * @param[in] aExtAddress  The extended address.
-     *
-     * @returns The peer associated with @ aExtAddress, or `nullptr` if not found.
-     */
-    Peer *FindPeer(const Mac::ExtAddress &aExtAddress);
-
-    /**
-     * Notifies platform that a TREL packet is received from a peer using a different socket address than the one
-     * reported earlier.
-     *
-     * @param[in] aPeerSockAddr   The previously reported peer sock addr.
-     * @param[in] aRxSockAddr     The address of received packet from the same peer.
-     */
-    void NotifyPeerSocketAddressDifference(const Ip6::SockAddr &aPeerSockAddr, const Ip6::SockAddr &aRxSockAddr);
 
 private:
 #if OPENTHREAD_CONFIG_TREL_PEER_TABLE_SIZE != 0
@@ -295,7 +277,7 @@ private:
     Error Send(const Packet &aPacket, bool aIsDiscovery = false);
 
     // Callbacks from `otPlatTrel`.
-    void HandleReceived(uint8_t *aBuffer, uint16_t aLength, const Ip6::SockAddr &aSenderAddr);
+    void HandleReceived(uint8_t *aBuffer, uint16_t aLength);
     void HandleDiscoveredPeerInfo(const Peer::Info &aInfo);
 
     void  RegisterService(void);

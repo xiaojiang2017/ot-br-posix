@@ -170,7 +170,7 @@ Error MbedTls::MapError(int aMbedTlsError)
     return error;
 }
 
-#if OPENTHREAD_FTD || OPENTHREAD_MTD
+#if !OPENTHREAD_RADIO
 
 int MbedTls::CryptoSecurePrng(void *, unsigned char *aBuffer, size_t aSize)
 {
@@ -179,7 +179,7 @@ int MbedTls::CryptoSecurePrng(void *, unsigned char *aBuffer, size_t aSize)
     return 0;
 }
 
-#endif // OPENTHREAD_FTD || OPENTHREAD_MTD
+#endif // !OPENTHREAD_RADIO
 
 } // namespace Crypto
 } // namespace ot

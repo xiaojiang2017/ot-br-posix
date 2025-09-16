@@ -296,14 +296,6 @@ def node_ext_panid_check(data):
     return True
 
 
-def node_coprocessor_version_check(data):
-    assert data is not None
-
-    assert (type(data) == str)
-
-    return True
-
-
 def node_test(thread_num):
     url = rest_api_addr + "/node"
 
@@ -414,18 +406,6 @@ def node_ext_panid_test(thread_num):
     print(" /node/ext-panid : all {}, valid {} ".format(thread_num, valid))
 
 
-def node_coprocessor_version_test(thread_num):
-    url = rest_api_addr + "/node/coprocessor/version"
-
-    response_data = [None] * thread_num
-
-    create_multi_thread(get_data_from_url, url, thread_num, response_data)
-
-    valid = [node_coprocessor_version_check(data) for data in response_data].count(True)
-
-    print(" /node/coprocessor/version : all {}, valid {} ".format(thread_num, valid))
-
-
 def diagnostics_test(thread_num):
     url = rest_api_addr + "/diagnostics"
 
@@ -470,7 +450,6 @@ def main():
     node_leader_data_test(200)
     node_num_of_router_test(200)
     node_ext_panid_test(200)
-    node_coprocessor_version_test(200)
     diagnostics_test(20)
     error_test(10)
 

@@ -56,17 +56,20 @@ namespace Utils {
 
 /**
  * Implements sending ICMPv6 Echo Request messages and processing ICMPv6 Echo Reply messages.
+ *
  */
 class PingSender : public InstanceLocator, private NonCopyable
 {
 public:
     /**
      * Represents a ping reply.
+     *
      */
     typedef otPingSenderReply Reply;
 
     /**
      * Represents the statistics of several ping requests.
+     *
      */
     struct Statistics : public otPingSenderStatistics
     {
@@ -85,6 +88,7 @@ public:
 
     /**
      * Represents a ping request configuration.
+     *
      */
     class Config : public otPingSenderConfig
     {
@@ -95,6 +99,7 @@ public:
          * Gets the source IPv6 address of the ping.
          *
          * @returns The ping source IPv6 address.
+         *
          */
         Ip6::Address &GetSource(void) { return AsCoreType(&mSource); }
 
@@ -102,6 +107,7 @@ public:
          * Gets the source IPv6 address of the ping.
          *
          * @returns The ping source IPv6 address.
+         *
          */
         const Ip6::Address &GetSource(void) const { return AsCoreType(&mSource); }
 
@@ -109,6 +115,7 @@ public:
          * Gets the destination IPv6 address to ping.
          *
          * @returns The ping destination IPv6 address.
+         *
          */
         Ip6::Address &GetDestination(void) { return AsCoreType(&mDestination); }
 
@@ -116,6 +123,7 @@ public:
          * Gets the destination IPv6 address to ping.
          *
          * @returns The ping destination IPv6 address.
+         *
          */
         const Ip6::Address &GetDestination(void) const { return AsCoreType(&mDestination); }
 
@@ -134,6 +142,7 @@ public:
      * Initializes the `PingSender` object.
      *
      * @param[in]  aInstance     A reference to the OpenThread instance.
+     *
      */
     explicit PingSender(Instance &aInstance);
 
@@ -145,11 +154,13 @@ public:
      * @retval kErrorNone          The ping started successfully.
      * @retval kErrorBusy          Could not start since busy with a previous ongoing ping request.
      * @retval kErrorInvalidArgs   The @p aConfig contains invalid parameters (e.g., ping interval is too long).
+     *
      */
     Error Ping(const Config &aConfig);
 
     /**
      * Stops an ongoing ping.
+     *
      */
     void Stop(void);
 

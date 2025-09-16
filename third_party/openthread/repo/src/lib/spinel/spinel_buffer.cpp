@@ -32,9 +32,8 @@
 
 #include "spinel_buffer.hpp"
 
-#include <assert.h>
-
 #include "common/code_utils.hpp"
+#include "common/debug.hpp"
 
 namespace ot {
 namespace Spinel {
@@ -153,7 +152,7 @@ uint8_t *Buffer::GetUpdatedBufPtr(uint8_t *aBufPtr, uint16_t aOffset, Direction 
         break;
 
     case kUnknown:
-        assert(false);
+        OT_ASSERT(false);
         OT_UNREACHABLE_CODE(break);
     }
 
@@ -196,7 +195,7 @@ uint16_t Buffer::GetDistance(const uint8_t *aStartPtr, const uint8_t *aEndPtr, D
         break;
 
     case kUnknown:
-        assert(false);
+        OT_ASSERT(false);
         OT_UNREACHABLE_CODE(break);
     }
 
@@ -227,7 +226,7 @@ otError Buffer::InFrameAppend(uint8_t aByte)
     otError  error = OT_ERROR_NONE;
     uint8_t *newTail;
 
-    assert(mWriteDirection != kUnknown);
+    OT_ASSERT(mWriteDirection != kUnknown);
 
     newTail = GetUpdatedBufPtr(mWriteSegmentTail, 1, mWriteDirection);
 
@@ -733,7 +732,7 @@ uint8_t Buffer::OutFrameReadByte(void)
             // If there is no message, move to next segment (if any).
             if (error != OT_ERROR_NONE)
             {
-                IgnoreReturnValue(OutFramePrepareSegment());
+                IgnoreError(OutFramePrepareSegment());
             }
         }
 
@@ -754,7 +753,7 @@ uint8_t Buffer::OutFrameReadByte(void)
             // If no more bytes in the message, move to next segment (if any).
             if (error != OT_ERROR_NONE)
             {
-                IgnoreReturnValue(OutFramePrepareSegment());
+                IgnoreError(OutFramePrepareSegment());
             }
         }
 #endif
@@ -783,8 +782,6 @@ otError Buffer::OutFrameRemove(void)
     uint16_t header;
     uint8_t  numSegments;
     FrameTag tag;
-
-    OT_UNUSED_VARIABLE(numSegments);
 
     VerifyOrExit(!IsEmpty(), error = OT_ERROR_NOT_FOUND);
 
@@ -834,7 +831,7 @@ otError Buffer::OutFrameRemove(void)
 
         // If this assert fails, it is a likely indicator that the internal structure of the NCP buffer has been
         // corrupted.
-        assert(numSegments <= kMaxSegments);
+        OT_ASSERT(numSegments <= kMaxSegments);
     }
 
     mReadFrameStart[mReadDirection] = bufPtr;
@@ -885,8 +882,6 @@ uint16_t Buffer::OutFrameGetLength(void)
 #if OPENTHREAD_SPINEL_CONFIG_OPENTHREAD_MESSAGE_ENABLE
     otMessage *message = nullptr;
 #endif
-
-    OT_UNUSED_VARIABLE(numSegments);
 
     // If the frame length was calculated before, return the previously calculated length.
     VerifyOrExit(mReadFrameLength == kUnknownFrameLength, frameLength = mReadFrameLength);
@@ -939,7 +934,7 @@ uint16_t Buffer::OutFrameGetLength(void)
 
         // If this assert fails, it is a likely indicator that the internal structure of the NCP buffer has been
         // corrupted.
-        assert(numSegments <= kMaxSegments);
+        OT_ASSERT(numSegments <= kMaxSegments);
     }
 
     // Remember the calculated frame length for current active frame.

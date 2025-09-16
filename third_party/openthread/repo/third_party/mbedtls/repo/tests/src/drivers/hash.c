@@ -5,9 +5,13 @@
  *  SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
  */
 
-#include <test/helpers.h>
+#if !defined(MBEDTLS_CONFIG_FILE)
+#include "mbedtls/config.h"
+#else
+#include MBEDTLS_CONFIG_FILE
+#endif
 
-#if defined(PSA_CRYPTO_DRIVER_TEST)
+#if defined(MBEDTLS_PSA_CRYPTO_DRIVERS) && defined(PSA_CRYPTO_DRIVER_TEST)
 #include "psa_crypto_hash.h"
 
 #include "test/drivers/hash.h"
@@ -196,4 +200,4 @@ psa_status_t mbedtls_test_transparent_hash_abort(
 
     return mbedtls_test_driver_hash_hooks.driver_status;
 }
-#endif /* PSA_CRYPTO_DRIVER_TEST */
+#endif /* MBEDTLS_PSA_CRYPTO_DRIVERS && PSA_CRYPTO_DRIVER_TEST */

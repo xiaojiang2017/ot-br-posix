@@ -27,11 +27,7 @@
 """
 
 from bleak import BleakScanner
-from bleak.backends.device import BLEDevice
-from bleak.uuids import normalize_uuid_str
 from bbtc import BBTC_SERVICE_UUID
-from typing import Optional
-from ble.ble_advertisement_data import AdvertisedData
 
 
 async def find_first_by_name(name):
@@ -46,16 +42,11 @@ async def find_first_by_mac(mac):
     return device
 
 
-async def scan_tcat_devices(adapter: Optional[str] = None):
+async def scan_tcat_devices():
     scanner = BleakScanner()
-    tcat_devices: list[BLEDevice] = []
-    service_uuids = [normalize_uuid_str(BBTC_SERVICE_UUID)]
-    discovered_devices = await scanner.discover(return_adv=True, service_uuids=service_uuids, adapter=adapter)
-    for _, (device, adv) in discovered_devices.items():
-        ad = None
-        for uuid, data in adv.service_data.items():
-            if BBTC_SERVICE_UUID.lower() in uuid:
-                ad = AdvertisedData.from_bytes(data)
-        tcat_devices.append((device, ad))
+    tcat_devices = []
+    devices_dict = await scanner.discover(return_adv=True, service_uuids=[BBTC_SERVICE_UUID.lower()])
+    for _, (device, _) in devices_dict.items():
+        tcat_devices.append(device)
 
     return tcat_devices

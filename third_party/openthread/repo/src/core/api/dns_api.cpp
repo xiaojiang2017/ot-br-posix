@@ -33,6 +33,8 @@
 
 #include "openthread-core-config.h"
 
+#include <openthread/dns_client.h>
+
 #include "instance/instance.hpp"
 #include "net/dns_types.hpp"
 

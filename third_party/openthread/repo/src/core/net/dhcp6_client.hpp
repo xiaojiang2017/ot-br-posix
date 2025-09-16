@@ -60,10 +60,12 @@ namespace Dhcp6 {
  *   This module includes definitions for DHCPv6 Client.
  *
  * @{
+ *
  */
 
 /**
  * Implements DHCPv6 Client.
+ *
  */
 class Client : public InstanceLocator, private NonCopyable
 {
@@ -72,11 +74,14 @@ public:
      * Initializes the object.
      *
      * @param[in]  aInstance     A reference to the OpenThread instance.
+     *
      */
     explicit Client(Instance &aInstance);
 
     /**
      * Update addresses that shall be automatically created using DHCP.
+     *
+     *
      */
     void UpdateAddresses(void);
 
@@ -121,7 +126,8 @@ private:
     Error AppendElapsedTime(Message &aMessage);
     Error AppendRapidCommit(Message &aMessage);
 
-    void HandleUdpReceive(Message &aMessage, const Ip6::MessageInfo &aMessageInfo);
+    static void HandleUdpReceive(void *aContext, otMessage *aMessage, const otMessageInfo *aMessageInfo);
+    void        HandleUdpReceive(Message &aMessage, const Ip6::MessageInfo &aMessageInfo);
 
     void     ProcessReply(Message &aMessage);
     uint16_t FindOption(Message &aMessage, uint16_t aOffset, uint16_t aLength, Code aCode);
@@ -134,9 +140,8 @@ private:
     static void HandleTrickleTimer(TrickleTimer &aTrickleTimer);
     void        HandleTrickleTimer(void);
 
-    using ClientSocket = Ip6::Udp::SocketIn<Client, &Client::HandleUdpReceive>;
+    Ip6::Udp::Socket mSocket;
 
-    ClientSocket mSocket;
     TrickleTimer mTrickleTimer;
 
     TransactionId mTransactionId;
@@ -148,6 +153,7 @@ private:
 
 /**
  * @}
+ *
  */
 
 } // namespace Dhcp6

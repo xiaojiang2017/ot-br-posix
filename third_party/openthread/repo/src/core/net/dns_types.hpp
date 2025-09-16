@@ -55,6 +55,7 @@ namespace ot {
  * @namespace ot::Dns
  * @brief
  *   This namespace includes definitions for DNS.
+ *
  */
 namespace Dns {
 
@@ -65,10 +66,12 @@ namespace Dns {
  *   This module includes definitions for DNS.
  *
  * @{
+ *
  */
 
 /**
  * Implements DNS header generation and parsing.
+ *
  */
 OT_TOOL_PACKED_BEGIN
 class Header : public Clearable<Header>
@@ -76,6 +79,7 @@ class Header : public Clearable<Header>
 public:
     /**
      * Default constructor for DNS Header.
+     *
      */
     Header(void) { Clear(); }
 
@@ -83,6 +87,7 @@ public:
      * Returns the Message ID.
      *
      * @returns The Message ID value.
+     *
      */
     uint16_t GetMessageId(void) const { return BigEndian::HostSwap16(mMessageId); }
 
@@ -90,6 +95,7 @@ public:
      * Sets the Message ID.
      *
      * @param[in]  aMessageId The Message ID value.
+     *
      */
     void SetMessageId(uint16_t aMessageId) { mMessageId = BigEndian::HostSwap16(aMessageId); }
 
@@ -98,11 +104,13 @@ public:
      *
      * @retval  kErrorNone     Successfully generated random Message ID.
      * @retval  kErrorFailed   Could not generate random Message ID.
+     *
      */
     Error SetRandomMessageId(void);
 
     /**
      * Defines types of DNS message.
+     *
      */
     enum Type : uint8_t
     {
@@ -114,6 +122,7 @@ public:
      * Returns the type of the message.
      *
      * @returns The type of the message.
+     *
      */
     Type GetType(void) const { return static_cast<Type>((mFlags[0] & kQrFlagMask) >> kQrFlagOffset); }
 
@@ -121,6 +130,7 @@ public:
      * Sets the type of the message.
      *
      * @param[in]  aType The type of the message.
+     *
      */
     void SetType(Type aType)
     {
@@ -130,6 +140,7 @@ public:
 
     /**
      * Defines types of query.
+     *
      */
     enum QueryType : uint8_t
     {
@@ -145,6 +156,7 @@ public:
      * Returns the type of the query.
      *
      * @returns The type of the query.
+     *
      */
     QueryType GetQueryType(void) const { return static_cast<QueryType>((mFlags[0] & kOpCodeMask) >> kOpCodeOffset); }
 
@@ -152,6 +164,7 @@ public:
      * Sets the type of the query.
      *
      * @param[in]  aType The type of the query.
+     *
      */
     void SetQueryType(QueryType aType)
     {
@@ -164,16 +177,19 @@ public:
      * authority for the domain name in question section.
      *
      * @returns True if Authoritative Answer flag (AA) is set in the header, false otherwise.
+     *
      */
     bool IsAuthoritativeAnswerFlagSet(void) const { return (mFlags[0] & kAaFlagMask) == kAaFlagMask; }
 
     /**
      * Clears the Authoritative Answer flag (AA) in the header.
+     *
      */
     void ClearAuthoritativeAnswerFlag(void) { mFlags[0] &= ~kAaFlagMask; }
 
     /**
      * Sets the Authoritative Answer flag (AA) in the header.
+     *
      */
     void SetAuthoritativeAnswerFlag(void) { mFlags[0] |= kAaFlagMask; }
 
@@ -181,16 +197,19 @@ public:
      * Specifies if message is truncated.
      *
      * @returns True if Truncation flag (TC) is set in the header, false otherwise.
+     *
      */
     bool IsTruncationFlagSet(void) const { return (mFlags[0] & kTcFlagMask) == kTcFlagMask; }
 
     /**
      * Clears the Truncation flag (TC) in the header.
+     *
      */
     void ClearTruncationFlag(void) { mFlags[0] &= ~kTcFlagMask; }
 
     /**
      * Sets the Truncation flag (TC) in the header.
+     *
      */
     void SetTruncationFlag(void) { mFlags[0] |= kTcFlagMask; }
 
@@ -199,16 +218,19 @@ public:
      * the query recursively.
      *
      * @returns True if Recursion Desired flag (RD) is set in the header, false otherwise.
+     *
      */
     bool IsRecursionDesiredFlagSet(void) const { return (mFlags[0] & kRdFlagMask) == kRdFlagMask; }
 
     /**
      * Clears the Recursion Desired flag (RD) in the header.
+     *
      */
     void ClearRecursionDesiredFlag(void) { mFlags[0] &= ~kRdFlagMask; }
 
     /**
      * Sets the Recursion Desired flag (RD) in the header.
+     *
      */
     void SetRecursionDesiredFlag(void) { mFlags[0] |= kRdFlagMask; }
 
@@ -216,21 +238,25 @@ public:
      * Denotes whether recursive query support is available in the name server.
      *
      * @returns True if Recursion Available flag (RA) is set in the header, false otherwise.
+     *
      */
     bool IsRecursionAvailableFlagSet(void) const { return (mFlags[1] & kRaFlagMask) == kRaFlagMask; }
 
     /**
      * Clears the Recursion Available flag (RA) in the header.
+     *
      */
     void ClearRecursionAvailableFlag(void) { mFlags[1] &= ~kRaFlagMask; }
 
     /**
      * Sets the Recursion Available flag (RA) in the header.
+     *
      */
     void SetRecursionAvailableFlag(void) { mFlags[1] |= kRaFlagMask; }
 
     /**
      * Defines response codes.
+     *
      */
     enum Response : uint8_t
     {
@@ -255,6 +281,7 @@ public:
      * Returns the response code.
      *
      * @returns The response code from the header.
+     *
      */
     Response GetResponseCode(void) const { return static_cast<Response>((mFlags[1] & kRCodeMask) >> kRCodeOffset); }
 
@@ -262,6 +289,7 @@ public:
      * Sets the response code.
      *
      * @param[in]  aResponse The type of the response.
+     *
      */
     void SetResponseCode(Response aResponse)
     {
@@ -290,6 +318,7 @@ public:
      * - Other error                                                                    -> kErrorFailed
      *
      * @param[in] aResponse  The response code to convert.
+     *
      */
     static Error ResponseCodeToError(Response aResponse);
 
@@ -297,6 +326,7 @@ public:
      * Returns the number of entries in question section.
      *
      * @returns The number of entries in question section.
+     *
      */
     uint16_t GetQuestionCount(void) const { return BigEndian::HostSwap16(mQdCount); }
 
@@ -304,6 +334,7 @@ public:
      * Sets the number of entries in question section.
      *
      * @param[in]  aCount The number of entries in question section.
+     *
      */
     void SetQuestionCount(uint16_t aCount) { mQdCount = BigEndian::HostSwap16(aCount); }
 
@@ -311,6 +342,7 @@ public:
      * Returns the number of entries in answer section.
      *
      * @returns The number of entries in answer section.
+     *
      */
     uint16_t GetAnswerCount(void) const { return BigEndian::HostSwap16(mAnCount); }
 
@@ -318,6 +350,7 @@ public:
      * Sets the number of entries in answer section.
      *
      * @param[in]  aCount The number of entries in answer section.
+     *
      */
     void SetAnswerCount(uint16_t aCount) { mAnCount = BigEndian::HostSwap16(aCount); }
 
@@ -325,6 +358,7 @@ public:
      * Returns the number of entries in authority records section.
      *
      * @returns The number of entries in authority records section.
+     *
      */
     uint16_t GetAuthorityRecordCount(void) const { return BigEndian::HostSwap16(mNsCount); }
 
@@ -332,6 +366,7 @@ public:
      * Sets the number of entries in authority records section.
      *
      * @param[in]  aCount The number of entries in authority records section.
+     *
      */
     void SetAuthorityRecordCount(uint16_t aCount) { mNsCount = BigEndian::HostSwap16(aCount); }
 
@@ -339,6 +374,7 @@ public:
      * Returns the number of entries in additional records section.
      *
      * @returns The number of entries in additional records section.
+     *
      */
     uint16_t GetAdditionalRecordCount(void) const { return BigEndian::HostSwap16(mArCount); }
 
@@ -346,6 +382,7 @@ public:
      * Sets the number of entries in additional records section.
      *
      * @param[in]  aCount The number of entries in additional records section.
+     *
      */
     void SetAdditionalRecordCount(uint16_t aCount) { mArCount = BigEndian::HostSwap16(aCount); }
 
@@ -381,6 +418,7 @@ private:
  * The DNS header specifies record counts for its four sections: Question, Answer, Authority, and Additional. A DNS
  * Update header uses the same fields, and the same section formats, but the naming and use of these sections differs:
  * DNS Update header uses Zone, Prerequisite, Update, Additional Data sections.
+ *
  */
 OT_TOOL_PACKED_BEGIN
 class UpdateHeader : public Header
@@ -388,6 +426,7 @@ class UpdateHeader : public Header
 public:
     /**
      * Default constructor for DNS Update message header.
+     *
      */
     UpdateHeader(void) { SetQueryType(kQueryTypeUpdate); }
 
@@ -395,6 +434,7 @@ public:
      * Returns the number of records in Zone section.
      *
      * @returns The number of records in Zone section.
+     *
      */
     uint16_t GetZoneRecordCount(void) const { return GetQuestionCount(); }
 
@@ -402,6 +442,7 @@ public:
      * Sets the number of records in Zone section.
      *
      * @param[in]  aCount The number of records in Zone section.
+     *
      */
     void SetZoneRecordCount(uint16_t aCount) { SetQuestionCount(aCount); }
 
@@ -409,6 +450,7 @@ public:
      * Returns the number of records in Prerequisite section.
      *
      * @returns The number of records in Prerequisite section.
+     *
      */
     uint16_t GetPrerequisiteRecordCount(void) const { return GetAnswerCount(); }
 
@@ -416,6 +458,7 @@ public:
      * Sets the number of records in Prerequisite section.
      *
      * @param[in]  aCount The number of records in Prerequisite section.
+     *
      */
     void SetPrerequisiteRecordCount(uint16_t aCount) { SetAnswerCount(aCount); }
 
@@ -423,6 +466,7 @@ public:
      * Returns the number of records in Update section.
      *
      * @returns The number of records in Update section.
+     *
      */
     uint16_t GetUpdateRecordCount(void) const { return GetAuthorityRecordCount(); }
 
@@ -430,6 +474,7 @@ public:
      * Sets the number of records in Update section.
      *
      * @param[in]  aCount The number of records in Update section.
+     *
      */
     void SetUpdateRecordCount(uint16_t aCount) { SetAuthorityRecordCount(aCount); }
 
@@ -437,47 +482,56 @@ public:
 
 /**
  * Represents a DNS name and implements helper methods for encoding/decoding of DNS Names.
+ *
  */
 class Name : public Clearable<Name>
 {
 public:
     /**
      * Max size (number of chars) in a name string array (includes null char at the end of string).
+     *
      */
     static constexpr uint8_t kMaxNameSize = OT_DNS_MAX_NAME_SIZE;
 
     /**
      * Maximum length in a name string (does not include null char at the end of string).
+     *
      */
     static constexpr uint8_t kMaxNameLength = kMaxNameSize - 1;
 
     /**
      * Max size (number of chars) in a label string array (includes null char at the end of the string).
+     *
      */
     static constexpr uint8_t kMaxLabelSize = OT_DNS_MAX_LABEL_SIZE;
 
     /**
      * Maximum length in a label string (does not include null char at the end of string).
+     *
      */
     static constexpr uint8_t kMaxLabelLength = kMaxLabelSize - 1;
 
     /**
      * Dot character separating labels in a name.
+     *
      */
     static constexpr char kLabelSeparatorChar = '.';
 
     /**
      * Represents a string buffer (with `kMaxNameSize`) intended to hold a DNS name.
+     *
      */
     typedef char Buffer[kMaxNameSize];
 
     /**
      * Represents a string buffer (with `kMaxLabelSize`) intended to hold a DNS label.
+     *
      */
     typedef char LabelBuffer[kMaxLabelSize];
 
     /**
      * Represents the name type.
+     *
      */
     enum Type : uint8_t
     {
@@ -488,6 +542,7 @@ public:
 
     /**
      * Initializes the `Name` object as empty (not specified).
+     *
      */
     Name(void)
         : Name(nullptr, nullptr, 0)
@@ -498,6 +553,7 @@ public:
      * Initializes the `Name` object with a given string.
      *
      * @param[in] aString   A C string specifying the name (dot '.' separated sequence of labels').
+     *
      */
     explicit Name(const char *aString)
         : Name(aString, nullptr, 0)
@@ -510,6 +566,7 @@ public:
      * @param[in] aMessage   The message containing the encoded name. `aMessage.GetOffset()` MUST point to the start of
      *                       the DNS header in the message (used to parse compressed name).
      * @param[in] aOffset    The offset in @p aMessage pointing to the start of the name.
+     *
      */
     Name(const Message &aMessage, uint16_t aOffset)
         : Name(nullptr, &aMessage, aOffset)
@@ -520,6 +577,7 @@ public:
      * Indicates whether the name is empty (not specified).
      *
      * @returns TRUE if the name is empty, FALSE otherwise.
+     *
      */
     bool IsEmpty(void) const { return (mString == nullptr) && (mMessage == nullptr); }
 
@@ -527,6 +585,7 @@ public:
      * Indicates whether the name is specified from a C string.
      *
      * @returns TRUE if the name is specified from a string, FALSE otherwise.
+     *
      */
     bool IsFromCString(void) const { return mString != nullptr; }
 
@@ -534,6 +593,7 @@ public:
      * Indicates whether the name is specified from a message.
      *
      * @returns TRUE if the name is specified from a message, FALSE otherwise.
+     *
      */
     bool IsFromMessage(void) const { return mMessage != nullptr; }
 
@@ -542,6 +602,7 @@ public:
      * message
      *
      * @returns The name type.
+     *
      */
     Type GetFromType(void) const
     {
@@ -552,6 +613,7 @@ public:
      * Sets the name from a given C string.
      *
      * @param[in] aString   A C string specifying the name (dot '.' separated sequence of labels).
+     *
      */
     void Set(const char *aString)
     {
@@ -565,6 +627,7 @@ public:
      * @param[in] aMessage   The message containing the encoded name. `aMessage.GetOffset()` MUST point to the start of
      *                       the DNS header in the message (used to parse compressed name).
      * @param[in] aOffset    The offset in @p aMessage pointing to the start of the name.
+     *
      */
     void SetFromMessage(const Message &aMessage, uint16_t aOffset)
     {
@@ -579,6 +642,7 @@ public:
      * MUST be used only when the type is `kTypeString`. Otherwise its behavior is undefined.
      *
      * @returns A pointer to the C string.
+     *
      */
     const char *GetAsCString(void) const { return mString; }
 
@@ -590,6 +654,7 @@ public:
      * @param[out]  aOffset    A reference to a variable to output the offset of the start of the name in the message.
      *
      * @returns A reference to the message containing the name.
+     *
      */
     const Message &GetAsMessage(uint16_t &aOffset) const
     {
@@ -619,6 +684,7 @@ public:
      *
      * @retval TRUE   The name matches the given components.
      * @retval FALSE  The name does not match the given components.
+     *
      */
     bool Matches(const char *aFirstLabel, const char *aLabels, const char *aDomain) const;
 
@@ -636,6 +702,7 @@ public:
      * @retval kErrorNone         Successfully encoded and appended the name to @p aMessage.
      * @retval kErrorInvalidArgs  Name is not valid.
      * @retval kErrorNoBufs       Insufficient available buffers to grow the message.
+     *
      */
     Error AppendTo(Message &aMessage) const;
 
@@ -654,6 +721,7 @@ public:
      * @retval kErrorNone         Successfully encoded and appended the name label to @p aMessage.
      * @retval kErrorInvalidArgs  @p aLabel is not valid (e.g., label length is not within valid range).
      * @retval kErrorNoBufs       Insufficient available buffers to grow the message.
+     *
      */
     static Error AppendLabel(const char *aLabel, Message &aMessage);
 
@@ -675,6 +743,7 @@ public:
      * @retval kErrorNone         Successfully encoded and appended the name label(s) to @p aMessage.
      * @retval kErrorInvalidArgs  Name label @p aLabels is not valid.
      * @retval kErrorNoBufs       Insufficient available buffers to grow the message.
+     *
      */
     static Error AppendMultipleLabels(const char *aLabels, Message &aMessage);
 
@@ -687,6 +756,7 @@ public:
      *
      * @retval kErrorNone         Successfully encoded and appended the terminator label to @p aMessage.
      * @retval kErrorNoBufs       Insufficient available buffers to grow the message.
+     *
      */
     static Error AppendTerminator(Message &aMessage);
 
@@ -701,6 +771,7 @@ public:
      *
      * @retval kErrorNone         Successfully encoded and appended the pointer label to @p aMessage.
      * @retval kErrorNoBufs       Insufficient available buffers to grow the message.
+     *
      */
     static Error AppendPointerLabel(uint16_t aOffset, Message &aMessage);
 
@@ -719,6 +790,7 @@ public:
      * @retval kErrorNone         Successfully encoded and appended the name to @p aMessage.
      * @retval kErrorInvalidArgs  Name @p aName is not valid.
      * @retval kErrorNoBufs       Insufficient available buffers to grow the message.
+     *
      */
     static Error AppendName(const char *aName, Message &aMessage);
 
@@ -733,6 +805,7 @@ public:
      *
      * @retval kErrorNone          Successfully parsed and skipped over name, @p Offset is updated.
      * @retval kErrorParse         Name could not be parsed (invalid format).
+     *
      */
     static Error ParseName(const Message &aMessage, uint16_t &aOffset);
 
@@ -762,6 +835,7 @@ public:
      * @retval kErrorNotFound  Reached the end of name and no more label to read.
      * @retval kErrorParse     Name could not be parsed (invalid format).
      * @retval kErrorNoBufs    Label could not fit in @p aLabelLength chars.
+     *
      */
     static Error ReadLabel(const Message &aMessage, uint16_t &aOffset, char *aLabelBuffer, uint8_t &aLabelLength);
 
@@ -785,6 +859,7 @@ public:
      * @retval kErrorNone         Successfully read the name, @p aNameBuffer and @p Offset are updated.
      * @retval kErrorParse        Name could not be parsed (invalid format).
      * @retval kErrorNoBufs       Name could not fit in @p aNameBufferSize chars.
+     *
      */
     static Error ReadName(const Message &aMessage, uint16_t &aOffset, char *aNameBuffer, uint16_t aNameBufferSize);
 
@@ -809,6 +884,7 @@ public:
      * @retval kErrorNone         Successfully read the name, @p aNameBuffer and @p Offset are updated.
      * @retval kErrorParse        Name could not be parsed (invalid format).
      * @retval kErrorNoBufs       Name could not fit in @p aNameBuffer.
+     *
      */
     template <uint16_t kNameBufferSize>
     static Error ReadName(const Message &aMessage, uint16_t &aOffset, char (&aNameBuffer)[kNameBufferSize])
@@ -836,6 +912,7 @@ public:
      * @retval kErrorNotFound      The label from @p aMessage does not match @p aLabel (note that @p aOffset is not
      *                             updated in this case).
      * @retval kErrorParse         Name could not be parsed (invalid format).
+     *
      */
     static Error CompareLabel(const Message &aMessage, uint16_t &aOffset, const char *aLabel);
 
@@ -858,6 +935,7 @@ public:
      * @retval kErrorNotFound      The labels from @p aMessage does not match @p aLabel (note that @p aOffset is not
      *                             updated in this case).
      * @retval kErrorParse         Name could not be parsed (invalid format).
+     *
      */
     static Error CompareMultipleLabels(const Message &aMessage, uint16_t &aOffset, const char *aLabels);
 
@@ -885,6 +963,7 @@ public:
      * @retval kErrorNotFound      The name from @p aMessage does not match @p aName. @p aOffset is updated.
      * @retval kErrorParse         Name could not be parsed (invalid format).
      * @retval kErrorInvalidArgs   The @p aName is not a valid name (e.g. back to back "." chars)
+     *
      */
     static Error CompareName(const Message &aMessage, uint16_t &aOffset, const char *aName);
 
@@ -917,6 +996,7 @@ public:
      * @retval kErrorNotFound   The name from @p aMessage does not match the name from @p aMessage2. @p aOffset is
      *                          updated.
      * @retval kErrorParse      Name in @p aMessage could not be parsed (invalid format).
+     *
      */
     static Error CompareName(const Message &aMessage, uint16_t &aOffset, const Message &aMessage2, uint16_t aOffset2);
 
@@ -937,6 +1017,7 @@ public:
      * @retval kErrorNone          The name from @p aMessage matches @p aName. @p aOffset is updated.
      * @retval kErrorNotFound      The name from @p aMessage does not match @p aName. @p aOffset is updated.
      * @retval kErrorParse         Name in @p aMessage could not be parsed (invalid format).
+     *
      */
     static Error CompareName(const Message &aMessage, uint16_t &aOffset, const Name &aName);
 
@@ -958,6 +1039,7 @@ public:
      * @retval kErrorNone     Successfully extracted the labels, @p aLabels is updated.
      * @retval kErrorParse    @p aName does not contain @p aSuffixName.
      * @retval kErrorNoBufs   Could not fit the labels in @p aLabelsSize.
+     *
      */
     static Error ExtractLabels(const char *aName, const char *aSuffixName, char *aLabels, uint16_t aLabelsSize);
 
@@ -980,6 +1062,7 @@ public:
      * @retval kErrorNone     Successfully extracted the labels, @p aLabels is updated.
      * @retval kErrorParse    @p aName does not contain @p aSuffixName.
      * @retval kErrorNoBufs   Could not fit the labels in @p aLabels.
+     *
      */
     template <uint16_t kLabelsBufferSize>
     static Error ExtractLabels(const char *aName, const char *aSuffixName, char (&aLabels)[kLabelsBufferSize])
@@ -1002,6 +1085,7 @@ public:
      *
      * @retval kErrorNone          Successfully stripped the suffix name from @p aName.
      * @retval kErrorParse         @p aName does not contain @p aSuffixName.
+     *
      */
     template <uint16_t kNameBufferSize> static Error StripName(char (&aName)[kNameBufferSize], const char *aSuffixName)
     {
@@ -1017,6 +1101,7 @@ public:
      * @param[in]  aDomain  The dot-separated domain.
      *
      * @returns  TRUE if the name is a sub-domain of @p aDomain, FALSE if is not.
+     *
      */
     static bool IsSubDomainOf(const char *aName, const char *aDomain);
 
@@ -1030,6 +1115,7 @@ public:
      *
      * @retval  TRUE   If the two DNS names are the same domain.
      * @retval  FALSE  If the two DNS names are not the same domain.
+     *
      */
     static bool IsSameDomain(const char *aDomain1, const char *aDomain2);
 
@@ -1097,6 +1183,7 @@ private:
 
 /**
  * Represents a TXT record entry representing a key/value pair (RFC 6763 - section 6.3).
+ *
  */
 class TxtEntry : public otDnsTxtEntry
 {
@@ -1105,11 +1192,13 @@ class TxtEntry : public otDnsTxtEntry
 public:
     /**
      * Minimum length of key string (RFC 6763 - section 6.4).
+     *
      */
     static constexpr uint8_t kMinKeyLength = OT_DNS_TXT_KEY_MIN_LENGTH;
 
     /**
      * Recommended max length of key string (RFC 6763 - section 6.4).
+     *
      */
     static constexpr uint8_t kMaxKeyLength = OT_DNS_TXT_KEY_MAX_LENGTH;
 
@@ -1117,11 +1206,13 @@ public:
      * Maximum length of TXT key string supported by `Iterator`.
      *
      * This is selected to be longer than recommended `kMaxKeyLength` to handle cases where longer keys are used.
+     *
      */
     static constexpr uint8_t kMaxIterKeyLength = OT_DNS_TXT_KEY_ITER_MAX_LENGTH;
 
     /**
      * Represents an iterator for TXT record entries (key/value pairs).
+     *
      */
     class Iterator : public otDnsTxtEntryIterator
     {
@@ -1136,6 +1227,7 @@ public:
          *
          * @param[in] aTxtData        A pointer to buffer containing the encoded TXT data.
          * @param[in] aTxtDataLength  The length (number of bytes) of @p aTxtData.
+         *
          */
         void Init(const uint8_t *aTxtData, uint16_t aTxtDataLength);
 
@@ -1154,6 +1246,7 @@ public:
          * @retval kErrorNone       The next entry was parsed successfully. @p aEntry is updated.
          * @retval kErrorNotFound   No more entries in TXT data.
          * @retval kErrorParse      The TXT data from `Iterator` is not well-formed.
+         *
          */
         Error GetNextEntry(TxtEntry &aEntry);
 
@@ -1174,6 +1267,7 @@ public:
 
     /**
      * This is the default constructor for a `TxtEntry` object.
+     *
      */
     TxtEntry(void) = default;
 
@@ -1183,6 +1277,7 @@ public:
      * @param[in] aKey           A pointer to the key string.
      * @param[in] aValue         A pointer to a buffer containing the value.
      * @param[in] aValueLength   Number of bytes in @p aValue buffer.
+     *
      */
     TxtEntry(const char *aKey, const uint8_t *aValue, uint8_t aValueLength) { Init(aKey, aValue, aValueLength); }
 
@@ -1192,6 +1287,7 @@ public:
      * @param[in] aKey           A pointer to the key string.
      * @param[in] aValue         A pointer to a buffer containing the value.
      * @param[in] aValueLength   Number of bytes in @p aValue buffer.
+     *
      */
     void Init(const char *aKey, const uint8_t *aValue, uint8_t aValueLength)
     {
@@ -1208,6 +1304,7 @@ public:
      * @retval kErrorNone          Entry was appended successfully to @p aMessage.
      * @retval kErrorInvalidArgs   The `TxTEntry` info is not valid.
      * @retval kErrorNoBufs        Insufficient available buffers to grow the message.
+     *
      */
     Error AppendTo(Message &aMessage) const;
 
@@ -1221,6 +1318,7 @@ public:
      * @retval kErrorNone          Entries appended successfully to @p aMessage.
      * @retval kErrorInvalidArgs   The `TxTEntry` info is not valid.
      * @retval kErrorNoBufs        Insufficient available buffers to grow the message.
+     *
      */
     static Error AppendEntries(const TxtEntry *aEntries, uint16_t aNumEntries, Message &aMessage);
 
@@ -1234,6 +1332,7 @@ public:
      * @retval kErrorNone          Entries appended successfully .
      * @retval kErrorInvalidArgs   The `TxTEntry` info is not valid.
      * @retval kErrorNoBufs        Insufficient available buffers.
+     *
      */
     static Error AppendEntries(const TxtEntry *aEntries, uint16_t aNumEntries, MutableData<kWithUint16Length> &aData);
 
@@ -1247,6 +1346,7 @@ private:
 
 /**
  * Implements Resource Record (RR) body format.
+ *
  */
 OT_TOOL_PACKED_BEGIN
 class ResourceRecord
@@ -1281,6 +1381,7 @@ public:
      *
      * @param[in] aType   The type of the resource record.
      * @param[in] aClass  The class of the resource record (default is `kClassInternet`).
+     *
      */
     void Init(uint16_t aType, uint16_t aClass = kClassInternet)
     {
@@ -1295,6 +1396,7 @@ public:
      * @param[in] aClass  The resource record class code to compare with (default is `kClassInternet`).
      *
      * @returns TRUE if the resources records matches @p aType and @p aClass, FALSE otherwise.
+     *
      */
     bool Matches(uint16_t aType, uint16_t aClass = kClassInternet) const
     {
@@ -1305,6 +1407,7 @@ public:
      * Returns the type of the resource record.
      *
      * @returns The type of the resource record.
+     *
      */
     uint16_t GetType(void) const { return BigEndian::HostSwap16(mType); }
 
@@ -1312,6 +1415,7 @@ public:
      * Sets the type of the resource record.
      *
      * @param[in]  aType The type of the resource record.
+     *
      */
     void SetType(uint16_t aType) { mType = BigEndian::HostSwap16(aType); }
 
@@ -1319,6 +1423,7 @@ public:
      * Returns the class of the resource record.
      *
      * @returns The class of the resource record.
+     *
      */
     uint16_t GetClass(void) const { return BigEndian::HostSwap16(mClass); }
 
@@ -1326,6 +1431,7 @@ public:
      * Sets the class of the resource record.
      *
      * @param[in]  aClass The class of the resource record.
+     *
      */
     void SetClass(uint16_t aClass) { mClass = BigEndian::HostSwap16(aClass); }
 
@@ -1333,6 +1439,7 @@ public:
      * Returns the time to live field of the resource record.
      *
      * @returns The time to live field of the resource record.
+     *
      */
     uint32_t GetTtl(void) const { return BigEndian::HostSwap32(mTtl); }
 
@@ -1340,6 +1447,7 @@ public:
      * Sets the time to live field of the resource record.
      *
      * @param[in]  aTtl The time to live field of the resource record.
+     *
      */
     void SetTtl(uint32_t aTtl) { mTtl = BigEndian::HostSwap32(aTtl); }
 
@@ -1347,6 +1455,7 @@ public:
      * Returns the length of the resource record data.
      *
      * @returns The length of the resource record data.
+     *
      */
     uint16_t GetLength(void) const { return BigEndian::HostSwap16(mLength); }
 
@@ -1354,6 +1463,7 @@ public:
      * Sets the length of the resource record data.
      *
      * @param[in]  aLength The length of the resource record data.
+     *
      */
     void SetLength(uint16_t aLength) { mLength = BigEndian::HostSwap16(aLength); }
 
@@ -1362,6 +1472,7 @@ public:
      * name field).
      *
      * @returns Size (number of bytes) of resource record and its data section (excluding the name field)
+     *
      */
     uint32_t GetSize(void) const { return sizeof(ResourceRecord) + GetLength(); }
 
@@ -1377,6 +1488,7 @@ public:
      *
      * @retval kErrorNone      Parsed records successfully. @p aOffset is updated.
      * @retval kErrorParse     Could not parse the records from @p aMessage (e.g., ran out of bytes in @p aMessage).
+     *
      */
     static Error ParseRecords(const Message &aMessage, uint16_t &aOffset, uint16_t aNumRecords);
 
@@ -1398,6 +1510,7 @@ public:
      * @retval kErrorNone         A matching record was found. @p aOffset, @p aNumRecords are updated.
      * @retval kErrorNotFound     A matching record could not be found. @p aOffset and @p aNumRecords are updated.
      * @retval kErrorParse        Could not parse records from @p aMessage (e.g., ran out of bytes in @p aMessage).
+     *
      */
     static Error FindRecord(const Message &aMessage, uint16_t &aOffset, uint16_t &aNumRecords, const Name &aName);
 
@@ -1431,6 +1544,7 @@ public:
      * @retval kErrorNone         A matching record was found. @p aOffset is updated.
      * @retval kErrorNotFound     A matching record could not be found.
      * @retval kErrorParse        Could not parse records from @p aMessage (e.g., ran out of bytes in @p aMessage).
+     *
      */
     template <class RecordType>
     static Error FindRecord(const Message &aMessage,
@@ -1476,6 +1590,7 @@ public:
      * @retval kErrorNone         A matching record was read successfully. @p aOffset, and @p aRecord are updated.
      * @retval kErrorNotFound     A matching record could not be found. @p aOffset is updated.
      * @retval kErrorParse        Could not parse records from @p aMessage (e.g., ran out of bytes in @p aMessage).
+     *
      */
     template <class RecordType> static Error ReadRecord(const Message &aMessage, uint16_t &aOffset, RecordType &aRecord)
     {
@@ -1521,6 +1636,7 @@ private:
 
 /**
  * Implements Resource Record body format of A type.
+ *
  */
 OT_TOOL_PACKED_BEGIN
 class ARecord : public ResourceRecord
@@ -1532,6 +1648,7 @@ public:
      * Initializes the A Resource Record by setting its type, class, and length.
      *
      * Other record fields (TTL, address) remain unchanged/uninitialized.
+     *
      */
     void Init(void)
     {
@@ -1543,6 +1660,7 @@ public:
      * Sets the IPv4 address of the resource record.
      *
      * @param[in]  aAddress The IPv4 address of the resource record.
+     *
      */
     void SetAddress(const Ip4::Address &aAddress) { mAddress = aAddress; }
 
@@ -1550,6 +1668,7 @@ public:
      * Returns the reference to IPv4 address of the resource record.
      *
      * @returns The reference to IPv4 address of the resource record.
+     *
      */
     const Ip4::Address &GetAddress(void) const { return mAddress; }
 
@@ -1559,6 +1678,7 @@ private:
 
 /**
  * Implements Resource Record body format of CNAME type.
+ *
  */
 OT_TOOL_PACKED_BEGIN
 class CnameRecord : public ResourceRecord
@@ -1572,6 +1692,7 @@ public:
      * Other record fields (TTL, length) remain unchanged/uninitialized.
      *
      * @param[in] aClass  The class of the resource record (default is `kClassInternet`).
+     *
      */
     void Init(uint16_t aClass = kClassInternet) { ResourceRecord::Init(kTypeCname, aClass); }
 
@@ -1593,6 +1714,7 @@ public:
      * @retval kErrorNone           The CNAME name was read successfully. @p aOffset and @p aNameBuffer are updated.
      * @retval kErrorParse          The CNAME record in @p aMessage could not be parsed (invalid format).
      * @retval kErrorNoBufs         Name could not fit in @p aNameBufferSize chars.
+     *
      */
     Error ReadCanonicalName(const Message &aMessage,
                             uint16_t      &aOffset,
@@ -1607,6 +1729,7 @@ public:
 
 /**
  * Implements Resource Record body format of PTR type.
+ *
  */
 OT_TOOL_PACKED_BEGIN
 class PtrRecord : public ResourceRecord
@@ -1620,6 +1743,7 @@ public:
      * Other record fields (TTL, length) remain unchanged/uninitialized.
      *
      * @param[in] aClass  The class of the resource record (default is `kClassInternet`).
+     *
      */
     void Init(uint16_t aClass = kClassInternet) { ResourceRecord::Init(kTypePtr, aClass); }
 
@@ -1641,6 +1765,7 @@ public:
      * @retval kErrorNone           The PTR name was read successfully. @p aOffset and @p aNameBuffer are updated.
      * @retval kErrorParse          The PTR record in @p aMessage could not be parsed (invalid format).
      * @retval kErrorNoBufs         Name could not fit in @p aNameBufferSize chars.
+     *
      */
     Error ReadPtrName(const Message &aMessage, uint16_t &aOffset, char *aNameBuffer, uint16_t aNameBufferSize) const
     {
@@ -1676,6 +1801,7 @@ public:
      * @retval kErrorNone    The PTR name was read successfully. @p aOffset, @aLabelBuffer and @aNameBuffer are updated.
      * @retval kErrorParse   The PTR record in @p aMessage could not be parsed (invalid format).
      * @retval kErrorNoBufs  Either label or name could not fit in the related char buffers.
+     *
      */
     Error ReadPtrName(const Message &aMessage,
                       uint16_t      &aOffset,
@@ -1703,6 +1829,7 @@ public:
      * @retval kErrorNone    The PTR name was read successfully. @p aOffset, @aLabelBuffer and @aNameBuffer are updated.
      * @retval kErrorParse   The PTR record in @p aMessage could not be parsed (invalid format).
      * @retval kErrorNoBufs  Either label or name could not fit in the related given buffers.
+     *
      */
     template <uint16_t kLabelBufferSize, uint16_t kNameBufferSize>
     Error ReadPtrName(const Message &aMessage,
@@ -1717,6 +1844,7 @@ public:
 
 /**
  * Implements Resource Record body format of TXT type.
+ *
  */
 OT_TOOL_PACKED_BEGIN
 class TxtRecord : public ResourceRecord
@@ -1730,6 +1858,7 @@ public:
      * Other record fields (TTL, length) remain unchanged/uninitialized.
      *
      * @param[in] aClass  The class of the resource record (default is `kClassInternet`).
+     *
      */
     void Init(uint16_t aClass = kClassInternet) { ResourceRecord::Init(kTypeTxt, aClass); }
 
@@ -1753,6 +1882,7 @@ public:
      * @retval kErrorNoBufs         TXT data could not fit in @p aTxtBufferSize bytes. TXT data is still partially read
      *                              into @p aTxtBuffer up to its size and @p aOffset is updated to skip over the full
      *                              TXT record.
+     *
      */
     Error ReadTxtData(const Message &aMessage, uint16_t &aOffset, uint8_t *aTxtBuffer, uint16_t &aTxtBufferSize) const;
 
@@ -1764,6 +1894,7 @@ public:
      * @param[in]  aAllowEmpty  True if zero-length TXT data is allowed.
      *
      * @returns  TRUE if @p aTxtData contains valid encoded TXT data, FALSE if not.
+     *
      */
     static bool VerifyTxtData(const uint8_t *aTxtData, uint16_t aTxtLength, bool aAllowEmpty);
 
@@ -1771,6 +1902,7 @@ public:
 
 /**
  * Implements Resource Record body format of AAAA type.
+ *
  */
 OT_TOOL_PACKED_BEGIN
 class AaaaRecord : public ResourceRecord
@@ -1782,6 +1914,7 @@ public:
      * Initializes the AAAA Resource Record by setting its type, class, and length.
      *
      * Other record fields (TTL, address) remain unchanged/uninitialized.
+     *
      */
     void Init(void)
     {
@@ -1793,6 +1926,7 @@ public:
      * Tells whether this is a valid AAAA record.
      *
      * @returns  A boolean indicates whether this is a valid AAAA record.
+     *
      */
     bool IsValid(void) const;
 
@@ -1800,6 +1934,7 @@ public:
      * Sets the IPv6 address of the resource record.
      *
      * @param[in]  aAddress The IPv6 address of the resource record.
+     *
      */
     void SetAddress(const Ip6::Address &aAddress) { mAddress = aAddress; }
 
@@ -1807,6 +1942,7 @@ public:
      * Returns the reference to IPv6 address of the resource record.
      *
      * @returns The reference to IPv6 address of the resource record.
+     *
      */
     const Ip6::Address &GetAddress(void) const { return mAddress; }
 
@@ -1816,6 +1952,7 @@ private:
 
 /**
  * Implements Resource Record body format of SRV type (RFC 2782).
+ *
  */
 OT_TOOL_PACKED_BEGIN
 class SrvRecord : public ResourceRecord
@@ -1829,6 +1966,7 @@ public:
      * Other record fields (TTL, length, propriety, weight, port, ...) remain unchanged/uninitialized.
      *
      * @param[in] aClass  The class of the resource record (default is `kClassInternet`).
+     *
      */
     void Init(uint16_t aClass = kClassInternet) { ResourceRecord::Init(kTypeSrv, aClass); }
 
@@ -1836,6 +1974,7 @@ public:
      * Returns the SRV record's priority value.
      *
      * @returns The priority value.
+     *
      */
     uint16_t GetPriority(void) const { return BigEndian::HostSwap16(mPriority); }
 
@@ -1843,6 +1982,7 @@ public:
      * Sets the SRV record's priority value.
      *
      * @param[in]  aPriority  The priority value.
+     *
      */
     void SetPriority(uint16_t aPriority) { mPriority = BigEndian::HostSwap16(aPriority); }
 
@@ -1850,6 +1990,7 @@ public:
      * Returns the SRV record's weight value.
      *
      * @returns The weight value.
+     *
      */
     uint16_t GetWeight(void) const { return BigEndian::HostSwap16(mWeight); }
 
@@ -1857,6 +1998,7 @@ public:
      * Sets the SRV record's weight value.
      *
      * @param[in]  aWeight  The weight value.
+     *
      */
     void SetWeight(uint16_t aWeight) { mWeight = BigEndian::HostSwap16(aWeight); }
 
@@ -1864,6 +2006,7 @@ public:
      * Returns the SRV record's port number on the target host for this service.
      *
      * @returns The port number.
+     *
      */
     uint16_t GetPort(void) const { return BigEndian::HostSwap16(mPort); }
 
@@ -1871,6 +2014,7 @@ public:
      * Sets the SRV record's port number on the target host for this service.
      *
      * @param[in]  aPort  The port number.
+     *
      */
     void SetPort(uint16_t aPort) { mPort = BigEndian::HostSwap16(aPort); }
 
@@ -1892,6 +2036,7 @@ public:
      * @retval kErrorNone            The host name was read successfully. @p aOffset and @p aNameBuffer are updated.
      * @retval kErrorParse           The SRV record in @p aMessage could not be parsed (invalid format).
      * @retval kErrorNoBufs          Name could not fit in @p aNameBufferSize chars.
+     *
      */
     Error ReadTargetHostName(const Message &aMessage,
                              uint16_t      &aOffset,
@@ -1921,6 +2066,7 @@ public:
      * @retval kErrorNone            The host name was read successfully. @p aOffset and @p aNameBuffer are updated.
      * @retval kErrorParse           The SRV record in @p aMessage could not be parsed (invalid format).
      * @retval kErrorNoBufs          Name could not fit in @p aNameBuffer.
+     *
      */
     template <uint16_t kNameBufferSize>
     Error ReadTargetHostName(const Message &aMessage, uint16_t &aOffset, char (&aNameBuffer)[kNameBufferSize]) const
@@ -1938,6 +2084,7 @@ private:
 
 /**
  * Implements Resource Record body format of KEY type (RFC 2535).
+ *
  */
 OT_TOOL_PACKED_BEGIN
 class KeyRecord : public ResourceRecord
@@ -1957,6 +2104,7 @@ public:
 
     /**
      * Type represents the use (or key type) flags (RFC 2535 - section 3.1.2).
+     *
      */
     enum UseFlags : uint8_t
     {
@@ -1968,6 +2116,7 @@ public:
 
     /**
      * Type represents key owner (or name type) flags (RFC 2535 - section 3.1.2).
+     *
      */
     enum OwnerFlags : uint8_t
     {
@@ -1983,21 +2132,25 @@ public:
 
     /**
      * Key is authorized to attach, detach, and move zones.
+     *
      */
     static constexpr uint8_t kSignatoryFlagZone = 1 << 3;
 
     /**
      * Key is authorized to add and delete RRs even if RRs auth with other key.
+     *
      */
     static constexpr uint8_t kSignatoryFlagStrong = 1 << 2;
 
     /**
      * Key is authorized to add and update RRs for only a single owner name.
+     *
      */
     static constexpr uint8_t kSignatoryFlagUnique = 1 << 1;
 
     /**
      * If the other flags are zero, this is used to indicate it is an update key.
+     *
      */
     static constexpr uint8_t kSignatoryFlagGeneral = 1 << 0;
 
@@ -2007,6 +2160,7 @@ public:
      * Other record fields (TTL, length, flags, protocol, algorithm) remain unchanged/uninitialized.
      *
      * @param[in] aClass  The class of the resource record (default is `kClassInternet`).
+     *
      */
     void Init(uint16_t aClass = kClassInternet) { ResourceRecord::Init(kTypeKey, aClass); }
 
@@ -2014,6 +2168,7 @@ public:
      * Tells whether the KEY record is valid.
      *
      * @returns  TRUE if this is a valid KEY record, FALSE if an invalid KEY record.
+     *
      */
     bool IsValid(void) const;
 
@@ -2021,6 +2176,7 @@ public:
      * Gets the key use (or key type) flags.
      *
      * @returns The key use flags.
+     *
      */
     UseFlags GetUseFlags(void) const { return static_cast<UseFlags>(mFlags[0] & kUseFlagsMask); }
 
@@ -2028,6 +2184,7 @@ public:
      * Gets the owner (or name type) flags.
      *
      * @returns The key owner flags.
+     *
      */
     OwnerFlags GetOwnerFlags(void) const { return static_cast<OwnerFlags>(mFlags[0] & kOwnerFlagsMask); }
 
@@ -2035,6 +2192,7 @@ public:
      * Gets the signatory flags.
      *
      * @returns The signatory flags.
+     *
      */
     uint8_t GetSignatoryFlags(void) const { return (mFlags[1] & kSignatoryFlagsMask); }
 
@@ -2044,6 +2202,7 @@ public:
      * @param[in] aUseFlags        The `UseFlags` value.
      * @param[in] aOwnerFlags      The `OwnerFlags` value.
      * @param[in] aSignatoryFlags  The signatory flags.
+     *
      */
     void SetFlags(UseFlags aUseFlags, OwnerFlags aOwnerFlags, uint8_t aSignatoryFlags)
     {
@@ -2055,6 +2214,7 @@ public:
      * Returns the KEY record's protocol value.
      *
      * @returns The protocol value.
+     *
      */
     uint8_t GetProtocol(void) const { return mProtocol; }
 
@@ -2062,6 +2222,7 @@ public:
      * Sets the KEY record's protocol value.
      *
      * @param[in]  aProtocol  The protocol value.
+     *
      */
     void SetProtocol(uint8_t aProtocol) { mProtocol = aProtocol; }
 
@@ -2069,6 +2230,7 @@ public:
      * Returns the KEY record's algorithm value.
      *
      * @returns The algorithm value.
+     *
      */
     uint8_t GetAlgorithm(void) const { return mAlgorithm; }
 
@@ -2076,6 +2238,7 @@ public:
      * Sets the KEY record's algorithm value.
      *
      * @param[in]  aAlgorithm  The algorithm value.
+     *
      */
     void SetAlgorithm(uint8_t aAlgorithm) { mAlgorithm = aAlgorithm; }
 
@@ -2109,6 +2272,7 @@ public:
      * Initializes the KEY Resource Record to ECDSA with curve P-256.
      *
      * Other record fields (TTL, length, flags, protocol) remain unchanged/uninitialized.
+     *
      */
     void Init(void);
 
@@ -2116,6 +2280,7 @@ public:
      * Tells whether this is a valid ECDSA DNSKEY with curve P-256.
      *
      * @returns  A boolean that indicates whether this is a valid ECDSA DNSKEY RR with curve P-256.
+     *
      */
     bool IsValid(void) const;
 
@@ -2123,6 +2288,7 @@ public:
      * Returns the ECDSA P-256 public key.
      *
      * @returns  A reference to the public key.
+     *
      */
     const Crypto::Ecdsa::P256::PublicKey &GetKey(void) const { return mKey; }
 
@@ -2130,6 +2296,7 @@ public:
      * Sets the ECDSA P-256 public key.
      *
      * @param[in] aKey  The public key.
+     *
      */
     void SetKey(const Crypto::Ecdsa::P256::PublicKey &aKey) { mKey = aKey; }
 
@@ -2140,6 +2307,8 @@ private:
 
 /**
  * Implements Resource Record body format of SIG type (RFC 2535 - section-4.1).
+ *
+ *
  */
 OT_TOOL_PACKED_BEGIN
 class SigRecord : public ResourceRecord, public Clearable<SigRecord>
@@ -2155,6 +2324,7 @@ public:
      * SIG(0) requires SIG RR to set class field as ANY or `kClassAny` (RFC 2931 - section 3).
      *
      * @param[in] aClass  The class of the resource record.
+     *
      */
     void Init(uint16_t aClass) { ResourceRecord::Init(kTypeSig, aClass); }
 
@@ -2162,6 +2332,7 @@ public:
      * Tells whether the SIG record is valid.
      *
      * @returns  TRUE if this is a valid SIG record, FALSE if not a valid SIG record.
+     *
      */
     bool IsValid(void) const;
 
@@ -2169,6 +2340,7 @@ public:
      * Returns the SIG record's type-covered value.
      *
      * @returns The type-covered value.
+     *
      */
     uint16_t GetTypeCovered(void) const { return BigEndian::HostSwap16(mTypeCovered); }
 
@@ -2176,6 +2348,7 @@ public:
      * Sets the SIG record's type-covered value.
      *
      * @param[in]  aTypeCovered  The type-covered value.
+     *
      */
     void SetTypeCovered(uint8_t aTypeCovered) { mTypeCovered = BigEndian::HostSwap16(aTypeCovered); }
 
@@ -2183,6 +2356,7 @@ public:
      * Returns the SIG record's algorithm value.
      *
      * @returns The algorithm value.
+     *
      */
     uint8_t GetAlgorithm(void) const { return mAlgorithm; }
 
@@ -2190,6 +2364,7 @@ public:
      * Sets the SIG record's algorithm value.
      *
      * @param[in]  aAlgorithm  The algorithm value.
+     *
      */
     void SetAlgorithm(uint8_t aAlgorithm) { mAlgorithm = aAlgorithm; }
 
@@ -2198,6 +2373,7 @@ public:
      * name of the owner).
      *
      * @returns The labels-count value.
+     *
      */
     uint8_t GetLabels(void) const { return mLabels; }
 
@@ -2206,6 +2382,7 @@ public:
      * name of the owner).
      *
      * @param[in]  aLabels  The labels-count value.
+     *
      */
     void SetLabels(uint8_t aLabels) { mLabels = aLabels; }
 
@@ -2213,6 +2390,7 @@ public:
      * Returns the SIG record's original TTL value.
      *
      * @returns The original TTL value.
+     *
      */
     uint32_t GetOriginalTtl(void) const { return BigEndian::HostSwap32(mOriginalTtl); }
 
@@ -2220,6 +2398,7 @@ public:
      * Sets the SIG record's original TTL value.
      *
      * @param[in]  aOriginalTtl  The original TTL value.
+     *
      */
     void SetOriginalTtl(uint32_t aOriginalTtl) { mOriginalTtl = BigEndian::HostSwap32(aOriginalTtl); }
 
@@ -2227,6 +2406,7 @@ public:
      * Returns the SIG record's expiration time value.
      *
      * @returns The expiration time value (seconds since Jan 1, 1970).
+     *
      */
     uint32_t GetExpiration(void) const { return BigEndian::HostSwap32(mExpiration); }
 
@@ -2234,6 +2414,7 @@ public:
      * Sets the SIG record's expiration time value.
      *
      * @param[in]  aExpiration  The expiration time value (seconds since Jan 1, 1970).
+     *
      */
     void SetExpiration(uint32_t aExpiration) { mExpiration = BigEndian::HostSwap32(aExpiration); }
 
@@ -2241,6 +2422,7 @@ public:
      * Returns the SIG record's inception time value.
      *
      * @returns The inception time value (seconds since Jan 1, 1970).
+     *
      */
     uint32_t GetInception(void) const { return BigEndian::HostSwap32(mInception); }
 
@@ -2248,6 +2430,7 @@ public:
      * Sets the SIG record's inception time value.
      *
      * @param[in]  aInception  The inception time value (seconds since Jan 1, 1970).
+     *
      */
     void SetInception(uint32_t aInception) { mInception = BigEndian::HostSwap32(aInception); }
 
@@ -2255,6 +2438,7 @@ public:
      * Returns the SIG record's key tag value.
      *
      * @returns The key tag value.
+     *
      */
     uint16_t GetKeyTag(void) const { return BigEndian::HostSwap16(mKeyTag); }
 
@@ -2262,6 +2446,7 @@ public:
      * Sets the SIG record's key tag value.
      *
      * @param[in]  aKeyTag  The key tag value.
+     *
      */
     void SetKeyTag(uint16_t aKeyTag) { mKeyTag = BigEndian::HostSwap16(aKeyTag); }
 
@@ -2269,6 +2454,7 @@ public:
      * Returns a pointer to the start of the record data fields.
      *
      * @returns A pointer to the start of the record data fields.
+     *
      */
     const uint8_t *GetRecordData(void) const { return reinterpret_cast<const uint8_t *>(&mTypeCovered); }
 
@@ -2287,6 +2473,7 @@ public:
      * @retval kErrorNone           The name was read successfully. @p aOffset and @p aNameBuffer are updated.
      * @retval kErrorParse          The SIG record in @p aMessage could not be parsed (invalid format).
      * @retval kErrorNoBufs         Name could not fit in @p aNameBufferSize chars.
+     *
      */
     Error ReadSignerName(const Message &aMessage, uint16_t &aOffset, char *aNameBuffer, uint16_t aNameBufferSize) const
     {
@@ -2308,6 +2495,7 @@ private:
 
 /**
  * Implements DNS OPT Pseudo Resource Record header for EDNS(0) (RFC 6891 - Section 6.1).
+ *
  */
 OT_TOOL_PACKED_BEGIN
 class OptRecord : public ResourceRecord
@@ -2320,6 +2508,7 @@ public:
      * and all flags.
      *
      * Other record fields (UDP payload size, length) remain unchanged/uninitialized.
+     *
      */
     void Init(void)
     {
@@ -2334,6 +2523,7 @@ public:
      * The field is encoded in the CLASS field.
      *
      * @returns The UDP payload size.
+     *
      */
     uint16_t GetUdpPayloadSize(void) const { return GetClass(); }
 
@@ -2342,6 +2532,7 @@ public:
      * delivered in the requester's network).
      *
      * @param[in] aPayloadSize  The UDP payload size.
+     *
      */
     void SetUdpPayloadSize(uint16_t aPayloadSize) { SetClass(aPayloadSize); }
 
@@ -2351,6 +2542,7 @@ public:
      * Value of 0 indicates that an unextended Response code is in use.
      *
      * @return The upper 8-bit of the extended 12-bit Response Code.
+     *
      */
     uint8_t GetExtendedResponseCode(void) const { return GetTtlByteAt(kExtRCodeByteIndex); }
 
@@ -2360,6 +2552,7 @@ public:
      * Value of 0 indicates that an unextended Response code is in use.
      *
      * @param[in] aExtendedResponse The upper 8-bit of the extended 12-bit Response Code.
+     *
      */
     void SetExtendedResponseCode(uint8_t aExtendedResponse) { GetTtlByteAt(kExtRCodeByteIndex) = aExtendedResponse; }
 
@@ -2367,6 +2560,7 @@ public:
      * Gets the Version field.
      *
      * @returns The version.
+     *
      */
     uint8_t GetVersion(void) const { return GetTtlByteAt(kVersionByteIndex); }
 
@@ -2374,6 +2568,7 @@ public:
      * Set the Version field.
      *
      * @param[in] aVersion  The version.
+     *
      */
     void SetVersion(uint8_t aVersion) { GetTtlByteAt(kVersionByteIndex) = aVersion; }
 
@@ -2381,16 +2576,19 @@ public:
      * Indicates whether the DNSSEC OK flag is set or not.
      *
      * @returns True if DNSSEC OK flag is set in the header, false otherwise.
+     *
      */
     bool IsDnsSecurityFlagSet(void) const { return (GetTtlByteAt(kFlagByteIndex) & kDnsSecFlag) != 0; }
 
     /**
      * Clears the DNSSEC OK bit flag.
+     *
      */
     void ClearDnsSecurityFlag(void) { GetTtlByteAt(kFlagByteIndex) &= ~kDnsSecFlag; }
 
     /**
      * Sets the DNSSEC OK bit flag.
+     *
      */
     void SetDnsSecurityFlag(void) { GetTtlByteAt(kFlagByteIndex) |= kDnsSecFlag; }
 
@@ -2421,6 +2619,7 @@ private:
 
 /**
  * Implements the body of an Option in OPT Pseudo Resource Record (RFC 6981 - Section 6.1).
+ *
  */
 OT_TOOL_PACKED_BEGIN
 class Option
@@ -2432,6 +2631,7 @@ public:
      * Returns the option code value.
      *
      * @returns The option code value.
+     *
      */
     uint16_t GetOptionCode(void) const { return BigEndian::HostSwap16(mOptionCode); }
 
@@ -2439,6 +2639,7 @@ public:
      * Sets the option code value.
      *
      * @param[in]  aOptionCode  The option code value.
+     *
      */
     void SetOptionCode(uint16_t aOptionCode) { mOptionCode = BigEndian::HostSwap16(aOptionCode); }
 
@@ -2446,6 +2647,7 @@ public:
      * Returns the option length value.
      *
      * @returns The option length (size of option data in bytes).
+     *
      */
     uint16_t GetOptionLength(void) const { return BigEndian::HostSwap16(mOptionLength); }
 
@@ -2453,6 +2655,7 @@ public:
      * Sets the option length value.
      *
      * @param[in]  aOptionLength  The option length (size of option data in bytes).
+     *
      */
     void SetOptionLength(uint16_t aOptionLength) { mOptionLength = BigEndian::HostSwap16(aOptionLength); }
 
@@ -2460,6 +2663,7 @@ public:
      * Returns the size of (number of bytes) in the Option and its data.
      *
      * @returns Size (number of bytes) of the Option its data section.
+     *
      */
     uint32_t GetSize(void) const { return sizeof(Option) + GetOptionLength(); }
 
@@ -2475,6 +2679,7 @@ private:
  *
  * This implementation is intended for use in Dynamic DNS Update Lease Requests and Responses as specified in
  * https://tools.ietf.org/html/draft-sekar-dns-ul-02.
+ *
  */
 OT_TOOL_PACKED_BEGIN
 class LeaseOption : public Option
@@ -2485,6 +2690,7 @@ public:
      * only.
      *
      * @param[in] aLeaseInterval     The lease interval in seconds.
+     *
      */
     void InitAsShortVariant(uint32_t aLeaseInterval);
 
@@ -2494,6 +2700,7 @@ public:
      *
      * @param[in] aLeaseInterval     The lease interval in seconds.
      * @param[in] aKeyLeaseInterval  The key lease interval in seconds.
+     *
      */
     void InitAsLongVariant(uint32_t aLeaseInterval, uint32_t aKeyLeaseInterval);
 
@@ -2503,6 +2710,7 @@ public:
      *
      * @retval TRUE   The Update Lease Option follows the short variant format.
      * @retval FALSE  The Update Lease Option follows the long variant format.
+     *
      */
     bool IsShortVariant(void) const { return (GetOptionLength() == kShortLength); }
 
@@ -2512,6 +2720,7 @@ public:
      * Validates that option follows either short or long variant format.
      *
      * @returns  TRUE if this is a valid Lease Option, FALSE if not a valid Lease Option.
+     *
      */
     bool IsValid(void) const;
 
@@ -2519,6 +2728,7 @@ public:
      * Returns the Update Lease OPT record's lease interval value.
      *
      * @returns The lease interval value (in seconds).
+     *
      */
     uint32_t GetLeaseInterval(void) const { return BigEndian::HostSwap32(mLeaseInterval); }
 
@@ -2528,6 +2738,7 @@ public:
      * If the Update Lease Option follows the short variant format the lease interval is returned as key lease interval.
      *
      * @returns The key lease interval value (in seconds).
+     *
      */
     uint32_t GetKeyLeaseInterval(void) const
     {
@@ -2547,6 +2758,7 @@ public:
      * @retval kErrorNone      Successfully read and validated the Update Lease Option from @p aMessage.
      * @retval kErrorNotFound  Did not find any Update Lease Option.
      * @retval kErrorParse     Failed to parse the Options.
+     *
      */
     Error ReadFrom(const Message &aMessage, uint16_t aOffset, uint16_t aLength);
 
@@ -2566,6 +2778,7 @@ private:
 
 /**
  * Implements body format of NSEC record (RFC 3845) for use with mDNS.
+ *
  */
 OT_TOOL_PACKED_BEGIN
 class NsecRecord : public ResourceRecord
@@ -2575,6 +2788,7 @@ public:
 
     /**
      * Represents NSEC Type Bit Map field (RFC 3845 - section 2.1.2)
+     *
      */
     OT_TOOL_PACKED_BEGIN
     class TypeBitMap : public Clearable<TypeBitMap>
@@ -2588,6 +2802,7 @@ public:
          * Gets the Window Block Number
          *
          * @returns The Window Block Number.
+         *
          */
         uint8_t GetBlockNumber(void) const { return mBlockNumber; }
 
@@ -2595,6 +2810,7 @@ public:
          * Sets the Window Block Number
          *
          * @param[in] aBlockNumber The Window Block Number.
+         *
          */
         void SetBlockNumber(uint8_t aBlockNumber) { mBlockNumber = aBlockNumber; }
 
@@ -2602,6 +2818,7 @@ public:
          * Gets the Bitmap length
          *
          * @returns The Bitmap length
+         *
          */
         uint8_t GetBitmapLength(void) { return mBitmapLength; }
 
@@ -2609,6 +2826,7 @@ public:
          * Gets the total size (number of bytes) of the `TypeBitMap` field.
          *
          * @returns The size of the `TypeBitMap`
+         *
          */
         uint16_t GetSize(void) const { return (sizeof(mBlockNumber) + sizeof(mBitmapLength) + mBitmapLength); }
 
@@ -2621,6 +2839,7 @@ public:
          * value. If @p aType does not match the currently set Window Block Number, no action is performed.
          *
          * @param[in] aType   The resource record type to add.
+         *
          */
         void AddType(uint16_t aType);
 
@@ -2633,6 +2852,7 @@ public:
          *
          * @retval TRUE   The @p aType is present in the Bitmap.
          * @retval FALSE  The @p aType is not present in the Bitmap.
+         *
          */
         bool ContainsType(uint16_t aType) const;
 
@@ -2648,6 +2868,7 @@ public:
      * Other record fields (TTL, length remain unchanged/uninitialized.
      *
      * @param[in] aClass  The class of the resource record (default is `kClassInternet`).
+     *
      */
     void Init(uint16_t aClass = kClassInternet) { ResourceRecord::Init(kTypeNsec, aClass); }
 
@@ -2655,6 +2876,7 @@ public:
 
 /**
  * Implements Question format.
+ *
  */
 OT_TOOL_PACKED_BEGIN
 class Question
@@ -2662,11 +2884,13 @@ class Question
 public:
     /**
      * Default constructor for Question
+     *
      */
     Question(void) = default;
 
     /**
      * Constructor for Question.
+     *
      */
     explicit Question(uint16_t aType, uint16_t aClass = ResourceRecord::kClassInternet)
     {
@@ -2678,6 +2902,7 @@ public:
      * Returns the type of the question.
      *
      * @returns The type of the question.
+     *
      */
     uint16_t GetType(void) const { return BigEndian::HostSwap16(mType); }
 
@@ -2685,6 +2910,7 @@ public:
      * Sets the type of the question.
      *
      * @param[in]  aType The type of the question.
+     *
      */
     void SetType(uint16_t aType) { mType = BigEndian::HostSwap16(aType); }
 
@@ -2692,6 +2918,7 @@ public:
      * Returns the class of the question.
      *
      * @returns The class of the question.
+     *
      */
     uint16_t GetClass(void) const { return BigEndian::HostSwap16(mClass); }
 
@@ -2699,6 +2926,7 @@ public:
      * Sets the class of the question.
      *
      * @param[in]  aClass The class of the question.
+     *
      */
     void SetClass(uint16_t aClass) { mClass = BigEndian::HostSwap16(aClass); }
 
@@ -2709,6 +2937,7 @@ private:
 
 /**
  * Implements Zone section body for DNS Update (RFC 2136 - section 2.3).
+ *
  */
 OT_TOOL_PACKED_BEGIN
 class Zone : public Question
@@ -2718,6 +2947,7 @@ public:
      * Constructor for Zone.
      *
      * @param[in] aClass  The class of the zone (default is `kClassInternet`).
+     *
      */
     explicit Zone(uint16_t aClass = ResourceRecord::kClassInternet)
         : Question(ResourceRecord::kTypeSoa, aClass)
@@ -2727,6 +2957,7 @@ public:
 
 /**
  * @}
+ *
  */
 
 } // namespace Dns

@@ -48,6 +48,7 @@ namespace ot {
 
 /**
  * Implements handling PANID Query Requests.
+ *
  */
 class PanIdQueryServer : public InstanceLocator, private NonCopyable
 {
@@ -56,6 +57,7 @@ class PanIdQueryServer : public InstanceLocator, private NonCopyable
 public:
     /**
      * Initializes the object.
+     *
      */
     explicit PanIdQueryServer(Instance &aInstance);
 

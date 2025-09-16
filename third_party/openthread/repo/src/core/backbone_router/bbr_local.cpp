@@ -35,7 +35,13 @@
 
 #if OPENTHREAD_FTD && OPENTHREAD_CONFIG_BACKBONE_ROUTER_ENABLE
 
+#include "common/code_utils.hpp"
+#include "common/locator_getters.hpp"
+#include "common/log.hpp"
+#include "common/random.hpp"
 #include "instance/instance.hpp"
+#include "thread/mle_types.hpp"
+#include "thread/thread_netif.hpp"
 
 namespace ot {
 
@@ -168,7 +174,8 @@ exit:
 
 Error Local::AddService(RegisterMode aMode)
 {
-    Error error = kErrorInvalidState;
+    Error                                            error = kErrorInvalidState;
+    NetworkData::Service::BackboneRouter::ServerData serverData;
 
     VerifyOrExit(mState != kStateDisabled && Get<Mle::Mle>().IsAttached());
 
@@ -182,8 +189,11 @@ Error Local::AddService(RegisterMode aMode)
         break;
     }
 
-    SuccessOrExit(error = Get<NetworkData::Service::Manager>().AddBackboneRouterService(
-                      mSequenceNumber, mReregistrationDelay, mMlrTimeout));
+    serverData.SetSequenceNumber(mSequenceNumber);
+    serverData.SetReregistrationDelay(mReregistrationDelay);
+    serverData.SetMlrTimeout(mMlrTimeout);
+
+    SuccessOrExit(error = Get<NetworkData::Service::Manager>().Add<NetworkData::Service::BackboneRouter>(serverData));
     Get<NetworkData::Notifier>().HandleServerDataUpdated();
 
     mIsServiceAdded = true;
@@ -197,7 +207,7 @@ void Local::RemoveService(void)
 {
     Error error;
 
-    SuccessOrExit(error = Get<NetworkData::Service::Manager>().RemoveBackboneRouterService());
+    SuccessOrExit(error = Get<NetworkData::Service::Manager>().Remove<NetworkData::Service::BackboneRouter>());
     Get<NetworkData::Notifier>().HandleServerDataUpdated();
     mIsServiceAdded = false;
 
@@ -244,7 +254,7 @@ void Local::HandleBackboneRouterPrimaryUpdate(Leader::State aState, const Config
     VerifyOrExit(IsEnabled() && Get<Mle::MleRouter>().IsAttached());
 
     // Wait some jitter before trying to Register.
-    if (aConfig.mServer16 == Mle::kInvalidRloc16)
+    if (aConfig.mServer16 == Mac::kShortAddrInvalid)
     {
         mRegistrationTimeout = 1;
 
@@ -449,13 +459,9 @@ const char *Local::ActionToString(Action aAction)
         "Remove", // (2) kActionRemove
     };
 
-    struct EnumCheck
-    {
-        InitEnumValidatorCounter();
-        ValidateNextEnum(kActionSet);
-        ValidateNextEnum(kActionAdd);
-        ValidateNextEnum(kActionRemove);
-    };
+    static_assert(0 == kActionSet, "kActionSet value is incorrect");
+    static_assert(1 == kActionAdd, "kActionAdd value is incorrect");
+    static_assert(2 == kActionRemove, "kActionRemove value is incorrect");
 
     return kActionStrings[aAction];
 }

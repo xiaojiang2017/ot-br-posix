@@ -47,6 +47,7 @@ namespace ot {
  *
  * Users of this class should follow CRTP-style inheritance, i.e., the `Type` class itself should publicly inherit
  * from `Unequatable<Type>`.
+ *
  */
 template <typename Type> class Unequatable
 {
@@ -60,6 +61,7 @@ public:
      *
      * @retval TRUE   If the two `Type` instances are not equal.
      * @retval FALSE  If the two `Type` instances are equal.
+     *
      */
     bool operator!=(const Type &aOther) const { return !(*static_cast<const Type *>(this) == aOther); }
 };
@@ -71,6 +73,7 @@ public:
  *
  * Users of this class should follow CRTP-style inheritance, i.e., the `Type` class itself should publicly inherit
  * from `Equatable<Type>`.
+ *
  */
 template <typename Type> class Equatable : public Unequatable<Type>
 {
@@ -82,6 +85,7 @@ public:
      *
      * @retval TRUE   If the two `Type` instances are equal.
      * @retval FALSE  If the two `Type` instances are not equal.
+     *
      */
     bool operator==(const Type &aOther) const
     {

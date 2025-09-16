@@ -45,12 +45,14 @@ namespace Heap {
 
 /**
  * Represents a heap allocated data.
+ *
  */
 class Data
 {
 public:
     /**
      * Initializes the `Heap::Data` as empty.
+     *
      */
     Data(void) { mData.Init(nullptr, 0); }
 
@@ -61,11 +63,13 @@ public:
      * used as return type (return by value) from functions/methods (which will then use move semantics).
      *
      * @param[in] aData   An rvalue reference to another `Heap::Data` to move from.
+     *
      */
     Data(Data &&aData) { TakeFrom(aData); }
 
     /**
      * This is the destructor for `Heap::Data` object.
+     *
      */
     ~Data(void) { Free(); }
 
@@ -75,6 +79,7 @@ public:
      *
      * @retval TRUE  The `Heap::Data` is null.
      * @retval FALSE The `Heap::Data` is not null.
+     *
      */
     bool IsNull(void) const { return (mData.GetBytes() == nullptr); }
 
@@ -82,6 +87,7 @@ public:
      * Returns a pointer to the `Heap::Data` bytes buffer.
      *
      * @returns A pointer to data buffer or `nullptr` if the `Heap::Data` is null (never set or freed).
+     *
      */
     const uint8_t *GetBytes(void) const { return mData.GetBytes(); }
 
@@ -89,6 +95,7 @@ public:
      * Returns the `Heap::Data` length.
      *
      * @returns The data length (number of bytes) or zero if the `HeapData` is null.
+     *
      */
     uint16_t GetLength(void) const { return mData.GetLength(); }
 
@@ -100,6 +107,7 @@ public:
      *
      * @retval kErrorNone     Successfully set the `Heap::Data`.
      * @retval kErrorNoBufs   Failed to allocate buffer.
+     *
      */
     Error SetFrom(const uint8_t *aBuffer, uint16_t aLength);
 
@@ -112,6 +120,7 @@ public:
      *
      * @retval kErrorNone     Successfully set the `Heap::Data`.
      * @retval kErrorNoBufs   Failed to allocate buffer.
+     *
      */
     Error SetFrom(const Message &aMessage);
 
@@ -127,6 +136,7 @@ public:
      * @retval kErrorNone     Successfully set the `Heap::Data`.
      * @retval kErrorNoBufs   Failed to allocate buffer.
      * @retval kErrorParse    Not enough bytes in @p aMessage to read the requested @p aLength bytes.
+     *
      */
     Error SetFrom(const Message &aMessage, uint16_t aOffset, uint16_t aLength);
 
@@ -134,6 +144,7 @@ public:
      * Sets the `Heap::Data` from another one (move semantics).
      *
      * @param[in] aData   The other `Heap::Data` to set from (rvalue reference).
+     *
      */
     void SetFrom(Data &&aData);
 
@@ -144,6 +155,7 @@ public:
      *
      * @retval kErrorNone     Successfully copied the bytes from `Heap::Data` into @p aMessage.
      * @retval kErrorNoBufs   Failed to allocate buffer.
+     *
      */
     Error CopyBytesTo(Message &aMessage) const { return aMessage.AppendBytes(mData.GetBytes(), mData.GetLength()); }
 
@@ -153,6 +165,7 @@ public:
      * It is up to the caller to ensure that @p aBuffer has enough space for the current data length.
      *
      * @param[in] aBuffer     A pointer to buffer to copy the bytes into.
+     *
      */
     void CopyBytesTo(uint8_t *aBuffer) const { return mData.CopyBytesTo(aBuffer); }
 
@@ -164,6 +177,7 @@ public:
      *
      * @retval TRUE   The `Data` content matches the bytes in @p aBuffer.
      * @retval FALSE  The `Data` content does not match the byes in @p aBuffer.
+     *
      */
     bool Matches(const uint8_t *aBuffer, uint16_t aLength) const;
 
@@ -174,6 +188,7 @@ public:
      *
      * @retval TRUE   The two `Data` instances have matching content (same length and same bytes).
      * @retval FALSE  The two `Data` instances do not have matching content.
+     *
      */
     bool operator==(const Data &aOtherData) const { return mData == aOtherData.mData; }
 
@@ -182,6 +197,7 @@ public:
      *
      * The `Heap::Data` destructor will automatically call `Free()`. This method allows caller to free the buffer
      * explicitly.
+     *
      */
     void Free(void);
 

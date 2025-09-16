@@ -49,6 +49,7 @@ namespace Ip6Utils {
  *
  * @retval TRUE   If the IPv6 address scope is Link-Local.
  * @retval FALSE  If the IPv6 address scope is not Link-Local.
+ *
  */
 inline bool IsIp6AddressLinkLocal(const otIp6Address &aAddress)
 {
@@ -62,6 +63,7 @@ inline bool IsIp6AddressLinkLocal(const otIp6Address &aAddress)
  *
  * @retval TRUE   If the IPv6 address scope is multicast.
  * @retval FALSE  If the IPv6 address scope is not multicast.
+ *
  */
 inline bool IsIp6AddressMulticast(const otIp6Address &aAddress) { return (aAddress.mFields.m8[0] == 0xff); }
 
@@ -72,6 +74,7 @@ inline bool IsIp6AddressMulticast(const otIp6Address &aAddress) { return (aAddre
  *
  * @retval TRUE   If the IPv6 address scope is unspecified.
  * @retval FALSE  If the IPv6 address scope is not unspecified.
+ *
  */
 inline bool IsIp6AddressUnspecified(const otIp6Address &aAddress) { return otIp6IsAddressUnspecified(&aAddress); }
 
@@ -80,6 +83,7 @@ inline bool IsIp6AddressUnspecified(const otIp6Address &aAddress) { return otIp6
  *
  * @param[in] aAddress  The IPv6 address to copy.
  * @param[in] aBuffer   A pointer to buffer to copy the address to.
+ *
  */
 inline void CopyIp6AddressTo(const otIp6Address &aAddress, void *aBuffer)
 {
@@ -91,6 +95,7 @@ inline void CopyIp6AddressTo(const otIp6Address &aAddress, void *aBuffer)
  *
  * @param[in] aBuffer    A pointer to buffer to read from.
  * @param[out] aAddress  A reference to populate with the read IPv6 address.
+ *
  */
 inline void ReadIp6AddressFrom(const void *aBuffer, otIp6Address &aAddress)
 {
@@ -99,6 +104,7 @@ inline void ReadIp6AddressFrom(const void *aBuffer, otIp6Address &aAddress)
 
 /**
  * This utility class converts binary IPv6 address to text format.
+ *
  */
 class Ip6AddressString
 {
@@ -107,6 +113,7 @@ public:
      * The constructor of this converter.
      *
      * @param[in]   aAddress    A pointer to a buffer holding an IPv6 address.
+     *
      */
     Ip6AddressString(const void *aAddress)
     {
@@ -117,6 +124,7 @@ public:
      * Returns the string as a null-terminated C string.
      *
      * @returns The null-terminated C string.
+     *
      */
     const char *AsCString(void) const { return mBuffer; }
 

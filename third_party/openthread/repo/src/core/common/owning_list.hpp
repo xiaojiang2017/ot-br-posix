@@ -45,6 +45,7 @@ namespace ot {
 /**
  * Represents a singly linked list which owns its entries and frees them upon destruction of the
  * list.
+ *
  */
 template <typename Type> class OwningList : public LinkedList<Type>
 {
@@ -54,6 +55,7 @@ template <typename Type> class OwningList : public LinkedList<Type>
 public:
     /**
      * This is the default constructor for `OwningList`
+     *
      */
     OwningList(void) = default;
 
@@ -61,11 +63,13 @@ public:
      * This is the destructor for `OwningList`.
      *
      * On destruction, all existing entries in the list are freed.
+     *
      */
     ~OwningList(void) { Free(); }
 
     /**
      * Clears the list and frees all existing entries in it.
+     *
      */
     void Free(void)
     {
@@ -76,6 +80,7 @@ public:
 
     /**
      * Clears the list and frees all existing entries in it.
+     *
      */
     void Clear(void) { Free(); }
 
@@ -85,6 +90,7 @@ public:
      * @note This method does not change the popped entry itself, i.e., the popped entry next pointer stays as before.
      *
      * @returns An `OwnedPtr` to the entry that was popped (set to null if list of empty).
+     *
      */
     OwnedPtr<Type> Pop(void) { return OwnedPtr<Type>(LinkedList<Type>::Pop()); }
 
@@ -97,65 +103,73 @@ public:
      *                        otherwise (if it is `nullptr`) the entry at the head of the list is popped.
      *
      * @returns An `OwnedPtr` to the entry that was popped (set to null if there is no entry to pop).
+     *
      */
     OwnedPtr<Type> PopAfter(Type *aPrevEntry) { return OwnedPtr<Type>(LinkedList<Type>::PopAfter(aPrevEntry)); }
 
     /**
-     * Removes an entry matching a given set of conditions from the linked list.
+     * Removes an entry matching a given entry indicator from the linked list.
      *
-     * To check that an entry matches, the `Matches()` method is invoked on each `Type` entry in the list. The
-     * `Matches()` method with the same set of `Args` input types should be provided by the `Type` class accordingly:
+     * The template type `Indicator` specifies the type of @p aIndicator object which is used to match against entries
+     * in the list. To check that an entry matches the given indicator, the `Matches()` method is invoked on each
+     * `Type` entry in the list. The `Matches()` method should be provided by `Type` class accordingly:
      *
-     *      bool Type::Matches(const Args &...) const
+     *     bool Type::Matches(const Indicator &aIndicator) const
      *
      * @note This method does not change the removed entry itself (which is returned in case of success), i.e., the
      * entry next pointer stays as before.
      *
-     * @param[in]  aArgs       The args to pass to `Matches()`.
+     * @param[in] aIndicator   An entry indicator to match against entries in the list.
      *
      * @returns An `OwnedPtr` to the entry that was removed (set to null if there is no matching entry to remove).
+     *
      */
-    template <typename... Args> OwnedPtr<Type> RemoveMatching(const Args &...aArgs)
+    template <typename Indicator> OwnedPtr<Type> RemoveMatching(const Indicator &aIndicator)
     {
-        return OwnedPtr<Type>(LinkedList<Type>::RemoveMatching(aArgs...));
+        return OwnedPtr<Type>(LinkedList<Type>::RemoveMatching(aIndicator));
     }
 
     /**
-     * Removes all entries in the list matching given set of conditions from the list and adds them to a new list.
+     * Removes all entries in the list matching a given entry indicator from the list and adds
+     * them to a new list.
      *
-     * To check that an entry matches, the `Matches()` method is invoked on each `Type` entry in the list. The
-     * `Matches()` method with the same set of `Args` input types should be provided by the `Type` class accordingly:
+     * The template type `Indicator` specifies the type of @p aIndicator object which is used to match against entries
+     * in the list. To check that an entry matches the given indicator, the `Matches()` method is invoked on each
+     * `Type` entry in the list. The `Matches()` method should be provided by `Type` class accordingly:
      *
-     *      bool Type::Matches(const Args &...) const
+     *     bool Type::Matches(const Indicator &aIndicator) const
      *
      * The ownership of the removed entries is transferred from the original list to the @p aRemovedList.
      *
+     * @param[in] aIndicator   An entry indicator to match against entries in the list.
      * @param[in] aRemovedList The list to add the removed entries to.
-     * @param[in] aArgs       The args to pass to `Matches()`.
+     *
      */
-    template <typename... Args> void RemoveAllMatching(OwningList &aRemovedList, const Args &...aArgs)
+    template <typename Indicator> void RemoveAllMatching(const Indicator &aIndicator, OwningList &aRemovedList)
     {
-        LinkedList<Type>::RemoveAllMatching(aRemovedList, aArgs...);
+        LinkedList<Type>::RemoveAllMatching(aIndicator, aRemovedList);
     }
 
     /**
-     * Removes and frees all entries in the list matching a given set of conditions.
+     * Removes and frees all entries in the list matching a given entry indicator.
      *
-     * To check that an entry matches, the `Matches()` method is invoked on each `Type` entry in the list. The
-     * `Matches()` method with the same set of `Args` input types should be provided by the `Type` class accordingly:
+     * The template type `Indicator` specifies the type of @p aIndicator object which is used to match against entries
+     * in the list. To check that an entry matches the given indicator, the `Matches()` method is invoked on each
+     * `Type` entry in the list. The `Matches()` method should be provided by `Type` class accordingly:
      *
-     *      bool Type::Matches(const Args &...) const
+     *     bool Type::Matches(const Indicator &aIndicator) const
      *
-     * @param[in] aArgs       The args to pass to `Matches()`.
+     * @param[in] aIndicator   An entry indicator to match against entries in the list.
      *
      * @retval TRUE    At least one matching entry was removed.
      * @retval FALSE   No matching entry was found.
+     *
      */
-    template <typename... Args> bool RemoveAndFreeAllMatching(const Args &...aArgs)
+    template <typename Indicator> bool RemoveAndFreeAllMatching(const Indicator &aIndicator)
     {
         OwningList removedList;
 
-        RemoveAllMatching(removedList, aArgs...);
+        RemoveAllMatching(aIndicator, removedList);
         return !removedList.IsEmpty();
     }
 };

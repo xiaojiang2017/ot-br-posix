@@ -235,7 +235,8 @@ void InfraLinkSelector::Update(MainloopContext &aMainloop)
 {
     if (mNetlinkSocket != -1)
     {
-        aMainloop.AddFdToReadSet(mNetlinkSocket);
+        FD_SET(mNetlinkSocket, &aMainloop.mReadFdSet);
+        aMainloop.mMaxFd = std::max(mNetlinkSocket, aMainloop.mMaxFd);
     }
 }
 

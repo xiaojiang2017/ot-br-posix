@@ -46,6 +46,7 @@ namespace otbr {
  * @namespace otbr::DBus
  *
  * @brief This namespace contains OpenThread Border Router DBus API.
+ *
  */
 namespace DBus {
 

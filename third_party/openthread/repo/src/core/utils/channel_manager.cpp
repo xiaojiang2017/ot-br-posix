@@ -29,14 +29,23 @@
 /**
  * @file
  *   This file implements Channel Manager.
+ *
  */
 
 #include "channel_manager.hpp"
 
-#if OPENTHREAD_CONFIG_CHANNEL_MANAGER_ENABLE
-#if (OPENTHREAD_FTD || OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE)
+#if OPENTHREAD_CONFIG_CHANNEL_MANAGER_ENABLE && \
+    (OPENTHREAD_FTD ||                          \
+     (OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE && OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE))
 
+#include "common/code_utils.hpp"
+#include "common/locator_getters.hpp"
+#include "common/log.hpp"
+#include "common/random.hpp"
+#include "common/string.hpp"
 #include "instance/instance.hpp"
+#include "meshcop/dataset_updater.hpp"
+#include "radio/radio.hpp"
 
 namespace ot {
 namespace Utils {
@@ -58,7 +67,7 @@ ChannelManager::ChannelManager(Instance &aInstance)
 #if OPENTHREAD_FTD
     , mAutoSelectEnabled(false)
 #endif
-#if OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE
+#if (OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE && OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE)
     , mAutoSelectCslEnabled(false)
 #endif
     , mCcaFailureRateThreshold(kCcaFailureRateThreshold)
@@ -73,7 +82,7 @@ void ChannelManager::RequestChannelChange(uint8_t aChannel)
         RequestNetworkChannelChange(aChannel);
     }
 #endif
-#if OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE
+#if (OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE && OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE)
     if (mAutoSelectCslEnabled)
     {
         ChangeCslChannel(aChannel);
@@ -109,7 +118,7 @@ exit:
 }
 #endif
 
-#if OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE
+#if (OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE && OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE)
 void ChannelManager::ChangeCslChannel(uint8_t aChannel)
 {
     if (!(!Get<Mle::Mle>().IsRxOnWhenIdle() && Get<Mac::Mac>().IsCslEnabled()))
@@ -134,7 +143,7 @@ void ChannelManager::ChangeCslChannel(uint8_t aChannel)
 exit:
     return;
 }
-#endif // OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE
+#endif // (OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE && OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE)
 
 #if OPENTHREAD_FTD
 Error ChannelManager::SetDelay(uint16_t aDelay)
@@ -180,7 +189,7 @@ void ChannelManager::StartDatasetUpdate(void)
     }
 }
 
-void ChannelManager::HandleDatasetUpdateDone(otError aError, void *aContext)
+void ChannelManager::HandleDatasetUpdateDone(Error aError, void *aContext)
 {
     static_cast<ChannelManager *>(aContext)->HandleDatasetUpdateDone(aError);
 }
@@ -207,10 +216,8 @@ void ChannelManager::HandleTimer(void)
     switch (mState)
     {
     case kStateIdle:
-#if OPENTHREAD_CONFIG_CHANNEL_MONITOR_ENABLE
         LogInfo("Auto-triggered channel select");
         IgnoreError(RequestAutoChannelSelect(false));
-#endif
         StartAutoSelectTimer();
         break;
 
@@ -306,7 +313,7 @@ exit:
 }
 #endif
 
-#if OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE
+#if (OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE && OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE)
 Error ChannelManager::RequestCslChannelSelect(bool aSkipQualityCheck)
 {
     Error error = kErrorNone;
@@ -349,7 +356,7 @@ Error ChannelManager::RequestChannelSelect(bool aSkipQualityCheck)
 
     SuccessOrExit(error = FindBetterChannel(newChannel, newOccupancy));
 
-#if OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE
+#if (OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE && OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE)
     if (Get<Mac::Mac>().IsCslEnabled() && (Get<Mac::Mac>().GetCslChannel() != 0))
     {
         curChannel = Get<Mac::Mac>().GetCslChannel();
@@ -393,11 +400,12 @@ void ChannelManager::StartAutoSelectTimer(void)
 {
     VerifyOrExit(mState == kStateIdle);
 
-#if (OPENTHREAD_FTD && OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE)
+#if (OPENTHREAD_FTD && OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE && \
+     OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE)
     if (mAutoSelectEnabled || mAutoSelectCslEnabled)
 #elif OPENTHREAD_FTD
     if (mAutoSelectEnabled)
-#elif OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE
+#elif (OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE && OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE)
     if (mAutoSelectCslEnabled)
 #endif
     {
@@ -415,18 +423,16 @@ exit:
 #if OPENTHREAD_FTD
 void ChannelManager::SetAutoNetworkChannelSelectionEnabled(bool aEnabled)
 {
-#if OPENTHREAD_CONFIG_CHANNEL_MONITOR_ENABLE
     if (aEnabled != mAutoSelectEnabled)
     {
         mAutoSelectEnabled = aEnabled;
         IgnoreError(RequestNetworkChannelSelect(false));
         StartAutoSelectTimer();
     }
-#endif
 }
 #endif
 
-#if OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE
+#if (OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE && OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE)
 void ChannelManager::SetAutoCslChannelSelectionEnabled(bool aEnabled)
 {
     if (aEnabled != mAutoSelectCslEnabled)
@@ -447,11 +453,12 @@ Error ChannelManager::SetAutoChannelSelectionInterval(uint32_t aInterval)
 
     mAutoSelectInterval = aInterval;
 
-#if (OPENTHREAD_FTD && OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE)
+#if (OPENTHREAD_FTD && OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE && \
+     OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE)
     if (mAutoSelectEnabled || mAutoSelectCslEnabled)
 #elif OPENTHREAD_FTD
     if (mAutoSelectEnabled)
-#elif OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE
+#elif (OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE && OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE)
     if (mAutoSelectCslEnabled)
 #endif
     {
@@ -489,5 +496,4 @@ void ChannelManager::SetCcaFailureRateThreshold(uint16_t aThreshold)
 } // namespace Utils
 } // namespace ot
 
-#endif // #if (OPENTHREAD_FTD || OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE)
 #endif // #if OPENTHREAD_CONFIG_CHANNEL_MANAGER_ENABLE

@@ -49,6 +49,7 @@ namespace ot {
 
 /**
  * Implements handling Energy Scan Requests.
+ *
  */
 class EnergyScanServer : public InstanceLocator, private NonCopyable
 {
@@ -58,6 +59,7 @@ class EnergyScanServer : public InstanceLocator, private NonCopyable
 public:
     /**
      * Initializes the object.
+     *
      */
     explicit EnergyScanServer(Instance &aInstance);
 

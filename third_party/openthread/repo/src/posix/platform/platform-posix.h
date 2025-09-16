@@ -60,6 +60,7 @@
  * @def OPENTHREAD_POSIX_VIRTUAL_TIME
  *
  * This setting configures whether to use virtual time.
+ *
  */
 #ifndef OPENTHREAD_POSIX_VIRTUAL_TIME
 #define OPENTHREAD_POSIX_VIRTUAL_TIME 0
@@ -67,6 +68,7 @@
 
 /**
  * This is the socket name used by daemon mode.
+ *
  */
 #define OPENTHREAD_POSIX_DAEMON_SOCKET_NAME OPENTHREAD_POSIX_CONFIG_DAEMON_SOCKET_BASENAME ".sock"
 
@@ -97,6 +99,7 @@ struct VirtualTimeEvent
  *
  * @param[in]  aSpeedUpFactor   The speed up factor.
  * @param[in]  aRealTimeSignal  The real time signal for microsecond alarms.
+ *
  */
 void platformAlarmInit(uint32_t aSpeedUpFactor, int aRealTimeSignal);
 
@@ -104,6 +107,7 @@ void platformAlarmInit(uint32_t aSpeedUpFactor, int aRealTimeSignal);
  * Retrieves the time remaining until the alarm fires.
  *
  * @param[out]  aTimeval  A pointer to the timeval struct.
+ *
  */
 void platformAlarmUpdateTimeout(struct timeval *tv);
 
@@ -111,6 +115,7 @@ void platformAlarmUpdateTimeout(struct timeval *tv);
  * Performs alarm driver processing.
  *
  * @param[in]  aInstance  The OpenThread instance structure.
+ *
  */
 void platformAlarmProcess(otInstance *aInstance);
 
@@ -118,13 +123,28 @@ void platformAlarmProcess(otInstance *aInstance);
  * Returns the next alarm event time.
  *
  * @returns The next alarm fire time.
+ *
  */
 int32_t platformAlarmGetNext(void);
+
+#ifndef MS_PER_S
+#define MS_PER_S 1000
+#endif
+#ifndef US_PER_MS
+#define US_PER_MS 1000
+#endif
+#ifndef US_PER_S
+#define US_PER_S (MS_PER_S * US_PER_MS)
+#endif
+#ifndef NS_PER_US
+#define NS_PER_US 1000
+#endif
 
 /**
  * Advances the alarm time by @p aDelta.
  *
  * @param[in]  aDelta  The amount of time to advance.
+ *
  */
 void platformAlarmAdvanceNow(uint64_t aDelta);
 
@@ -135,21 +155,15 @@ void platformAlarmAdvanceNow(uint64_t aDelta);
  * [SPINEL_STATUS_RESET__BEGIN, SPINEL_STATUS_RESET__END]) is still expected from RCP.
  *
  * @param[in]   aUrl  A pointer to the null-terminated radio URL.
+ *
  */
 void platformRadioInit(const char *aUrl);
 
 /**
  * Shuts down the radio service used by OpenThread.
+ *
  */
 void platformRadioDeinit(void);
-
-/**
- * Handles the state change events for the radio driver.
- *
- * @param[in] aInstance  A pointer to the OpenThread instance.
- * @param[in] aFlags     Flags that denote the state change events.
- */
-void platformRadioHandleStateChange(otInstance *aInstance, otChangedFlags aFlags);
 
 /**
  * Inputs a received radio frame.
@@ -157,6 +171,7 @@ void platformRadioHandleStateChange(otInstance *aInstance, otChangedFlags aFlags
  * @param[in]  aInstance   A pointer to the OpenThread instance.
  * @param[in]  aBuf        A pointer to the received radio frame.
  * @param[in]  aBufLength  The size of the received radio frame.
+ *
  */
 void platformRadioReceive(otInstance *aInstance, uint8_t *aBuf, uint16_t aBufLength);
 
@@ -164,6 +179,7 @@ void platformRadioReceive(otInstance *aInstance, uint8_t *aBuf, uint16_t aBufLen
  * Updates the file descriptor sets with file descriptors used by the radio driver.
  *
  * @param[in]   aContext    A pointer to the mainloop context.
+ *
  */
 void platformRadioUpdateFdSet(otSysMainloopContext *aContext);
 
@@ -171,11 +187,13 @@ void platformRadioUpdateFdSet(otSysMainloopContext *aContext);
  * Performs radio driver processing.
  *
  * @param[in]   aContext    A pointer to the mainloop context.
+ *
  */
 void platformRadioProcess(otInstance *aInstance, const otSysMainloopContext *aContext);
 
 /**
  * Initializes the random number service used by OpenThread.
+ *
  */
 void platformRandomInit(void);
 
@@ -183,6 +201,7 @@ void platformRandomInit(void);
  * Initializes the logging service used by OpenThread.
  *
  * @param[in] aName   A name string which will be prefixed to each log line.
+ *
  */
 void platformLoggingInit(const char *aName);
 
@@ -190,6 +209,7 @@ void platformLoggingInit(const char *aName);
  * Updates the file descriptor sets with file descriptors used by the UART driver.
  *
  * @param[in]   aContext    A pointer to the mainloop context.
+ *
  */
 void platformUartUpdateFdSet(otSysMainloopContext *aContext);
 
@@ -197,6 +217,7 @@ void platformUartUpdateFdSet(otSysMainloopContext *aContext);
  * Performs radio driver processing.
  *
  * @param[in]   aContext    A pointer to the mainloop context.
+ *
  */
 void platformUartProcess(const otSysMainloopContext *aContext);
 
@@ -206,6 +227,7 @@ void platformUartProcess(const otSysMainloopContext *aContext);
  * @note This function is called before OpenThread instance is created.
  *
  * @param[in]   aInterfaceName  A pointer to Thread network interface name.
+ *
  */
 void platformNetifInit(otPlatformConfig *aPlatformConfig);
 
@@ -215,6 +237,7 @@ void platformNetifInit(otPlatformConfig *aPlatformConfig);
  * @note This function is called after OpenThread instance is created.
  *
  * @param[in]   aInstance       A pointer to the OpenThread instance.
+ *
  */
 void platformNetifSetUp(void);
 
@@ -222,6 +245,7 @@ void platformNetifSetUp(void);
  * Tears down platform netif.
  *
  * @note This function is called before OpenThread instance is destructed.
+ *
  */
 void platformNetifTearDown(void);
 
@@ -229,6 +253,7 @@ void platformNetifTearDown(void);
  * Deinitializes platform netif.
  *
  * @note This function is called after OpenThread instance is destructed.
+ *
  */
 void platformNetifDeinit(void);
 
@@ -236,6 +261,7 @@ void platformNetifDeinit(void);
  * Updates the file descriptor sets with file descriptors used by platform netif module.
  *
  * @param[in,out]  aContext  A pointer to the mainloop context.
+ *
  */
 void platformNetifUpdateFdSet(otSysMainloopContext *aContext);
 
@@ -243,6 +269,7 @@ void platformNetifUpdateFdSet(otSysMainloopContext *aContext);
  * Performs platform netif processing.
  *
  * @param[in]  aContext  A pointer to the mainloop context.
+ *
  */
 void platformNetifProcess(const otSysMainloopContext *aContext);
 
@@ -251,6 +278,7 @@ void platformNetifProcess(const otSysMainloopContext *aContext);
  *
  * @param[in]   aInstance       A pointer to the OpenThread instance.
  * @param[in]   aFlags          Flags that denote the state change events.
+ *
  */
 void platformNetifStateChange(otInstance *aInstance, otChangedFlags aFlags);
 
@@ -258,11 +286,13 @@ void platformNetifStateChange(otInstance *aInstance, otChangedFlags aFlags);
  * Initialize virtual time simulation.
  *
  * @params[in]  aNodeId     Node id of this simulated device.
+ *
  */
 void virtualTimeInit(uint16_t aNodeId);
 
 /**
  * Deinitialize virtual time simulation.
+ *
  */
 void virtualTimeDeinit(void);
 
@@ -270,6 +300,7 @@ void virtualTimeDeinit(void);
  * Performs virtual time simulation processing.
  *
  * @param[in]  aContext  A pointer to the mainloop context.
+ *
  */
 void virtualTimeProcess(otInstance *aInstance, const otSysMainloopContext *aContext);
 
@@ -278,6 +309,7 @@ void virtualTimeProcess(otInstance *aInstance, const otSysMainloopContext *aCont
  * used by the virtual time simulation.
  *
  * @param[in,out]  aContext  A pointer to the mainloop context.
+ *
  */
 void virtualTimeUpdateFdSet(otSysMainloopContext *aContext);
 
@@ -286,6 +318,7 @@ void virtualTimeUpdateFdSet(otSysMainloopContext *aContext);
  *
  * @param[in] aData     A pointer to the spinel frame.
  * @param[in] aLength   Length of the spinel frame.
+ *
  */
 void virtualTimeSendRadioSpinelWriteEvent(const uint8_t *aData, uint16_t aLength);
 
@@ -293,6 +326,7 @@ void virtualTimeSendRadioSpinelWriteEvent(const uint8_t *aData, uint16_t aLength
  * Receives an event of virtual time simulation.
  *
  * @param[out]  aEvent  A pointer to the event receiving the event.
+ *
  */
 void virtualTimeReceiveEvent(struct VirtualTimeEvent *aEvent);
 
@@ -300,6 +334,7 @@ void virtualTimeReceiveEvent(struct VirtualTimeEvent *aEvent);
  * Sends sleep event through virtual time simulation.
  *
  * @param[in]   aTimeout    A pointer to the time sleeping.
+ *
  */
 void virtualTimeSendSleepEvent(const struct timeval *aTimeout);
 
@@ -308,6 +343,7 @@ void virtualTimeSendSleepEvent(const struct timeval *aTimeout);
  *
  * @param[in]   aInstance   A pointer to the OpenThread instance.
  * @param[in]   aEvent      A pointer to the current event.
+ *
  */
 void virtualTimeRadioProcess(otInstance *aInstance, const struct VirtualTimeEvent *aEvent);
 
@@ -316,6 +352,7 @@ void virtualTimeRadioProcess(otInstance *aInstance, const struct VirtualTimeEven
  *
  * @param[in]   aInstance   A pointer to the OpenThread instance.
  * @param[in]   aEvent      A pointer to the current event.
+ *
  */
 void virtualTimeSpinelProcess(otInstance *aInstance, const struct VirtualTimeEvent *aEvent);
 
@@ -329,11 +366,13 @@ enum SocketBlockOption
  * Initializes platform TREL UDP6 driver.
  *
  * @param[in]   aTrelUrl   The TREL URL (configuration for TREL platform).
+ *
  */
 void platformTrelInit(const char *aTrelUrl);
 
 /**
  * Shuts down the platform TREL UDP6 platform driver.
+ *
  */
 void platformTrelDeinit(void);
 
@@ -341,6 +380,7 @@ void platformTrelDeinit(void);
  * Updates the file descriptor sets with file descriptors used by the TREL driver.
  *
  * @param[in,out]  aContext  A pointer to the mainloop context.
+ *
  */
 void platformTrelUpdateFdSet(otSysMainloopContext *aContext);
 
@@ -348,6 +388,7 @@ void platformTrelUpdateFdSet(otSysMainloopContext *aContext);
  * Performs TREL driver processing.
  *
  * @param[in]  aContext  A pointer to the mainloop context.
+ *
  */
 void platformTrelProcess(otInstance *aInstance, const otSysMainloopContext *aContext);
 
@@ -362,26 +403,31 @@ void platformTrelProcess(otInstance *aInstance, const otSysMainloopContext *aCon
  * @returns The file descriptor of the created socket.
  *
  * @retval  -1  Failed to create socket.
+ *
  */
 int SocketWithCloseExec(int aDomain, int aType, int aProtocol, SocketBlockOption aBlockOption);
 
 /**
  * The name of Thread network interface.
+ *
  */
 extern char gNetifName[IFNAMSIZ];
 
 /**
  * The index of Thread network interface.
+ *
  */
 extern unsigned int gNetifIndex;
 
 /**
  * A pointer to the OpenThread instance.
+ *
  */
 extern otInstance *gInstance;
 
 /**
  * Initializes backtrace module.
+ *
  */
 void platformBacktraceInit(void);
 
@@ -398,6 +444,7 @@ CoprocessorType platformSpinelManagerInit(const char *aUrl);
 
 /**
  * Shuts down the spinel service used by OpenThread.
+ *
  */
 void platformSpinelManagerDeinit(void);
 
@@ -406,6 +453,7 @@ void platformSpinelManagerDeinit(void);
  *
  * @param[in]   aInstance   A pointer to the OT instance.
  * @param[in]   aContext    A pointer to the mainloop context.
+ *
  */
 void platformSpinelManagerProcess(otInstance *aInstance, const otSysMainloopContext *aContext);
 
@@ -413,27 +461,9 @@ void platformSpinelManagerProcess(otInstance *aInstance, const otSysMainloopCont
  * Updates the file descriptor sets with file descriptors used by the spinel driver.
  *
  * @param[in]   aContext    A pointer to the mainloop context.
+ *
  */
 void platformSpinelManagerUpdateFdSet(otSysMainloopContext *aContext);
-
-/**
- * Initializes the resolver used by OpenThread.
- */
-void platformResolverInit(void);
-
-/**
- * Updates the file descriptor sets with file descriptors used by the resolver.
- *
- * @param[in]   aContext    A pointer to the mainloop context.
- */
-void platformResolverUpdateFdSet(otSysMainloopContext *aContext);
-
-/**
- * Performs the resolver processing.
- *
- * @param[in]  aContext  A pointer to the mainloop context.
- */
-void platformResolverProcess(const otSysMainloopContext *aContext);
 
 #ifdef __cplusplus
 }

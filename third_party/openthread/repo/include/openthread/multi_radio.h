@@ -48,10 +48,12 @@ extern "C" {
  *   This module includes definitions and functions for multi radio link.
  *
  * @{
+ *
  */
 
 /**
  * Represents information associated with a radio link.
+ *
  */
 typedef struct otRadioLinkInfo
 {
@@ -60,6 +62,7 @@ typedef struct otRadioLinkInfo
 
 /**
  * Represents multi radio link information associated with a neighbor.
+ *
  */
 typedef struct otMultiRadioNeighborInfo
 {
@@ -80,6 +83,7 @@ typedef struct otMultiRadioNeighborInfo
  *
  * @retval OT_ERROR_NONE        Neighbor was found and @p aNeighborInfo was updated successfully.
  * @retval OT_ERROR_NOT_FOUND   Could not find a neighbor with @p aExtAddress.
+ *
  */
 otError otMultiRadioGetNeighborInfo(otInstance               *aInstance,
                                     const otExtAddress       *aExtAddress,
@@ -87,6 +91,7 @@ otError otMultiRadioGetNeighborInfo(otInstance               *aInstance,
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

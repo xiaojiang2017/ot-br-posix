@@ -50,6 +50,7 @@ extern "C" {
  *   This module includes the platform abstraction for the alarm service.
  *
  * @{
+ *
  */
 
 /**
@@ -97,6 +98,7 @@ extern void otPlatDiagAlarmFired(otInstance *aInstance);
 
 /**
  * @}
+ *
  */
 
 #ifdef __cplusplus

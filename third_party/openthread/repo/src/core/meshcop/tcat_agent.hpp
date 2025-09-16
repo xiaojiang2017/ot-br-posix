@@ -68,6 +68,7 @@ public:
      * Pointer to call when application data was received over the TLS connection.
      *
      *  Please see otHandleTcatApplicationDataReceive for details.
+     *
      */
     typedef otHandleTcatApplicationDataReceive AppDataReceiveCallback;
 
@@ -75,11 +76,13 @@ public:
      * Pointer to call to notify the completion of a join operation.
      *
      * Please see otHandleTcatJoin for details.
+     *
      */
     typedef otHandleTcatJoin JoinCallback;
 
     /**
      * Represents a TCAT command class.
+     *
      */
     enum CommandClass
     {
@@ -93,6 +96,7 @@ public:
 
     /**
      * The certificate authorization field header type to indicate the type and version of the certificate.
+     *
      */
     enum CertificateAuthorizationFieldHeader : uint8_t
     {
@@ -102,6 +106,7 @@ public:
 
     /**
      * The command class flag type to indicate which requirements apply for a given command class.
+     *
      */
     enum CommandClassFlags : uint8_t
     {
@@ -117,6 +122,7 @@ public:
      *
      * Represents a data structure for storing TCAT Commissioner authorization information in the
      * certificate ASN.1 field 1.3.6.1.4.1.44970.3.
+     *
      */
     OT_TOOL_PACKED_BEGIN
     struct CertificateAuthorizationField
@@ -133,6 +139,7 @@ public:
 
     /**
      * Represents the TCAT vendor information.
+     *
      */
     class VendorInfo : public otTcatVendorInfo
     {
@@ -141,14 +148,16 @@ public:
          * Validates whether the TCAT vendor information is valid.
          *
          * @returns Whether the parameters are valid.
+         *
          */
         bool IsValid(void) const;
     };
 
     /**
-     * TCAT Command TLV Types.
+     * TCAT TLV Types.
+     *
      */
-    enum CommandTlvType : uint8_t
+    enum TlvType : uint8_t
     {
         // Command Class General
         kTlvResponseWithStatus        = 1,  ///< TCAT response with status value TLV
@@ -159,7 +168,6 @@ public:
         kTlvPing                      = 10, ///< TCAT ping request TLV
         kTlvGetDeviceId               = 11, ///< TCAT device ID query TLV
         kTlvGetExtendedPanID          = 12, ///< TCAT extended PAN ID query TLV
-        kTlvGetProvisioningURL        = 13, ///< TCAT provisioning URL query TLV
         kTlvPresentPskdHash           = 16, ///< TCAT commissioner rights elevation request TLV using PSKd hash
         kTlvPresentPskcHash           = 17, ///< TCAT commissioner rights elevation request TLV using PSKc hash
         kTlvPresentInstallCodeHash    = 18, ///< TCAT commissioner rights elevation request TLV using install code
@@ -196,6 +204,7 @@ public:
 
     /**
      * TCAT Response Types.
+     *
      */
     enum StatusCode : uint8_t
     {
@@ -214,6 +223,7 @@ public:
 
     /**
      * Represents TCAT application protocol.
+     *
      */
     enum TcatApplicationProtocol : uint8_t
     {
@@ -225,11 +235,11 @@ public:
 
     /**
      * Represents a TCAT certificate V3 extension attribute (OID 1.3.6.1.4.1.44970.x).
+     *
      */
     enum TcatCertificateAttribute
     {
         kCertificateDomainName         = 1,
-        kCertificateThreadVersion      = 2,
         kCertificateAuthorizationField = 3,
         kCertificateNetworkName        = 4,
         kCertificateExtendedPanId      = 5,
@@ -237,6 +247,7 @@ public:
 
     /**
      * Represents TCAT status.
+     *
      */
     enum State : uint8_t
     {
@@ -246,143 +257,81 @@ public:
     };
 
     /**
-     * Represents Device ID type.
-     */
-    enum TcatDeviceIdType : uint8_t
-    {
-        kTcatDeviceIdEmpty         = OT_TCAT_DEVICE_ID_EMPTY,
-        kTcatDeviceIdOui24         = OT_TCAT_DEVICE_ID_OUI24,
-        kTcatDeviceIdOui36         = OT_TCAT_DEVICE_ID_OUI36,
-        kTcatDeviceIdDiscriminator = OT_TCAT_DEVICE_ID_DISCRIMINATOR,
-        kTcatDeviceIdIanaPen       = OT_TCAT_DEVICE_ID_IANAPEN,
-    };
-
-    /**
-     * Initializes the TCAT agent object.
+     * Initializes the Joiner object.
      *
      * @param[in]  aInstance     A reference to the OpenThread instance.
+     *
      */
     explicit TcatAgent(Instance &aInstance);
 
     /**
-     * Enables the TCAT agent.
+     * Enables the TCAT protocol.
      *
+     * @param[in] aVendorInfo               A pointer to the Vendor Information (must remain valid after the method
+     * call, may be NULL).
      * @param[in] aAppDataReceiveCallback   A pointer to a function that is called when the user data is received.
      * @param[in] aHandler                  A pointer to a function that is called when the join operation completes.
      * @param[in] aContext                  A context pointer.
      *
-     * @retval kErrorNone        Successfully started the TCAT agent.
-     * @retval kErrorFailed      Failed to start due to missing vendor info.
+     * @retval kErrorNone           Successfully started the TCAT agent.
+     * @retval kErrorInvalidArgs    The aVendorInfo is invalid.
+     *
      */
-    Error Start(AppDataReceiveCallback aAppDataReceiveCallback, JoinCallback aHandler, void *aContext);
+    Error Start(const VendorInfo      &aVendorInfo,
+                AppDataReceiveCallback aAppDataReceiveCallback,
+                JoinCallback           aHandler,
+                void                  *aContext);
 
     /**
-     * Stops the TCAT agent.
+     * Stops the TCAT protocol.
+     *
      */
     void Stop(void);
-
-    /**
-     * Set the TCAT Vendor Info object
-     *
-     * @param[in] aVendorInfo A pointer to the Vendor Information (must remain valid after the method call).
-     */
-    Error SetTcatVendorInfo(const VendorInfo &aVendorInfo);
 
     /**
      * Indicates whether or not the TCAT agent is enabled.
      *
      * @retval TRUE   The TCAT agent is enabled.
      * @retval FALSE  The TCAT agent is not enabled.
+     *
      */
     bool IsEnabled(void) const { return mState != kStateDisabled; }
 
     /**
      * Indicates whether or not the TCAT agent is connected.
      *
-     * @retval TRUE   The TCAT agent is connected with a TCAT commissioner.
+     * @retval TRUE   The TCAT agent is connected.
      * @retval FALSE  The TCAT agent is not connected.
+     *
      */
     bool IsConnected(void) const { return mState == kStateConnected; }
 
     /**
-     * Indicates whether or not a TCAT command class is authorized for use.
+     * Indicates whether or not a command class is authorized.
      *
-     * @param[in] aCommandClass Command class to subject to authorization check.
+     * @param[in] aCommandClass Command class to subject for authorization check.
      *
-     * @retval TRUE   The command class is authorized for use by the present TCAT commissioner.
-     * @retval FALSE  The command class is not authorized for use.
+     * @retval TRUE   The command class is authorized.
+     * @retval FALSE  The command class is not authorized.
+     *
      */
     bool IsCommandClassAuthorized(CommandClass aCommandClass) const;
 
-    /**
-     * Gets TCAT advertisement data.
-     *
-     * @param[out] aLen               Advertisement data length (up to OT_TCAT_ADVERTISEMENT_MAX_LEN).
-     * @param[out] aAdvertisementData Advertisement data.
-     *
-     * @retval kErrorNone           Successfully retrieved the TCAT advertisement data.
-     * @retval kErrorInvalidArgs    The data could not be retrieved, or aAdvertisementData is null.
-     */
-    Error GetAdvertisementData(uint16_t &aLen, uint8_t *aAdvertisementData);
-
-    /**
-     * @brief Gets the Install Code Verify Status during the current session.
-     *
-     * @retval TRUE  The install code was correctly verified.
-     * @retval FALSE The install code was not verified.
-     */
-    bool GetInstallCodeVerifyStatus(void) const { return mInstallCodeVerified; }
-
 private:
-    Error Connected(MeshCoP::Tls::Extension &aTls);
+    Error Connected(MeshCoP::SecureTransport &aTlsContext);
     void  Disconnected(void);
 
-    Error HandleSingleTlv(const Message &aIncomingMessage, Message &aOutgoingMessage);
-    Error HandleSetActiveOperationalDataset(const Message &aIncomingMessage, uint16_t aOffset, uint16_t aLength);
-    Error HandleGetActiveOperationalDataset(Message &aOutgoingMessage, bool &aResponse);
-    Error HandleDecomission(void);
-    Error HandlePing(const Message &aIncomingMessage,
-                     Message       &aOutgoingMessage,
-                     uint16_t       aOffset,
-                     uint16_t       aLength,
-                     bool          &aResponse);
-    Error HandleGetNetworkName(Message &aOutgoingMessage, bool &aResponse);
-    Error HandleGetDeviceId(Message &aOutgoingMessage, bool &aResponse);
-    Error HandleGetExtPanId(Message &aOutgoingMessage, bool &aResponse);
-    Error HandleGetProvisioningUrl(Message &aOutgoingMessage, bool &aResponse);
-    Error HandlePresentPskdHash(const Message &aIncomingMessage, uint16_t aOffset, uint16_t aLength);
-    Error HandlePresentPskcHash(const Message &aIncomingMessage, uint16_t aOffset, uint16_t aLength);
-    Error HandlePresentInstallCodeHash(const Message &aIncomingMessage, uint16_t aOffset, uint16_t aLength);
-    Error HandleRequestRandomNumberChallenge(Message &aOutgoingMessage, bool &aResponse);
-    Error HandleRequestPskdHash(const Message &aIncomingMessage,
-                                Message       &aOutgoingMessage,
-                                uint16_t       aOffset,
-                                uint16_t       aLength,
-                                bool          &aResponse);
+    Error HandleSingleTlv(const Message &aIncommingMessage, Message &aOutgoingMessage);
+    Error HandleSetActiveOperationalDataset(const Message &aIncommingMessage, uint16_t aOffset, uint16_t aLength);
     Error HandleStartThreadInterface(void);
-    Error HandleGetCommissionerCertificate(Message &aOutgoingMessage, bool &aResponse);
 
-    Error VerifyHash(const Message &aIncomingMessage,
-                     uint16_t       aOffset,
-                     uint16_t       aLength,
-                     const void    *aBuf,
-                     size_t         aBufLen);
-    void  CalculateHash(uint64_t aChallenge, const char *aBuf, size_t aBufLen, Crypto::HmacSha256::Hash &aHash);
-
-    bool CheckCommandClassAuthorizationFlags(CommandClassFlags aCommissionerCommandClassFlags,
-                                             CommandClassFlags aDeviceCommandClassFlags,
-                                             Dataset          *aDataset) const;
-
+    bool         CheckCommandClassAuthorizationFlags(CommandClassFlags aCommissionerCommandClassFlags,
+                                                     CommandClassFlags aDeviceCommandClassFlags,
+                                                     Dataset          *aDataset) const;
     bool         CanProcessTlv(uint8_t aTlvType) const;
     CommandClass GetCommandClass(uint8_t aTlvType) const;
 
-    static constexpr uint16_t kJoinerUdpPort             = OPENTHREAD_CONFIG_JOINER_UDP_PORT;
-    static constexpr uint16_t kPingPayloadMaxLength      = 512;
-    static constexpr uint16_t kProvisioningUrlMaxLength  = 64;
-    static constexpr uint16_t kMaxPskdLength             = OT_JOINER_MAX_PSKD_LENGTH;
-    static constexpr uint16_t kTcatMaxDeviceIdSize       = OT_TCAT_MAX_DEVICEID_SIZE;
-    static constexpr uint16_t kInstallCodeMaxSize        = 255;
-    static constexpr uint16_t kCommissionerCertMaxLength = 1024;
+    static constexpr uint16_t kJoinerUdpPort = OPENTHREAD_CONFIG_JOINER_UDP_PORT;
 
     JoinerPskd                       mJoinerPskd;
     const VendorInfo                *mVendorInfo;
@@ -396,13 +345,10 @@ private:
     ExtendedPanId                    mCommissionerExtendedPanId;
     char                             mCurrentServiceName[OT_TCAT_MAX_SERVICE_NAME_LENGTH + 1];
     State                            mState;
+    bool                             mAlreadyCommissioned : 1;
     bool                             mCommissionerHasNetworkName : 1;
     bool                             mCommissionerHasDomainName : 1;
     bool                             mCommissionerHasExtendedPanId : 1;
-    uint64_t                         mRandomChallenge;
-    bool                             mPskdVerified : 1;
-    bool                             mPskcVerified : 1;
-    bool                             mInstallCodeVerified : 1;
 
     friend class Ble::BleSecure;
 };
@@ -412,42 +358,8 @@ private:
 DefineCoreType(otTcatVendorInfo, MeshCoP::TcatAgent::VendorInfo);
 
 DefineMapEnum(otTcatApplicationProtocol, MeshCoP::TcatAgent::TcatApplicationProtocol);
-DefineMapEnum(otTcatAdvertisedDeviceIdType, MeshCoP::TcatAgent::TcatDeviceIdType);
 
-// Command class TLVs
 typedef UintTlvInfo<MeshCoP::TcatAgent::kTlvResponseWithStatus, uint8_t> ResponseWithStatusTlv;
-
-/**
- * Represent Device Type and Status
- */
-struct DeviceTypeAndStatus
-{
-    uint8_t mRsv : 1;
-    bool    mMultiradioSupport : 1;
-    bool    mStoresActiveOpertonalDataset : 1;
-    bool    mIsCommisionned : 1;
-    bool    mThreadNetworkActive : 1;
-    bool    mIsBorderRouter : 1;
-    bool    mRxOnWhenIdle : 1;
-    bool    mDeviceType : 1;
-};
-
-static constexpr uint8_t kTlvVendorOui24Length         = 3;
-static constexpr uint8_t kTlvVendorOui36Length         = 5;
-static constexpr uint8_t kTlvDeviceDiscriminatorLength = 5;
-static constexpr uint8_t kTlvBleLinkCapabilitiesLength = 1;
-static constexpr uint8_t kTlvDeviceTypeAndStatusLength = 1;
-static constexpr uint8_t kTlvVendorIanaPenLength       = 4;
-
-enum TcatAdvertisementTlvType : uint8_t
-{
-    kTlvVendorOui24         = 1, ///< TCAT vendor OUI 24
-    kTlvVendorOui36         = 2, ///< TCAT vendor OUI 36
-    kTlvDeviceDiscriminator = 3, ///< TCAT random vendor discriminator
-    kTlvDeviceTypeAndStatus = 4, ///< TCAT Thread device type and status
-    kTlvBleLinkCapabilities = 5, ///< TCAT BLE link capabilities of device
-    kTlvVendorIanaPen       = 6, ///< TCAT Vendor IANA PEN
-};
 
 } // namespace ot
 

@@ -28,7 +28,11 @@
 
 #include "radio.hpp"
 
-#include "instance/instance.hpp"
+#include "common/code_utils.hpp"
+#include "common/locator_getters.hpp"
+#include "common/timer.hpp"
+#include "mac/mac_frame.hpp"
+#include "utils/otns.hpp"
 
 namespace ot {
 
@@ -78,13 +82,10 @@ void Radio::Init(void)
 
 void Radio::SetExtendedAddress(const Mac::ExtAddress &aExtAddress)
 {
-    Mac::ExtAddress address;
-
-    address.Set(aExtAddress.m8, Mac::ExtAddress::kReverseByteOrder);
-    otPlatRadioSetExtendedAddress(GetInstancePtr(), &address);
+    otPlatRadioSetExtendedAddress(GetInstancePtr(), &aExtAddress);
 
 #if (OPENTHREAD_MTD || OPENTHREAD_FTD) && OPENTHREAD_CONFIG_OTNS_ENABLE
-    Get<Utils::Otns>().EmitExtendedAddress(address);
+    Get<Utils::Otns>().EmitExtendedAddress(aExtAddress);
 #endif
 }
 
@@ -97,13 +98,6 @@ void Radio::SetShortAddress(Mac::ShortAddress aShortAddress)
 #endif
 }
 
-Error Radio::AddSrcMatchExtEntry(const Mac::ExtAddress &aExtAddress)
-{
-    Mac::ExtAddress address;
-
-    address.Set(aExtAddress.m8, Mac::ExtAddress::kReverseByteOrder);
-    return otPlatRadioAddSrcMatchExtEntry(GetInstancePtr(), &address);
-}
 Error Radio::Transmit(Mac::TxFrame &aFrame)
 {
 #if (OPENTHREAD_MTD || OPENTHREAD_FTD) && OPENTHREAD_CONFIG_OTNS_ENABLE
@@ -117,19 +111,19 @@ Error Radio::Transmit(Mac::TxFrame &aFrame)
 #if OPENTHREAD_CONFIG_RADIO_STATS_ENABLE && (OPENTHREAD_FTD || OPENTHREAD_MTD)
 inline uint64_t UintSafeMinus(uint64_t aLhs, uint64_t aRhs) { return aLhs > aRhs ? (aLhs - aRhs) : 0; }
 
-Radio::Statistics::Statistics(void)
+RadioStatistics::RadioStatistics(void)
     : mStatus(kDisabled)
 {
     ResetTime();
 }
 
-void Radio::Statistics::RecordStateChange(Status aStatus)
+void RadioStatistics::RecordStateChange(Status aStatus)
 {
     UpdateTime();
     mStatus = aStatus;
 }
 
-void Radio::Statistics::HandleReceiveAt(uint32_t aDurationUs)
+void RadioStatistics::HandleReceiveAt(uint32_t aDurationUs)
 {
     // The actual rx time of ReceiveAt cannot be obtained from software level. This is a workaround.
     if (mStatus == kSleep)
@@ -138,7 +132,7 @@ void Radio::Statistics::HandleReceiveAt(uint32_t aDurationUs)
     }
 }
 
-void Radio::Statistics::RecordTxDone(otError aError, uint16_t aPsduLength)
+void RadioStatistics::RecordTxDone(otError aError, uint16_t aPsduLength)
 {
     if (aError == kErrorNone || aError == kErrorNoAck)
     {
@@ -164,7 +158,7 @@ void Radio::Statistics::RecordTxDone(otError aError, uint16_t aPsduLength)
     }
 }
 
-void Radio::Statistics::RecordRxDone(otError aError)
+void RadioStatistics::RecordRxDone(otError aError)
 {
     uint32_t ackTimeUs;
 
@@ -183,20 +177,23 @@ exit:
     return;
 }
 
-const Radio::Statistics::TimeStats &Radio::Statistics::GetStats(void)
+const otRadioTimeStats &RadioStatistics::GetStats(void)
 {
     UpdateTime();
 
     return mTimeStats;
 }
 
-void Radio::Statistics::ResetTime(void)
+void RadioStatistics::ResetTime(void)
 {
-    ClearAllBytes(mTimeStats);
-    mLastUpdateTime = TimerMicro::GetNow();
+    mTimeStats.mDisabledTime = 0;
+    mTimeStats.mSleepTime    = 0;
+    mTimeStats.mRxTime       = 0;
+    mTimeStats.mTxTime       = 0;
+    mLastUpdateTime          = TimerMicro::GetNow();
 }
 
-void Radio::Statistics::UpdateTime(void)
+void RadioStatistics::UpdateTime(void)
 {
     TimeMicro nowTime     = TimerMicro::GetNow();
     uint32_t  timeElapsed = nowTime - mLastUpdateTime;
