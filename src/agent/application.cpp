@@ -39,6 +39,9 @@
 
 #include "agent/application.hpp"
 #include "common/code_utils.hpp"
+#if OTBR_ENABLE_OPENWRT && OTBR_ENABLE_BORDER_AGENT
+#include "openwrt/ubus/otubus_agent.hpp"
+#endif
 #include "common/mainloop_manager.hpp"
 #include "utils/infra_link_selector.hpp"
 
@@ -103,6 +106,12 @@ void Application::Init(void)
 #if OTBR_ENABLE_MDNS
     mPublisher->Start();
 #endif
+#if OTBR_ENABLE_OPENWRT
+    mUbusAgent.Init();
+#endif
+#if OTBR_ENABLE_BORDER_AGENT && OTBR_ENABLE_OPENWRT
+    otbr::ubus::UbusAgentExt::GetInstance().SetBorderAgent(&mBorderAgent);
+#endif
 #if OTBR_ENABLE_BORDER_AGENT
 // This is for delaying publishing the MeshCoP service until the correct
 // vendor name and OUI etc. are correctly set by BorderAgent::SetMeshCopServiceValues()
@@ -120,9 +129,6 @@ void Application::Init(void)
 #endif
 #if OTBR_ENABLE_DNSSD_DISCOVERY_PROXY
     mDiscoveryProxy.SetEnabled(true);
-#endif
-#if OTBR_ENABLE_OPENWRT
-    mUbusAgent.Init();
 #endif
 #if OTBR_ENABLE_REST_SERVER
     mRestWebServer.Init();

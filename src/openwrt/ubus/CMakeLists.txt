@@ -28,13 +28,17 @@
 
 add_library(otbr-ubus
     otubus.cpp
+    otubus_agent.cpp
 )
 target_link_libraries(otbr-ubus PRIVATE
     otbr-config
+    $<$<BOOL:${OTBR_BORDER_AGENT}>:otbr-border-agent>
+    $<$<BOOL:${OTBR_MDNS}>:otbr-mdns>
     openthread-ftd
     openthread-posix
     ubox
     ubus
     blobmsg_json
     json-c
+    uci
 )
