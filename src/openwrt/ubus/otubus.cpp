@@ -34,6 +34,9 @@
 
 #include "openwrt/ubus/otubus.hpp"
 
+// Custom extension: otbr-agent ubus object (independent from upstream "otbr")
+#include "openwrt/ubus/otubus_agent.hpp"
+
 #include <mutex>
 
 #include <arpa/inet.h>
@@ -1717,6 +1720,12 @@ int UbusServer::DisplayUbusInit(const char *aPath)
         return -1;
     }
 
+    // Custom extension: register "otbr-agent" ubus object
+    if (UbusAgentExt::GetInstance().RegisterObject(mContext) != 0)
+    {
+        otbrLogWarning("Ubus add otbr-agent obj failed (non-fatal)");
+    }
+
     return 0;
 }
 
@@ -1810,6 +1819,12 @@ void UBusAgent::Init(void)
     otbr::ubus::sUbusEfd = eventfd(0, 0);
 
     otbr::ubus::UbusServer::Initialize(&mHost, &mThreadMutex);
+
+    // Custom extension: initialize otbr-agent ubus object
+    otbr::ubus::UbusAgentExt::Initialize(&mHost, &mThreadMutex);
+
+    // Custom extension: register OpenThread callbacks for state/neighbor monitoring
+    otbr::ubus::UbusAgentExt::GetInstance().RegisterOtCallbacks();
 
     if (otbr::ubus::sUbusEfd == -1)
     {
