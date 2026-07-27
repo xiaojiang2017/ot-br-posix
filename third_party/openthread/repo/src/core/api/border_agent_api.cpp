@@ -38,7 +38,7 @@
 #include <openthread/border_agent.h>
 
 #include "common/as_core_type.hpp"
-#include "common/locator_getters.hpp"
+#include "instance/instance.hpp"
 
 using namespace ot;
 
@@ -56,7 +56,22 @@ otError otBorderAgentSetId(otInstance *aInstance, const otBorderAgentId *aId)
 
 otBorderAgentState otBorderAgentGetState(otInstance *aInstance)
 {
-    return MapEnum(AsCoreType(aInstance).Get<MeshCoP::BorderAgent>().GetState());
+    otBorderAgentState state = OT_BORDER_AGENT_STATE_STOPPED;
+
+    switch (AsCoreType(aInstance).Get<MeshCoP::BorderAgent>().GetState())
+    {
+    case MeshCoP::BorderAgent::kStateStopped:
+        break;
+    case MeshCoP::BorderAgent::kStateStarted:
+        state = OT_BORDER_AGENT_STATE_STARTED;
+        break;
+    case MeshCoP::BorderAgent::kStateConnected:
+    case MeshCoP::BorderAgent::kStateAccepted:
+        state = OT_BORDER_AGENT_STATE_ACTIVE;
+        break;
+    }
+
+    return state;
 }
 
 uint16_t otBorderAgentGetUdpPort(otInstance *aInstance)
@@ -94,5 +109,12 @@ void otBorderAgentSetEphemeralKeyCallback(otInstance                       *aIns
 }
 
 #endif // OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE
+
+const otBorderAgentCounters *otBorderAgentGetCounters(otInstance *aInstance)
+{
+    return AsCoreType(aInstance).Get<MeshCoP::BorderAgent>().GetCounters();
+}
+
+void otBorderAgentDisconnect(otInstance *aInstance) { AsCoreType(aInstance).Get<MeshCoP::BorderAgent>().Disconnect(); }
 
 #endif // OPENTHREAD_CONFIG_BORDER_AGENT_ENABLE

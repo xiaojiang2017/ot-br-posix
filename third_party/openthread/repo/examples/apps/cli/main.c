@@ -51,7 +51,6 @@
  * Initializes the CLI app.
  *
  * @param[in]  aInstance  The OpenThread instance structure.
- *
  */
 extern void otAppCliInit(otInstance *aInstance);
 
@@ -60,8 +59,6 @@ OT_TOOL_WEAK void *otPlatCAlloc(size_t aNum, size_t aSize) { return calloc(aNum,
 
 OT_TOOL_WEAK void otPlatFree(void *aPtr) { free(aPtr); }
 #endif
-
-void otTaskletsSignalPending(otInstance *aInstance) { OT_UNUSED_VARIABLE(aInstance); }
 
 #if OPENTHREAD_POSIX && !defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION)
 static otError ProcessExit(void *aContext, uint8_t aArgsLength, char *aArgs[])
@@ -142,7 +139,7 @@ pseudo_reset:
 #endif
 
 #if OPENTHREAD_CONFIG_PLATFORM_LOG_CRASH_DUMP_ENABLE
-    otPlatLogCrashDump();
+    IgnoreError(otPlatLogCrashDump());
 #endif
 
     while (!otSysPseudoResetWasRequested())

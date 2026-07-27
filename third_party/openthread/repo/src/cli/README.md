@@ -66,13 +66,13 @@ Done
 - [keysequence](#keysequence-counter)
 - [leaderdata](#leaderdata)
 - [leaderweight](#leaderweight)
-- [linkmetrics](#linkmetrics-mgmt-ipaddr-enhanced-ack-clear)
+- [linkmetrics](#linkmetrics-config-async-ipaddr-enhanced-ack-clear)
 - [linkmetricsmgr](#linkmetricsmgr-disable)
 - [locate](#locate)
 - [log](#log-filename-filename)
-- [mac](#mac-retries-direct)
+- [mac](#mac-altshortaddr)
 - [macfilter](#macfilter)
-- [meshdiag](#meshdiag-topology)
+- [meshdiag](#meshdiag-topology-ip6-addrs-children)
 - [mliid](#mliid-iid)
 - [mlr](#mlr-reg-ipaddr--timeout)
 - [mode](#mode)
@@ -133,6 +133,7 @@ Done
 - [vendor](#vendor-name)
 - [verhoeff](#verhoeff-calculate)
 - [version](#version)
+- [wakeup](#wakeup-channel)
 
 ## OpenThread Command Details
 
@@ -372,6 +373,15 @@ Started
 Done
 ```
 
+### ba disconnect
+
+Disconnects border agent from any active secure sessions.
+
+```bash
+> ba disconnect
+Done
+```
+
 ### ba ephemeralkey
 
 Indicates if an ephemeral key is active.
@@ -407,7 +417,7 @@ The `port` specifies the UDP port to use with the ephemeral key. If UDP port is 
 
 Setting the ephemeral key again before a previously set one is timed out, will replace the previous one.
 
-While the timeout interval is in effect, the ephemeral key can be used only once by an external commissioner to connect. Once the commissioner disconnects, the ephemeral key is cleared, and Border Agent reverts to using PSKc.
+During the timeout interval, the ephemeral key can be used only once by an external commissioner to establish a connection. After the commissioner disconnects, the ephemeral key is cleared, and the Border Agent reverts to using PSKc. If the timeout expires while a commissioner is still connected, the session will be terminated, and the Border Agent will cease using the ephemeral key and revert to PSKc.
 
 ```bash
 > ba ephemeralkey set Z10X20g3J15w1000P60m16 5000 1234
@@ -450,6 +460,33 @@ Disables callback from Border Agent for ephemeral key state changes.
 
 ```bash
 > ba ephemeralkey callback disable
+Done
+```
+
+### ba counters
+
+Get the border agent counter values.
+
+Note that it requires `OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE` to output the ePSKc counters.
+
+```bash
+> ba counters
+epskcActivation: 2
+epskcApiDeactivation: 1
+epskcTimeoutDeactivation: 1
+epskcMaxAttemptDeactivation: 0
+epskcDisconnectDeactivation: 0
+epskcInvalidBaStateError: 1
+epskcInvalidArgsError: 1
+epskcStartSecureSessionError: 0
+epskcSecureSessionSuccess: 0
+epskcSecureSessionFailure: 0
+epskcCommissionerPetition: 0
+pskcSecureSessionSuccess: 0
+pskcSecureSessionFailure: 0
+pskcCommissionerPetition: 0
+mgmtActiveGet: 0
+mgmtPendingGet: 0
 Done
 ```
 
@@ -1032,6 +1069,7 @@ Role Leader: 1
 Attach Attempts: 1
 Partition Id Changes: 1
 Better Partition Attach Attempts: 0
+Better Parent Attach Attempts: 0
 Parent Changes: 0
 Time Disabled Milli: 10026
 Time Detached Milli: 6852
@@ -1284,7 +1322,7 @@ Done
 >
 ```
 
-### dns config \[DNS server IP\] \[DNS server port\] \[response timeout (ms)\] \[max tx attempts\] \[recursion desired (boolean)\] \[service mode]
+### dns config \[DNS server IP\] \[DNS server port\] \[response timeout (ms)\] \[max tx attempts\] \[recursion desired (boolean)\] \[service mode] \[protocol]
 
 Set the default query config.
 
@@ -1322,9 +1360,28 @@ Done
 
 > dns config
 Server: [fd00:0:0:0:0:0:0:2]:53
-ResponseTimeout: 3000 ms
+ResponseTimeout: 6000 ms
 MaxTxAttempts: 3
 RecursionDesired: yes
+Nat64Mode: allow
+TransportProtocol: udp
+Done
+```
+
+This final example shows how only 'recursion desired' and the service mode are set, and all other parameters are set to their defaults:
+
+```bash
+> dns config :: 0 0 0 1 srv_txt_sep
+Done
+
+> dns config
+Server: [2001:4860:4860:0:0:0:0:8888]:53
+ResponseTimeout: 6000 ms
+MaxTxAttempts: 3
+RecursionDesired: yes
+ServiceMode: srv_txt_sep
+Nat64Mode: allow
+TransportProtocol: udp
 Done
 ```
 
@@ -1426,6 +1483,27 @@ Send a service instance resolution DNS query for a given service instance with a
 Service instance label is provided first, followed by the service name (note that service instance label can contain dot '.' character).
 
 The parameters after `service-name` are optional. Any unspecified (or zero) value for these optional parameters is replaced by the value from the current default config (`dns config`).
+
+### dns server upstream \[enable|disable\]
+
+Enable/Disable the upstream DNS feature. If no argument is provided, it prints whether the upstream DNS feature is enabled.
+
+`OPENTHREAD_CONFIG_DNS_UPSTREAM_QUERY_ENABLE` is required.
+
+Enable the upstream DNS feature.
+
+```
+> dns server upstream enable
+Done
+```
+
+Get whether the upstream DNS feature is enabled.
+
+```
+> dns server upstream
+Enabled
+Done
+```
 
 ### dns compression \[enable|disable\]
 
@@ -1767,34 +1845,6 @@ ff32:40:fdde:ad00:beef:0:0:1
 Done
 ```
 
-### ipmaddr promiscuous
-
-Get multicast promiscuous mode.
-
-```bash
-> ipmaddr promiscuous
-Disabled
-Done
-```
-
-### ipmaddr promiscuous enable
-
-Enable multicast promiscuous mode.
-
-```bash
-> ipmaddr promiscuous enable
-Done
-```
-
-### ipmaddr promiscuous disable
-
-Disable multicast promiscuous mode.
-
-```bash
-> ipmaddr promiscuous disable
-Done
-```
-
 ### ipmaddr rlatn
 
 Get the Realm-Local All Thread Nodes multicast address.
@@ -1889,23 +1939,30 @@ Set the Thread Leader Weight.
 Done
 ```
 
-### linkmetrics mgmt \<ipaddr\> enhanced-ack clear
+### linkmetrics config \[async\] \<ipaddr\> enhanced-ack clear
 
 Send a Link Metrics Management Request to clear an Enhanced-ACK Based Probing.
 
+- async: Use the non-blocking mode.
 - ipaddr: Peer address (SHOULD be link local address of the neighboring device).
 
 ```bash
-> linkmetrics mgmt fe80:0:0:0:3092:f334:1455:1ad2 enhanced-ack clear
+> linkmetrics config fe80:0:0:0:3092:f334:1455:1ad2 enhanced-ack clear
+Received Link Metrics Management Response from: fe80:0:0:0:3092:f334:1455:1ad2
+Status: Success
+Done
+
+> linkmetrics config async fe80:0:0:0:3092:f334:1455:1ad2 enhanced-ack clear
 Done
 > Received Link Metrics Management Response from: fe80:0:0:0:3092:f334:1455:1ad2
 Status: Success
 ```
 
-### linkmetrics mgmt \<ipaddr\> enhanced-ack register [qmr][r]
+### linkmetrics config \[async\] \<ipaddr\> enhanced-ack register \<qmr\> \[r\]
 
 Send a Link Metrics Management Request to register an Enhanced-ACK Based Probing.
 
+- async: Use the non-blocking mode.
 - ipaddr: Peer address.
 - qmr: This specifies what metrics to query. At most two options are allowed to select (per spec 4.11.3.4.4.6).
   - q: Layer 2 LQI.
@@ -1914,21 +1971,27 @@ Send a Link Metrics Management Request to register an Enhanced-ACK Based Probing
 - r: This is optional and only used for reference devices. When this option is specified, Type/Average Enum of each Type Id Flags would be set to `reserved`. This is used to verify the Probing Subject correctly handles invalid Type Id Flags. This is only available when `OPENTHREAD_CONFIG_REFERENCE_DEVICE_ENABLE` is enabled.
 
 ```bash
-> linkmetrics mgmt fe80:0:0:0:3092:f334:1455:1ad2 enhanced-ack register qm
+> linkmetrics config fe80:0:0:0:3092:f334:1455:1ad2 enhanced-ack register qm
+Received Link Metrics Management Response from: fe80:0:0:0:3092:f334:1455:1ad2
+Status: Success
+Done
+
+> linkmetrics config async fe80:0:0:0:3092:f334:1455:1ad2 enhanced-ack register qm
 Done
 > Received Link Metrics Management Response from: fe80:0:0:0:3092:f334:1455:1ad2
 Status: Success
 
-> linkmetrics mgmt fe80:0:0:0:3092:f334:1455:1ad2 enhanced-ack register qm r
+> linkmetrics config async fe80:0:0:0:3092:f334:1455:1ad2 enhanced-ack register qm r
 Done
 > Received Link Metrics Management Response from: fe80:0:0:0:3092:f334:1455:1ad2
 Status: Cannot support new series
 ```
 
-### linkmetrics mgmt \<ipaddr\> forward \<seriesid\> [ldraX][pqmr]
+### linkmetrics config \[async\] \<ipaddr\> forward \<seriesid\> \<ldraX\> \<pqmr\>
 
 Send a Link Metrics Management Request to configure a Forward Tracking Series.
 
+- async: Use the non-blocking mode.
 - ipaddr: Peer address.
 - seriesid: The Series ID.
 - ldraX: This specifies which frames are to be accounted.
@@ -1944,7 +2007,12 @@ Send a Link Metrics Management Request to configure a Forward Tracking Series.
   - r: RSSI.
 
 ```bash
-> linkmetrics mgmt fe80:0:0:0:3092:f334:1455:1ad2 forward 1 dra pqmr
+> linkmetrics config fe80:0:0:0:3092:f334:1455:1ad2 forward 1 dra pqmr
+Received Link Metrics Management Response from: fe80:0:0:0:3092:f334:1455:1ad2
+Status: SUCCESS
+Done
+
+> linkmetrics config async fe80:0:0:0:3092:f334:1455:1ad2 forward 1 dra pqmr
 Done
 > Received Link Metrics Management Response from: fe80:0:0:0:3092:f334:1455:1ad2
 Status: SUCCESS
@@ -1963,19 +2031,28 @@ Send a MLE Link Probe message to the peer.
 Done
 ```
 
-### linkmetrics query \<ipaddr\> single [pqmr]
+### linkmetrics request \[async\] \<ipaddr\> single \<pqmr\>
 
 Perform a Link Metrics query (Single Probe).
 
+- async: Use the non-blocking mode.
 - ipaddr: Peer address.
 - pqmr: This specifies what metrics to query.
-- p: Layer 2 Number of PDUs received.
-- q: Layer 2 LQI.
-- m: Link Margin.
-- r: RSSI.
+  - p: Layer 2 Number of PDUs received.
+  - q: Layer 2 LQI.
+  - m: Link Margin.
+  - r: RSSI.
 
 ```bash
-> linkmetrics query fe80:0:0:0:3092:f334:1455:1ad2 single qmr
+> linkmetrics request fe80:0:0:0:3092:f334:1455:1ad2 single qmr
+Received Link Metrics Report from: fe80:0:0:0:3092:f334:1455:1ad2
+
+ - LQI: 76 (Exponential Moving Average)
+ - Margin: 82 (dB) (Exponential Moving Average)
+ - RSSI: -18 (dBm) (Exponential Moving Average)
+Done
+
+> linkmetrics request async fe80:0:0:0:3092:f334:1455:1ad2 single qmr
 Done
 > Received Link Metrics Report from: fe80:0:0:0:3092:f334:1455:1ad2
 
@@ -1984,15 +2061,25 @@ Done
  - RSSI: -18 (dBm) (Exponential Moving Average)
 ```
 
-### linkmetrics query \<ipaddr\> forward \<seriesid\>
+### linkmetrics request \[async\] \<ipaddr\> forward \<seriesid\>
 
 Perform a Link Metrics query (Forward Tracking Series).
 
+- sync: Use the blocking mode.
 - ipaddr: Peer address.
 - seriesid: The Series ID.
 
 ```bash
-> linkmetrics query fe80:0:0:0:3092:f334:1455:1ad2 forward 1
+> linkmetrics request fe80:0:0:0:3092:f334:1455:1ad2 forward 1
+Received Link Metrics Report from: fe80:0:0:0:3092:f334:1455:1ad2
+
+ - PDU Counter: 2 (Count/Summation)
+ - LQI: 76 (Exponential Moving Average)
+ - Margin: 82 (dB) (Exponential Moving Average)
+ - RSSI: -18 (dBm) (Exponential Moving Average)
+Done
+
+> linkmetrics request async fe80:0:0:0:3092:f334:1455:1ad2 forward 1
 Done
 > Received Link Metrics Report from: fe80:0:0:0:3092:f334:1455:1ad2
 
@@ -2117,7 +2204,7 @@ Set the log level.
 Done
 ```
 
-### meshdiag topology [ip6-addrs][children]
+### meshdiag topology \[ip6-addrs\] \[children\]
 
 Discover network topology (list of routers and their connections).
 
@@ -3533,13 +3620,13 @@ Done
 
 Module for controlling service registration in Network Data. Each change in service registration must be sent to leader by `netdata register` command before taking effect.
 
-### service add \<enterpriseNumber\> \<serviceData\> \<serverData\>
+### service add \<enterpriseNumber\> \<serviceData\> [\<serverData\>]
 
 Add service to the Network Data.
 
 - enterpriseNumber: IANA enterprise number
 - serviceData: hex-encoded binary service data
-- serverData: hex-encoded binary server data
+- serverData: hex-encoded binary server data (empty if not provided)
 
 ```bash
 > service add 44970 112233 aabbcc
@@ -3601,12 +3688,45 @@ offline, disabled, detached, child, router or leader
 Done
 ```
 
-### state <state>
+### state leader
 
-Try to switch to state `detached`, `child`, `router` or `leader`.
+Become a leader and start a new partition
+
+If the device is not attached, this command will force the device to start as the leader of the network. This use case is only intended for testing and demo purposes, and using the API while the device is detached can make a production application non-compliant with the Thread Specification.
+
+If the device is already attached, this API can be used to try to take over as the leader, creating a new partition. For this to work, the local leader weight (`leaderweight`) must be larger than the weight of the current leader (from `leaderdata`). If it is not, error `NotCapable` is outputted to indicate to the caller that they need to adjust the weight.
+
+Taking over the leader role in this way is only allowed when triggered by an explicit user action. Using this API without such user action can make a production application non-compliant with the Thread Specification.
 
 ```bash
+> leaderdata
+Partition ID: 1886755069
+Weighting: 65
+Data Version: 178
+Stable Data Version: 48
+Leader Router ID: 59
+Done
+
+> leaderweight
+64
+Done
+
 > state leader
+Error 27: NotCapable
+
+> leaderweight 66
+Done
+
+> state leader
+Done
+```
+
+### state <state>
+
+Try to switch to state `detached`, `child`, `router`.
+
+```bash
+> state detached
 Done
 ```
 
@@ -3839,6 +3959,36 @@ Done
 Done
 ```
 
+### trel counters
+
+Get the TREL counters.
+
+```bash
+> trel counters
+Inbound:  Packets 32 Bytes 4000
+Outbound: Packets 4 Bytes 320 Failures 1
+Done
+```
+
+### trel counters reset
+
+Reset the TREL counters.
+
+```bash
+> trel counters reset
+Done
+```
+
+### trel port
+
+Get the TREL UDP port number.
+
+```bash
+> trel port
+49154
+Done
+```
+
 ### tvcheck enable
 
 Enable thread version check when upgrading to router or leader.
@@ -4047,6 +4197,16 @@ Print API version number.
 Done
 ```
 
+### mac altshortaddr
+
+Get the alternate short address used by MAC layer. Can be `0xfffe` if not set.
+
+```bash
+> mac altshortaddr
+0x4801
+Done
+```
+
 ### mac retries direct
 
 Get the number of direct TX retries on the MAC layer.
@@ -4252,3 +4412,84 @@ Done
 Factory Diagnostics module is enabled only when building OpenThread with `OPENTHREAD_CONFIG_DIAG_ENABLE=1` option. Go [diagnostics module][diag] for more information.
 
 [diag]: ../../src/core/diags/README.md
+
+### wakeup channel
+
+Get the wake-up channel.
+
+Requires `OPENTHREAD_CONFIG_WAKEUP_COORDINATOR_ENABLE` or `OPENTHREAD_CONFIG_WAKEUP_END_DEVICE_ENABLE`.
+
+```bash
+> wakeup channel
+12
+Done
+```
+
+### wakeup channel \<channel\>
+
+Set the wake-up channel.
+
+Requires `OPENTHREAD_CONFIG_WAKEUP_COORDINATOR_ENABLE` or `OPENTHREAD_CONFIG_WAKEUP_END_DEVICE_ENABLE`.
+
+```bash
+> wakeup channel 12
+Done
+```
+
+### wakeup parameters
+
+Get the wake-up listen interval and duration.
+
+Requires `OPENTHREAD_CONFIG_WAKEUP_END_DEVICE_ENABLE`.
+
+```bash
+> wakeup parameters
+interval: 1000000us
+duration: 8000us
+Done
+```
+
+### wakeup parameters \<interval\> \<duration\>
+
+Set the wake-up listen interval and duration.
+
+Requires `OPENTHREAD_CONFIG_WAKEUP_END_DEVICE_ENABLE`.
+
+```bash
+> wakeup parameters 1000000 8000
+Done
+```
+
+### wakeup listen
+
+Show the state of wake-up listening feature.
+
+`OPENTHREAD_CONFIG_WAKEUP_END_DEVICE_ENABLE` is required.
+
+```bash
+> wakeup listen
+Enabled
+Done
+```
+
+### wakeup listen \[enable|disable\]
+
+Enable/disable listening for wake-up frames.
+
+`OPENTHREAD_CONFIG_WAKEUP_END_DEVICE_ENABLE` is required.
+
+```bash
+> wakeup listen enable
+Done
+```
+
+### wakeup wake \<extaddr\> \<wakeup-interval\> \<wakeup-duration\>
+
+Wakes a Wake-up End Device.
+
+`OPENTHREAD_CONFIG_WAKEUP_COORDINATOR_ENABLE` is required.
+
+```bash
+> wakeup wake 1ece0a6c4653a7c1 7500 1090
+Done
+```

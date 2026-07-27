@@ -40,7 +40,7 @@
 
 #include "common/as_core_type.hpp"
 #include "common/code_utils.hpp"
-#include "common/locator_getters.hpp"
+#include "instance/instance.hpp"
 #include "meshcop/tcat_agent.hpp"
 #include "radio/ble_secure.hpp"
 
@@ -55,9 +55,14 @@ otError otBleSecureStart(otInstance              *aInstance,
     return AsCoreType(aInstance).Get<Ble::BleSecure>().Start(aConnectHandler, aReceiveHandler, aTlvMode, aContext);
 }
 
-otError otBleSecureTcatStart(otInstance *aInstance, const otTcatVendorInfo *aVendorInfo, otHandleTcatJoin aHandler)
+otError otBleSecureSetTcatVendorInfo(otInstance *aInstance, const otTcatVendorInfo *aVendorInfo)
 {
-    return AsCoreType(aInstance).Get<Ble::BleSecure>().TcatStart(AsCoreType(aVendorInfo), aHandler);
+    return AsCoreType(aInstance).Get<Ble::BleSecure>().TcatSetVendorInfo(AsCoreType(aVendorInfo));
+}
+
+otError otBleSecureTcatStart(otInstance *aInstance, otHandleTcatJoin aHandler)
+{
+    return AsCoreType(aInstance).Get<Ble::BleSecure>().TcatStart(aHandler);
 }
 
 void otBleSecureStop(otInstance *aInstance) { AsCoreType(aInstance).Get<Ble::BleSecure>().Stop(); }
@@ -180,5 +185,10 @@ otError otBleSecureSendApplicationTlv(otInstance *aInstance, uint8_t *aBuf, uint
 }
 
 otError otBleSecureFlush(otInstance *aInstance) { return AsCoreType(aInstance).Get<Ble::BleSecure>().Flush(); }
+
+bool otBleSecureGetInstallCodeVerifyStatus(otInstance *aInstance)
+{
+    return AsCoreType(aInstance).Get<Ble::BleSecure>().GetInstallCodeVerifyStatus();
+}
 
 #endif // OPENTHREAD_CONFIG_BLE_TCAT_ENABLE

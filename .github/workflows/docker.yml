@@ -36,28 +36,19 @@ on:
     branches:
       - 'main'
 
-jobs:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || (github.repository == 'openthread/ot-br-posix' && github.run_id) || github.ref }}
+  cancel-in-progress: true
 
-  cancel-previous-runs:
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: rokroskar/workflow-run-cleanup-action@master
-      env:
-        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-      if: "github.ref != 'refs/heads/main'"
+jobs:
 
   docker-check:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        rcp_bus: ["UART", "SPI"]
     env:
-      OT_POSIX_CONFIG_RCP_BUS: ${{matrix.rcp_bus}}
       OTBR_COVERAGE: 1
       VERBOSE: 1
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - name: Bootstrap
@@ -83,8 +74,8 @@ jobs:
             build_args: ""
             platforms: "linux/amd64,linux/arm64"
             push: yes
-          - image_tag: "hirsute"
-            base_image: "ubuntu:hirsute"
+          - image_tag: "jammy"
+            base_image: "ubuntu:jammy"
             build_args: ""
             platforms: "linux/amd64,linux/arm64"
             push: yes
@@ -110,7 +101,7 @@ jobs:
             platforms: "linux/amd64,linux/arm/v7,linux/arm64"
             push: no
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         submodules: true
 
@@ -123,23 +114,23 @@ jobs:
 
         TAGS="--tag ${DOCKER_IMAGE}:${VERSION}"
 
-        echo ::set-output name=docker_image::${DOCKER_IMAGE}
-        echo ::set-output name=version::${VERSION}
-        echo ::set-output name=buildx_args::"--platform ${DOCKER_PLATFORMS} \
+        echo "docker_image=${DOCKER_IMAGE}" >> $GITHUB_OUTPUT
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        echo "buildx_args=--platform ${DOCKER_PLATFORMS} \
           --build-arg BASE_IMAGE=${{ matrix.base_image }} \
           --build-arg VERSION=${VERSION} \
           --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
           --build-arg VCS_REF=${GITHUB_SHA::8} \
           ${{ matrix.build_args }} \
-          ${TAGS} --file etc/docker/Dockerfile ."
+          ${TAGS} --file etc/docker/Dockerfile ." >> $GITHUB_OUTPUT
 
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
+      uses: docker/setup-qemu-action@v3
       with:
         platforms: all
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      uses: docker/setup-buildx-action@v3
 
     - name: Docker Buildx (build)
       run: |
@@ -147,7 +138,7 @@ jobs:
 
     - name: Login to DockerHub
       if: success() && github.repository == 'openthread/ot-br-posix' && github.event_name != 'pull_request' && matrix.push
-      uses: docker/login-action@v1
+      uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}

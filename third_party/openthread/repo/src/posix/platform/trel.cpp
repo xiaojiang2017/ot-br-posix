@@ -43,6 +43,7 @@
 #include <unistd.h>
 
 #include <openthread/logging.h>
+#include <openthread/openthread-system.h>
 #include <openthread/platform/trel.h>
 
 #include "logger.hpp"
@@ -473,9 +474,7 @@ void otPlatTrelEnable(otInstance *aInstance, uint16_t *aUdpPort)
 
     VerifyOrExit(!IsSystemDryRun());
 
-    assert(sInitialized);
-
-    VerifyOrExit(!sEnabled);
+    VerifyOrExit(sInitialized && !sEnabled);
 
     PrepareSocket(*aUdpPort);
     trelDnssdStartBrowse();
@@ -492,8 +491,7 @@ void otPlatTrelDisable(otInstance *aInstance)
 
     VerifyOrExit(!IsSystemDryRun());
 
-    assert(sInitialized);
-    VerifyOrExit(sEnabled);
+    VerifyOrExit(sInitialized && sEnabled);
 
     close(sSocket);
     sSocket = -1;
@@ -540,6 +538,8 @@ void otPlatTrelRegisterService(otInstance *aInstance, uint16_t aPort, const uint
     OT_UNUSED_VARIABLE(aInstance);
     VerifyOrExit(!IsSystemDryRun());
 
+    VerifyOrExit(sEnabled);
+
     trelDnssdRegisterService(aPort, aTxtData, aTxtLength);
 
 exit:
@@ -561,10 +561,7 @@ void otPlatTrelResetCounters(otInstance *aInstance)
     ResetCounters();
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-// platformTrel system
-
-void platformTrelInit(const char *aTrelUrl)
+void otSysTrelInit(const char *aInterfaceName)
 {
     // To silence "unused function" warning.
     (void)LogCrit;
@@ -573,17 +570,12 @@ void platformTrelInit(const char *aTrelUrl)
     (void)LogNote;
     (void)LogDebg;
 
-    LogDebg("platformTrelInit(aTrelUrl:\"%s\")", aTrelUrl != nullptr ? aTrelUrl : "");
+    LogDebg("otSysTrelInit(aInterfaceName:\"%s\")", aInterfaceName != nullptr ? aInterfaceName : "");
 
-    assert(!sInitialized);
+    VerifyOrExit(!sInitialized && !sEnabled && aInterfaceName != nullptr);
 
-    if (aTrelUrl != nullptr)
-    {
-        ot::Posix::RadioUrl url(aTrelUrl);
-
-        strncpy(sInterfaceName, url.GetPath(), sizeof(sInterfaceName) - 1);
-        sInterfaceName[sizeof(sInterfaceName) - 1] = '\0';
-    }
+    strncpy(sInterfaceName, aInterfaceName, sizeof(sInterfaceName) - 1);
+    sInterfaceName[sizeof(sInterfaceName) - 1] = '\0';
 
     trelDnssdInitialize(sInterfaceName);
 
@@ -591,13 +583,32 @@ void platformTrelInit(const char *aTrelUrl)
     sInitialized = true;
 
     ResetCounters();
+
+exit:
+    return;
+}
+
+void otSysTrelDeinit(void) { platformTrelDeinit(); }
+
+//---------------------------------------------------------------------------------------------------------------------
+// platformTrel system
+
+void platformTrelInit(const char *aTrelUrl)
+{
+    LogDebg("platformTrelInit(aTrelUrl:\"%s\")", aTrelUrl != nullptr ? aTrelUrl : "");
+
+    if (aTrelUrl != nullptr)
+    {
+        ot::Posix::RadioUrl url(aTrelUrl);
+
+        otSysTrelInit(url.GetPath());
+    }
 }
 
 void platformTrelDeinit(void)
 {
-    VerifyOrExit(sInitialized);
+    VerifyOrExit(sInitialized && !sEnabled);
 
-    otPlatTrelDisable(nullptr);
     sInterfaceName[0] = '\0';
     sInitialized      = false;
     LogDebg("platformTrelDeinit()");

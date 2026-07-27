@@ -33,10 +33,7 @@
 
 #include "openthread-core-config.h"
 
-#include <openthread/udp.h>
-
-#include "common/as_core_type.hpp"
-#include "common/locator_getters.hpp"
+#include "instance/instance.hpp"
 
 using namespace ot;
 
@@ -98,7 +95,7 @@ void otUdpForwardReceive(otInstance         *aInstance,
 {
     Ip6::MessageInfo messageInfo;
 
-    messageInfo.SetSockAddr(AsCoreType(aInstance).Get<Mle::MleRouter>().GetMeshLocal16());
+    messageInfo.SetSockAddr(AsCoreType(aInstance).Get<Mle::MleRouter>().GetMeshLocalRloc());
     messageInfo.SetSockPort(aSockPort);
     messageInfo.SetPeerAddr(AsCoreType(aPeerAddr));
     messageInfo.SetPeerPort(aPeerPort);

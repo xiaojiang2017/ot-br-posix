@@ -35,22 +35,7 @@
 
 #if OPENTHREAD_CONFIG_JOINER_ENABLE
 
-#include <stdio.h>
-
-#include "common/array.hpp"
-#include "common/as_core_type.hpp"
-#include "common/code_utils.hpp"
-#include "common/debug.hpp"
-#include "common/encoding.hpp"
-#include "common/locator_getters.hpp"
-#include "common/log.hpp"
-#include "common/string.hpp"
 #include "instance/instance.hpp"
-#include "meshcop/meshcop.hpp"
-#include "radio/radio.hpp"
-#include "thread/thread_netif.hpp"
-#include "thread/uri_paths.hpp"
-#include "utils/otns.hpp"
 
 namespace ot {
 namespace MeshCoP {
@@ -382,16 +367,16 @@ exit:
     return error;
 }
 
-void Joiner::HandleSecureCoapClientConnect(bool aConnected, void *aContext)
+void Joiner::HandleSecureCoapClientConnect(SecureTransport::ConnectEvent aEvent, void *aContext)
 {
-    static_cast<Joiner *>(aContext)->HandleSecureCoapClientConnect(aConnected);
+    static_cast<Joiner *>(aContext)->HandleSecureCoapClientConnect(aEvent);
 }
 
-void Joiner::HandleSecureCoapClientConnect(bool aConnected)
+void Joiner::HandleSecureCoapClientConnect(SecureTransport::ConnectEvent aEvent)
 {
     VerifyOrExit(mState == kStateConnect);
 
-    if (aConnected)
+    if (aEvent == SecureTransport::kConnected)
     {
         SetState(kStateConnected);
         SendJoinerFinalize();
@@ -533,7 +518,7 @@ template <> void Joiner::HandleTmf<kUriJoinerEntrust>(Coap::Message &aMessage, c
     datasetInfo.Set<Dataset::kChannel>(Get<Mac::Mac>().GetPanChannel());
     datasetInfo.Set<Dataset::kPanId>(Get<Mac::Mac>().GetPanId());
 
-    IgnoreError(Get<ActiveDatasetManager>().Save(datasetInfo));
+    Get<ActiveDatasetManager>().SaveLocal(datasetInfo);
 
     LogInfo("Joiner successful!");
 
@@ -612,12 +597,16 @@ const char *Joiner::StateToString(State aState)
         "Joined",     // (5) kStateJoined
     };
 
-    static_assert(kStateIdle == 0, "kStateIdle value is incorrect");
-    static_assert(kStateDiscover == 1, "kStateDiscover value is incorrect");
-    static_assert(kStateConnect == 2, "kStateConnect value is incorrect");
-    static_assert(kStateConnected == 3, "kStateConnected value is incorrect");
-    static_assert(kStateEntrust == 4, "kStateEntrust value is incorrect");
-    static_assert(kStateJoined == 5, "kStateJoined value is incorrect");
+    struct EnumCheck
+    {
+        InitEnumValidatorCounter();
+        ValidateNextEnum(kStateIdle);
+        ValidateNextEnum(kStateDiscover);
+        ValidateNextEnum(kStateConnect);
+        ValidateNextEnum(kStateConnected);
+        ValidateNextEnum(kStateEntrust);
+        ValidateNextEnum(kStateJoined);
+    };
 
     return kStateStrings[aState];
 }

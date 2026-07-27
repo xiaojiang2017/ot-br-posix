@@ -34,14 +34,8 @@
 
 #include "meshcop.hpp"
 
-#include "common/clearable.hpp"
 #include "common/crc16.hpp"
-#include "common/debug.hpp"
-#include "common/locator_getters.hpp"
-#include "common/string.hpp"
-#include "crypto/sha256.hpp"
-#include "mac/mac_types.hpp"
-#include "thread/thread_netif.hpp"
+#include "instance/instance.hpp"
 
 namespace ot {
 
@@ -95,7 +89,7 @@ bool JoinerPskd::IsPskdValid(const char *aPskdString)
     {
         char c = aPskdString[i];
 
-        VerifyOrExit(isdigit(c) || isupper(c));
+        VerifyOrExit(IsDigit(c) || IsUppercase(c));
         VerifyOrExit(c != 'I' && c != 'O' && c != 'Q' && c != 'Z');
     }
 

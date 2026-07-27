@@ -36,7 +36,6 @@
 #include <openthread/platform/misc.h>
 
 #include "common/new.hpp"
-#include "radio/trel_link.hpp"
 #include "utils/heap.hpp"
 
 namespace ot {
@@ -222,7 +221,7 @@ Instance::Instance(void)
     , mApplicationCoap(*this)
 #endif
 #if OPENTHREAD_CONFIG_COAP_SECURE_API_ENABLE
-    , mApplicationCoapSecure(*this, /* aLayerTwoSecurity */ true)
+    , mApplicationCoapSecure(*this, kWithLinkSecurity)
 #endif
 #if OPENTHREAD_CONFIG_BLE_TCAT_ENABLE
     , mApplicationBleSecure(*this)
@@ -234,8 +233,7 @@ Instance::Instance(void)
     , mChannelMonitor(*this)
 #endif
 #if OPENTHREAD_CONFIG_CHANNEL_MANAGER_ENABLE && \
-    (OPENTHREAD_FTD ||                          \
-     (OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE && OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE))
+    (OPENTHREAD_FTD || OPENTHREAD_CONFIG_CHANNEL_MANAGER_CSL_CHANNEL_SELECT_ENABLE)
     , mChannelManager(*this)
 #endif
 #if OPENTHREAD_CONFIG_MESH_DIAG_ENABLE && OPENTHREAD_FTD

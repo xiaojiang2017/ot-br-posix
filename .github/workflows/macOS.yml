@@ -36,27 +36,32 @@ on:
     branches:
       - 'main'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || (github.repository == 'openthread/ot-br-posix' && github.run_id) || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-
-  cancel-previous-runs:
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: rokroskar/workflow-run-cleanup-action@master
-      env:
-        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-      if: "github.ref != 'refs/heads/main'"
-
   build-check:
-    runs-on: macos-10.15
+    runs-on: macos-14
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - name: Bootstrap
       run: |
-        rm -f '/usr/local/bin/2to3'
+        rm -f /usr/local/bin/2to3*
+        rm -f /usr/local/bin/idle3*
+        rm -f /usr/local/bin/pydoc3*
+        rm -f /usr/local/bin/python3*
         brew update
-        brew reinstall boost cmake cpputest dbus jsoncpp ninja
+        brew unlink pkg-config
+        brew reinstall boost cmake dbus jsoncpp ninja protobuf@21 pkg-config
     - name: Build
       run: |
-        OTBR_OPTIONS='-DOTBR_BORDER_AGENT=OFF -DOTBR_MDNS=OFF -DOT_FIREWALL=OFF -DOTBR_DBUS=OFF' ./script/test build
+        OTBR_OPTIONS="-DOTBR_BORDER_AGENT=OFF \
+                      -DOTBR_MDNS=OFF \
+                      -DOTBR_SRP_ADVERTISING_PROXY=OFF \
+                      -DOTBR_DNSSD_DISCOVERY_PROXY=OFF \
+                      -DOTBR_TREL=OFF \
+                      -DOT_FIREWALL=OFF \
+                      -DOTBR_DBUS=OFF" ./script/test build

@@ -40,6 +40,7 @@
 
 #include <stdarg.h>
 
+#include <openthread/border_agent.h>
 #include <openthread/cli.h>
 #include <openthread/dataset.h>
 #include <openthread/dns_client.h>
@@ -51,15 +52,15 @@
 #include <openthread/netdata.h>
 #include <openthread/ping_sender.h>
 #include <openthread/sntp.h>
-#if OPENTHREAD_CONFIG_TCP_ENABLE && OPENTHREAD_CONFIG_CLI_TCP_ENABLE
 #include <openthread/tcp.h>
-#endif
 #include <openthread/thread.h>
 #include <openthread/thread_ftd.h>
 #include <openthread/udp.h>
 
 #include "cli/cli_bbr.hpp"
 #include "cli/cli_br.hpp"
+#include "cli/cli_coap.hpp"
+#include "cli/cli_coap_secure.hpp"
 #include "cli/cli_commissioner.hpp"
 #include "cli/cli_config.h"
 #include "cli/cli_dataset.hpp"
@@ -77,12 +78,6 @@
 #include "cli/cli_tcp.hpp"
 #include "cli/cli_udp.hpp"
 #include "cli/cli_utils.hpp"
-#if OPENTHREAD_CONFIG_COAP_API_ENABLE
-#include "cli/cli_coap.hpp"
-#endif
-#if OPENTHREAD_CONFIG_COAP_SECURE_API_ENABLE
-#include "cli/cli_coap_secure.hpp"
-#endif
 
 #include "common/array.hpp"
 #include "common/code_utils.hpp"
@@ -97,7 +92,6 @@ namespace ot {
  *
  * @brief
  *   This namespace contains definitions for the CLI interpreter.
- *
  */
 namespace Cli {
 
@@ -108,7 +102,6 @@ extern "C" void otCliOutputFormat(const char *aFmt, ...);
 
 /**
  * Implements the CLI interpreter.
- *
  */
 class Interpreter : public OutputImplementer, public Utils
 {
@@ -144,7 +137,6 @@ public:
      * Returns a reference to the interpreter object.
      *
      * @returns A reference to the interpreter object.
-     *
      */
     static Interpreter &GetInterpreter(void)
     {
@@ -159,7 +151,6 @@ public:
      * @param[in]  aInstance  The OpenThread instance structure.
      * @param[in]  aCallback  A pointer to a callback method.
      * @param[in]  aContext   A pointer to a user context.
-     *
      */
     static void Initialize(otInstance *aInstance, otCliOutputCallback aCallback, void *aContext);
 
@@ -167,7 +158,6 @@ public:
      * Returns whether the interpreter is initialized.
      *
      * @returns  Whether the interpreter is initialized.
-     *
      */
     static bool IsInitialized(void) { return sInterpreter != nullptr; }
 
@@ -175,7 +165,6 @@ public:
      * Interprets a CLI command.
      *
      * @param[in]  aBuf        A pointer to a string.
-     *
      */
     void ProcessLine(char *aBuf);
 
@@ -320,9 +309,12 @@ private:
     void HandleSntpResponse(uint64_t aTime, otError aResult);
 #endif
 
-#if OPENTHREAD_CONFIG_BORDER_AGENT_ENABLE && OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE
+#if OPENTHREAD_CONFIG_BORDER_AGENT_ENABLE
+    void OutputBorderAgentCounters(const otBorderAgentCounters &aCounters);
+#if OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE
     static void HandleBorderAgentEphemeralKeyStateChange(void *aContext);
     void        HandleBorderAgentEphemeralKeyStateChange(void);
+#endif
 #endif
 
     static void HandleDetachGracefullyResult(void *aContext);
@@ -337,7 +329,17 @@ private:
     static void HandleIp6Receive(otMessage *aMessage, void *aContext);
 #endif
 
+#if OPENTHREAD_CONFIG_WAKEUP_COORDINATOR_ENABLE
+    static void HandleWakeupResult(otError aError, void *aContext);
+    void        HandleWakeupResult(otError aError);
+#endif
+
 #endif // OPENTHREAD_FTD || OPENTHREAD_MTD
+
+#if OPENTHREAD_CONFIG_DIAG_ENABLE
+    static void HandleDiagOutput(const char *aFormat, va_list aArguments, void *aContext);
+    void        HandleDiagOutput(const char *aFormat, va_list aArguments);
+#endif
 
     void SetCommandTimeout(uint32_t aTimeoutMilli);
 

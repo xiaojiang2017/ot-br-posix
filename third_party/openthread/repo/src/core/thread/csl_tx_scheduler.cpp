@@ -30,10 +30,7 @@
 
 #if OPENTHREAD_FTD && OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
 
-#include "common/locator_getters.hpp"
-#include "common/log.hpp"
-#include "common/time.hpp"
-#include "mac/mac.hpp"
+#include "instance/instance.hpp"
 
 namespace ot {
 
@@ -68,16 +65,20 @@ CslTxScheduler::CslTxScheduler(Instance &aInstance)
     , mFrameContext()
     , mCallbacks(aInstance)
 {
-    InitFrameRequestAhead();
+    UpdateFrameRequestAhead();
 }
 
-void CslTxScheduler::InitFrameRequestAhead(void)
+void CslTxScheduler::UpdateFrameRequestAhead(void)
 {
     uint32_t busSpeedHz = otPlatRadioGetBusSpeed(&GetInstance());
+    uint32_t busLatency = otPlatRadioGetBusLatency(&GetInstance());
+
     // longest frame on bus is 127 bytes with some metadata, use 150 bytes for bus Tx time estimation
     uint32_t busTxTimeUs = ((busSpeedHz == 0) ? 0 : (150 * 8 * 1000000 + busSpeedHz - 1) / busSpeedHz);
 
-    mCslFrameRequestAheadUs = OPENTHREAD_CONFIG_MAC_CSL_REQUEST_AHEAD_US + busTxTimeUs;
+    mCslFrameRequestAheadUs = OPENTHREAD_CONFIG_MAC_CSL_REQUEST_AHEAD_US + busTxTimeUs + busLatency;
+    LogInfo("Bus TX Time: %lu usec, Latency: %lu usec. Calculated CSL Frame Request Ahead: %lu usec",
+            ToUlong(busTxTimeUs), ToUlong(busLatency), ToUlong(mCslFrameRequestAheadUs));
 }
 
 void CslTxScheduler::Update(void)
@@ -118,7 +119,6 @@ void CslTxScheduler::Clear(void)
  * Always finds the most recent CSL tx among all children,
  * and requests `Mac` to do CSL tx at specific time. It shouldn't be called
  * when `Mac` is already starting to do the CSL tx (indicated by `mCslTxMessage`).
- *
  */
 void CslTxScheduler::RescheduleCslTx(void)
 {
@@ -156,7 +156,7 @@ uint32_t CslTxScheduler::GetNextCslTransmissionDelay(const Child &aChild,
                                                      uint32_t    &aDelayFromLastRx,
                                                      uint32_t     aAheadUs) const
 {
-    uint64_t radioNow   = otPlatRadioGetNow(&GetInstance());
+    uint64_t radioNow   = Get<Radio>().GetNow();
     uint32_t periodInUs = aChild.GetCslPeriod() * kUsPerTenSymbols;
 
     /* see CslTxScheduler::ChildInfo::mCslPhase */

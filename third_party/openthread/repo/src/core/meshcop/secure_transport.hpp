@@ -48,7 +48,9 @@
 
 #include <mbedtls/net_sockets.h>
 #include <mbedtls/ssl.h>
+#if defined(MBEDTLS_SSL_SRV_C) && defined(MBEDTLS_SSL_COOKIE_C)
 #include <mbedtls/ssl_cookie.h>
+#endif
 #include <mbedtls/version.h>
 
 #if OPENTHREAD_CONFIG_BLE_TCAT_ENABLE
@@ -69,6 +71,8 @@
 #endif
 #endif
 
+#include <openthread/coap_secure.h>
+
 #include "common/callback.hpp"
 #include "common/locator.hpp"
 #include "common/log.hpp"
@@ -87,26 +91,20 @@ namespace MeshCoP {
 class SecureTransport : public InstanceLocator
 {
 public:
+    typedef otCoapSecureConnectEvent ConnectEvent; ///< A connect event.
+
+    static constexpr ConnectEvent kConnected               = OT_COAP_SECURE_CONNECTED;
+    static constexpr ConnectEvent kDisconnectedPeerClosed  = OT_COAP_SECURE_DISCONNECTED_PEER_CLOSED;
+    static constexpr ConnectEvent kDisconnectedLocalClosed = OT_COAP_SECURE_DISCONNECTED_LOCAL_CLOSED;
+    static constexpr ConnectEvent kDisconnectedMaxAttempts = OT_COAP_SECURE_DISCONNECTED_MAX_ATTEMPTS;
+    static constexpr ConnectEvent kDisconnectedError       = OT_COAP_SECURE_DISCONNECTED_ERROR;
+
     static constexpr uint8_t kPskMaxLength = 32; ///< Maximum PSK length.
 
     /**
-     * Initializes the SecureTransport object.
-     *
-     * @param[in]  aInstance            A reference to the OpenThread instance.
-     * @param[in]  aLayerTwoSecurity    Specifies whether to use layer two security or not.
-     * @param[in]  aDatagramTransport   Specifies if dtls of tls connection should be used.
-     *
+     * Function pointer which is called reporting a connection event (when connection established or disconnected)
      */
-    explicit SecureTransport(Instance &aInstance, bool aLayerTwoSecurity, bool aDatagramTransport = true);
-
-    /**
-     * Pointer is called when a connection is established or torn down.
-     *
-     * @param[in]  aContext    A pointer to application-specific context.
-     * @param[in]  aConnected  TRUE if a connection was established, FALSE otherwise.
-     *
-     */
-    typedef void (*ConnectedHandler)(void *aContext, bool aConnected);
+    typedef otHandleCoapSecureClientConnect ConnectedHandler;
 
     /**
      * Pointer is called when data is received from the session.
@@ -114,7 +112,6 @@ public:
      * @param[in]  aContext  A pointer to application-specific context.
      * @param[in]  aBuf      A pointer to the received data buffer.
      * @param[in]  aLength   Number of bytes in the received data buffer.
-     *
      */
     typedef void (*ReceiveHandler)(void *aContext, uint8_t *aBuf, uint16_t aLength);
 
@@ -124,7 +121,6 @@ public:
      * @param[in]  aContext      A pointer to arbitrary context information.
      * @param[in]  aMessage      A reference to the message to send.
      * @param[in]  aMessageInfo  A reference to the message info associated with @p aMessage.
-     *
      */
     typedef Error (*TransportCallback)(void *aContext, ot::Message &aMessage, const Ip6::MessageInfo &aMessageInfo);
 
@@ -133,9 +129,17 @@ public:
      * attempts (set from `SetMaxConnectionAttempts()`).
      *
      * @param[in] aContext    A pointer to arbitrary context information.
-     *
      */
     typedef void (*AutoCloseCallback)(void *aContext);
+
+    /**
+     * Initializes the SecureTransport object.
+     *
+     * @param[in]  aInstance            A reference to the OpenThread instance.
+     * @param[in]  aLayerTwoSecurity    Specifies whether to use layer two security or not.
+     * @param[in]  aDatagramTransport   Specifies if dtls of tls connection should be used.
+     */
+    explicit SecureTransport(Instance &aInstance, LinkSecurityMode aLayerTwoSecurity, bool aDatagramTransport = true);
 
     /**
      * Opens the socket.
@@ -146,7 +150,6 @@ public:
      *
      * @retval kErrorNone     Successfully opened the socket.
      * @retval kErrorAlready  The connection is already open.
-     *
      */
     Error Open(ReceiveHandler aReceiveHandler, ConnectedHandler aConnectedHandler, void *aContext);
 
@@ -164,7 +167,6 @@ public:
      *
      * @retval kErrorNone          Successfully set the maximum allowed connection attempts and callback.
      * @retval kErrorInvalidState  Socket is not closed.
-     *
      */
     Error SetMaxConnectionAttempts(uint16_t aMaxAttempts, AutoCloseCallback aCallback, void *aContext);
 
@@ -176,7 +178,6 @@ public:
      * @retval kErrorNone           Successfully bound the socket.
      * @retval kErrorInvalidState   The socket is not open.
      * @retval kErrorAlready        Already bound.
-     *
      */
     Error Bind(uint16_t aPort);
 
@@ -184,9 +185,8 @@ public:
      * Gets the UDP port of this session.
      *
      * @returns  UDP port number.
-     *
      */
-    uint16_t GetUdpPort(void) const;
+    uint16_t GetUdpPort(void) const { return mSocket.GetSockName().GetPort(); }
 
     /**
      * Binds with a transport callback.
@@ -197,7 +197,6 @@ public:
      * @retval kErrorNone           Successfully bound the socket.
      * @retval kErrorInvalidState   The socket is not open.
      * @retval kErrorAlready        Already bound.
-     *
      */
     Error Bind(TransportCallback aCallback, void *aContext);
 
@@ -212,7 +211,6 @@ public:
      *
      * @retval kErrorNone          Successfully started handshake.
      * @retval kErrorInvalidState  The socket is not open.
-     *
      */
     Error Connect(const Ip6::SockAddr &aSockAddr);
 
@@ -221,7 +219,6 @@ public:
      *
      * @retval TRUE  If session is active.
      * @retval FALSE If session is not active.
-     *
      */
     bool IsConnectionActive(void) const { return mState >= kStateConnecting; }
 
@@ -230,7 +227,6 @@ public:
      *
      * @retval TRUE   The session is connected.
      * @retval FALSE  The session is not connected.
-     *
      */
     bool IsConnected(void) const { return mState == kStateConnected; }
 
@@ -239,19 +235,16 @@ public:
      *
      * @retval TRUE   The session is closed.
      * @retval FALSE  The session is not closed.
-     *
      */
     bool IsClosed(void) const { return mState == kStateClosed; }
 
     /**
      * Disconnects the session.
-     *
      */
-    void Disconnect(void);
+    void Disconnect(void) { Disconnect(kDisconnectedLocalClosed); }
 
     /**
      * Closes the socket.
-     *
      */
     void Close(void);
 
@@ -262,15 +255,14 @@ public:
      *
      * @retval kErrorNone          Successfully set the PSK.
      * @retval kErrorInvalidArgs   The PSK is invalid.
-     *
      */
     Error SetPsk(const uint8_t *aPsk, uint8_t aPskLength);
 
 #if OPENTHREAD_CONFIG_TLS_API_ENABLE
+
 #ifdef MBEDTLS_KEY_EXCHANGE_PSK_ENABLED
     /**
-     * Sets the Pre-Shared Key (PSK) for sessions-
-     * identified by a PSK.
+     * Sets the Pre-Shared Key (PSK) for sessions-identified by a PSK.
      *
      * DTLS mode "PSK with AES 128 CCM 8" for Application CoAPS.
      *
@@ -280,10 +272,8 @@ public:
      * @param[in]  aPskIdLength  The PSK Identity Length.
      *
      * @retval kErrorNone  Successfully set the PSK.
-     *
      */
     void SetPreSharedKey(const uint8_t *aPsk, uint16_t aPskLength, const uint8_t *aPskIdentity, uint16_t aPskIdLength);
-
 #endif
 
 #ifdef MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED
@@ -296,7 +286,6 @@ public:
      * @param[in]  aX509CertLength    The length of certificate.
      * @param[in]  aPrivateKey        A pointer to the PEM formatted private key.
      * @param[in]  aPrivateKeyLength  The length of the private key.
-     *
      */
     void SetCertificate(const uint8_t *aX509Certificate,
                         uint32_t       aX509CertLength,
@@ -304,16 +293,22 @@ public:
                         uint32_t       aPrivateKeyLength);
 
     /**
-     * Sets the trusted top level CAs. It is needed for validate the
-     * certificate of the peer.
+     * Sets the trusted top level CAs. It is needed for validate the certificate of the peer.
      *
      * DTLS mode "ECDHE ECDSA with AES 128 CCM 8" for Application CoAPS.
      *
      * @param[in]  aX509CaCertificateChain  A pointer to the PEM formatted X509 CA chain.
      * @param[in]  aX509CaCertChainLength   The length of chain.
-     *
      */
     void SetCaCertificateChain(const uint8_t *aX509CaCertificateChain, uint32_t aX509CaCertChainLength);
+
+    /**
+     * Extracts public key from it's own certificate.
+     *
+     * @returns Public key from own certificate in form of entire ASN.1 field.
+     */
+    const mbedtls_asn1_buf &GetOwnPublicKey(void) const { return mEcdheEcdsaInfo.mOwnCert.pk_raw; }
+
 #endif // MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED
 
 #if defined(MBEDTLS_BASE64_C) && defined(MBEDTLS_SSL_KEEP_PEER_CERTIFICATE)
@@ -329,7 +324,6 @@ public:
      * @retval kErrorInvalidState   Not connected yet.
      * @retval kErrorNone           Successfully get the peer certificate.
      * @retval kErrorNoBufs         Can't allocate memory for certificate.
-     *
      */
     Error GetPeerCertificateBase64(unsigned char *aPeerCert, size_t *aCertLength, size_t aCertBufferSize);
 #endif // defined(MBEDTLS_BASE64_C) && defined(MBEDTLS_SSL_KEEP_PEER_CERTIFICATE)
@@ -353,7 +347,6 @@ public:
      * @retval kErrorInvalidArgs    Invalid attribute length.
      * @retval kErrorNone           Successfully read attribute.
      * @retval kErrorNoBufs         Insufficient memory for storing the attribute value.
-     *
      */
     Error GetPeerSubjectAttributeByOid(const char *aOid,
                                        size_t      aOidLength,
@@ -379,7 +372,6 @@ public:
      * @retval kErrorInvalidState     Not connected yet.
      * @retval kErrorNotImplemented   The value of aThreadOidDescriptor is >127.
      * @retval kErrorParse            The certificate extensions could not be parsed.
-     *
      */
     Error GetThreadAttributeFromPeerCertificate(int      aThreadOidDescriptor,
                                                 uint8_t *aAttributeBuffer,
@@ -404,7 +396,6 @@ public:
      * @retval kErrorInvalidState     Not connected yet.
      * @retval kErrorNotImplemented   The value of aThreadOidDescriptor is >127.
      * @retval kErrorParse            The certificate extensions could not be parsed.
-     *
      */
     Error GetThreadAttributeFromOwnCertificate(int      aThreadOidDescriptor,
                                                uint8_t *aAttributeBuffer,
@@ -417,23 +408,10 @@ public:
      * Must called before start.
      *
      * @param[in]  aVerifyPeerCertificate  true, if the peer certificate should verify.
-     *
      */
     void SetSslAuthMode(bool aVerifyPeerCertificate) { mVerifyPeerCertificate = aVerifyPeerCertificate; }
-#endif // OPENTHREAD_CONFIG_TLS_API_ENABLE
 
-#ifdef MBEDTLS_SSL_SRV_C
-    /**
-     * Sets the Client ID used for generating the Hello Cookie.
-     *
-     * @param[in]  aClientId  A pointer to the Client ID.
-     * @param[in]  aLength    Number of bytes in the Client ID.
-     *
-     * @retval kErrorNone  Successfully set the Client ID.
-     *
-     */
-    Error SetClientId(const uint8_t *aClientId, uint8_t aLength);
-#endif
+#endif // OPENTHREAD_CONFIG_TLS_API_ENABLE
 
     /**
      * Sends data within the session.
@@ -443,32 +421,13 @@ public:
      *
      * @retval kErrorNone     Successfully sent the data via the session.
      * @retval kErrorNoBufs   A message is too long.
-     *
      */
     Error Send(Message &aMessage, uint16_t aLength);
-
-    /**
-     * Provides a received message to the SecureTransport object.
-     *
-     * @param[in]  aMessage  A reference to the message.
-     *
-     */
-    void Receive(Message &aMessage);
-
-    /**
-     * Sets the default message sub-type that will be used for all messages without defined
-     * sub-type.
-     *
-     * @param[in]  aMessageSubType  The default message sub-type.
-     *
-     */
-    void SetDefaultMessageSubType(Message::SubType aMessageSubType) { mMessageDefaultSubType = aMessageSubType; }
 
     /**
      * Returns the session's peer address.
      *
      * @return session's message info.
-     *
      */
     const Ip6::MessageInfo &GetMessageInfo(void) const { return mMessageInfo; }
 
@@ -478,11 +437,20 @@ public:
      *
      * @param[in]  aMessage  A reference to the message to receive.
      * @param[in]  aMessageInfo A reference to the message info associated with @p aMessage.
-     *
      */
     void HandleReceive(Message &aMessage, const Ip6::MessageInfo &aMessageInfo);
 
 private:
+    static constexpr uint16_t kMaxContentLen                   = OPENTHREAD_CONFIG_DTLS_MAX_CONTENT_LEN;
+    static constexpr uint32_t kGuardTimeNewConnectionMilli     = 2000;
+    static constexpr size_t   kSecureTransportKeyBlockSize     = 40;
+    static constexpr size_t   kSecureTransportRandomBufferSize = 32;
+#if !OPENTHREAD_CONFIG_TLS_API_ENABLE
+    static constexpr uint16_t kApplicationDataMaxLength = 1152;
+#else
+    static constexpr uint16_t         kApplicationDataMaxLength = OPENTHREAD_CONFIG_DTLS_APPLICATION_DATA_MAX_LENGTH;
+#endif
+
     enum State : uint8_t
     {
         kStateClosed,       // UDP socket is closed.
@@ -493,16 +461,51 @@ private:
         kStateCloseNotify,  // The service is closing a connection.
     };
 
-    static constexpr uint32_t kGuardTimeNewConnectionMilli = 2000;
+    enum CipherSuite : uint8_t
+    {
+        kEcjpakeWithAes128Ccm8,
+#if OPENTHREAD_CONFIG_TLS_API_ENABLE && defined(MBEDTLS_KEY_EXCHANGE_PSK_ENABLED)
+        kPskWithAes128Ccm8,
+#endif
+#if OPENTHREAD_CONFIG_TLS_API_ENABLE && defined(MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED)
+        kEcdheEcdsaWithAes128Ccm8,
+        kEcdheEcdsaWithAes128GcmSha256,
+#endif
+        kUnspecifiedCipherSuite,
+    };
 
-#if !OPENTHREAD_CONFIG_TLS_API_ENABLE
-    static constexpr uint16_t kApplicationDataMaxLength = 1152;
-#else
-    static constexpr uint16_t         kApplicationDataMaxLength = OPENTHREAD_CONFIG_DTLS_APPLICATION_DATA_MAX_LENGTH;
+#if OPENTHREAD_CONFIG_TLS_API_ENABLE && defined(MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED)
+    struct EcdheEcdsaInfo : public Clearable<EcdheEcdsaInfo>
+    {
+        EcdheEcdsaInfo(void) { Clear(); }
+        void Init(void);
+        void Free(void);
+        int  SetSecureKeys(mbedtls_ssl_config &aConfig);
+
+        const uint8_t     *mCaChainSrc;
+        const uint8_t     *mOwnCertSrc;
+        const uint8_t     *mPrivateKeySrc;
+        uint32_t           mOwnCertLength;
+        uint32_t           mCaChainLength;
+        uint32_t           mPrivateKeyLength;
+        mbedtls_x509_crt   mCaChain;
+        mbedtls_x509_crt   mOwnCert;
+        mbedtls_pk_context mPrivateKey;
+    };
 #endif
 
-    static constexpr size_t kSecureTransportKeyBlockSize     = 40;
-    static constexpr size_t kSecureTransportRandomBufferSize = 32;
+#if OPENTHREAD_CONFIG_TLS_API_ENABLE && defined(MBEDTLS_KEY_EXCHANGE_PSK_ENABLED)
+    struct PskInfo : public Clearable<PskInfo>
+    {
+        PskInfo(void) { Clear(); }
+        int SetSecureKeys(mbedtls_ssl_config &aConfig) const;
+
+        const uint8_t *mPreSharedKey;
+        const uint8_t *mPreSharedKeyIdentity;
+        uint16_t       mPreSharedKeyLength;
+        uint16_t       mPreSharedKeyIdLength;
+    };
+#endif
 
     bool IsStateClosed(void) const { return mState == kStateClosed; }
     bool IsStateOpen(void) const { return mState == kStateOpen; }
@@ -517,14 +520,7 @@ private:
     Error Setup(bool aClient);
 
 #if OPENTHREAD_CONFIG_TLS_API_ENABLE
-    /**
-     * Set keys and/or certificates for dtls session dependent of used cipher suite.
-     *
-     * @retval mbedtls error, 0 if successfully.
-     *
-     */
-    int SetApplicationSecureKeys(void);
-
+    int   SetApplicationSecureKeys(void);
     Error GetThreadAttributeFromCertificate(const mbedtls_x509_crt *aCert,
                                             int                     aThreadOidDescriptor,
                                             uint8_t                *aAttributeBuffer,
@@ -584,92 +580,63 @@ private:
     static void HandleTimer(Timer &aTimer);
     void        HandleTimer(void);
 
-    static void HandleReceive(void *aContext, otMessage *aMessage, const otMessageInfo *aMessageInfo);
-
-    void  HandleReceive(const uint8_t *aBuf, uint16_t aLength);
-    Error HandleSecureTransportSend(const uint8_t *aBuf, uint16_t aLength, Message::SubType aMessageSubType);
-
     void Process(void);
+    void Disconnect(ConnectEvent aEvent);
 
 #if OT_SHOULD_LOG_AT(OT_LOG_LEVEL_INFO)
     static const char *StateToString(State aState);
 #endif
 
-    State mState;
-
-    int     mCipherSuites[2];
-    uint8_t mPsk[kPskMaxLength];
-    uint8_t mPskLength;
+    using TransportSocket = Ip6::Udp::SocketIn<SecureTransport, &SecureTransport::HandleReceive>;
 
 #if (MBEDTLS_VERSION_NUMBER >= 0x03010000)
-    static const uint16_t sGroups[];
+    static const uint16_t kGroups[];
 #else
-    static const mbedtls_ecp_group_id sCurves[];
+    static const mbedtls_ecp_group_id kCurves[];
 #endif
 
 #if defined(MBEDTLS_KEY_EXCHANGE__WITH_CERT__ENABLED) || defined(MBEDTLS_KEY_EXCHANGE_WITH_CERT_ENABLED)
 #if (MBEDTLS_VERSION_NUMBER >= 0x03020000)
-    static const uint16_t sSignatures[];
+    static const uint16_t kSignatures[];
 #else
-    static const int sHashes[];
+    static const int kHashes[];
 #endif
 #endif
 
-#if OPENTHREAD_CONFIG_TLS_API_ENABLE
-#ifdef MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED
-    const uint8_t     *mCaChainSrc;
-    uint32_t           mCaChainLength;
-    const uint8_t     *mOwnCertSrc;
-    uint32_t           mOwnCertLength;
-    const uint8_t     *mPrivateKeySrc;
-    uint32_t           mPrivateKeyLength;
-    mbedtls_x509_crt   mCaChain;
-    mbedtls_x509_crt   mOwnCert;
-    mbedtls_pk_context mPrivateKey;
-#endif
-#ifdef MBEDTLS_KEY_EXCHANGE_PSK_ENABLED
-    const uint8_t *mPreSharedKey;
-    const uint8_t *mPreSharedKeyIdentity;
-    uint16_t       mPreSharedKeyLength;
-    uint16_t       mPreSharedKeyIdLength;
-#endif
-#endif
+    static const int kCipherSuites[][2];
 
-    bool mVerifyPeerCertificate;
-
-    mbedtls_ssl_context mSsl;
-    mbedtls_ssl_config  mConf;
-
-#ifdef MBEDTLS_SSL_COOKIE_C
-    mbedtls_ssl_cookie_ctx mCookieCtx;
-#endif
-
-    TimerMilliContext mTimer;
-
-    TimeMilli mTimerIntermediate;
-    bool      mTimerSet : 1;
-
-    bool mLayerTwoSecurity : 1;
-    bool mDatagramTransport : 1;
-
+    bool                        mLayerTwoSecurity : 1;
+    bool                        mDatagramTransport : 1;
+    bool                        mTimerSet : 1;
+    bool                        mVerifyPeerCertificate : 1;
+    State                       mState;
+    CipherSuite                 mCipherSuite;
+    Message::SubType            mMessageSubType;
+    ConnectEvent                mConnectEvent;
+    uint8_t                     mPskLength;
     uint16_t                    mMaxConnectionAttempts;
     uint16_t                    mRemainingConnectionAttempts;
+    Message                    *mReceiveMessage;
+    Ip6::MessageInfo            mMessageInfo;
+    TransportSocket             mSocket;
+    uint8_t                     mPsk[kPskMaxLength];
+    TimerMilliContext           mTimer;
+    TimeMilli                   mTimerIntermediate;
     Callback<AutoCloseCallback> mAutoCloseCallback;
-
-    Message *mReceiveMessage;
-
-    Callback<ConnectedHandler> mConnectedCallback;
-    Callback<ReceiveHandler>   mReceiveCallback;
-    void                      *mContext;
-
-    Ip6::MessageInfo mMessageInfo;
-    Ip6::Udp::Socket mSocket;
-
+    Callback<ConnectedHandler>  mConnectedCallback;
+    Callback<ReceiveHandler>    mReceiveCallback;
     Callback<TransportCallback> mTransportCallback;
-    void                       *mTransportContext;
-
-    Message::SubType mMessageSubType;
-    Message::SubType mMessageDefaultSubType;
+    mbedtls_ssl_context         mSsl;
+    mbedtls_ssl_config          mConf;
+#if defined(MBEDTLS_SSL_SRV_C) && defined(MBEDTLS_SSL_COOKIE_C)
+    mbedtls_ssl_cookie_ctx mCookieCtx;
+#endif
+#if OPENTHREAD_CONFIG_TLS_API_ENABLE && defined(MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED)
+    EcdheEcdsaInfo mEcdheEcdsaInfo;
+#endif
+#if OPENTHREAD_CONFIG_TLS_API_ENABLE && defined(MBEDTLS_KEY_EXCHANGE_PSK_ENABLED)
+    PskInfo mPskInfo;
+#endif
 };
 
 } // namespace MeshCoP

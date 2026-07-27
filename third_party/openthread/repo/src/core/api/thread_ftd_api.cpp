@@ -35,10 +35,7 @@
 
 #if OPENTHREAD_FTD
 
-#include <openthread/thread_ftd.h>
-
-#include "common/as_core_type.hpp"
-#include "common/locator_getters.hpp"
+#include "instance/instance.hpp"
 
 using namespace ot;
 
@@ -202,7 +199,7 @@ otError otThreadBecomeRouter(otInstance *aInstance)
 
 otError otThreadBecomeLeader(otInstance *aInstance)
 {
-    return AsCoreType(aInstance).Get<Mle::MleRouter>().BecomeLeader();
+    return AsCoreType(aInstance).Get<Mle::MleRouter>().BecomeLeader(/* aCheckWeight */ true);
 }
 
 uint8_t otThreadGetRouterDowngradeThreshold(otInstance *aInstance)
@@ -250,15 +247,7 @@ otError otThreadGetChildNextIp6Address(otInstance                *aInstance,
     VerifyOrExit(child != nullptr, error = kErrorInvalidArgs);
     VerifyOrExit(child->IsStateValidOrRestoring(), error = kErrorInvalidArgs);
 
-    {
-        Child::AddressIterator iter(*child, *aIterator);
-
-        VerifyOrExit(!iter.IsDone(), error = kErrorNotFound);
-        *aAddress = *iter.GetAddress();
-
-        iter++;
-        *aIterator = iter.GetAsIndex();
-    }
+    error = child->GetNextIp6Address(*aIterator, AsCoreType(aAddress));
 
 exit:
     return error;

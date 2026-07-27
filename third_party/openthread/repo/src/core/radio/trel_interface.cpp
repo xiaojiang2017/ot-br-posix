@@ -34,17 +34,7 @@
 
 #if OPENTHREAD_CONFIG_RADIO_LINK_TREL_ENABLE
 
-#include <string.h>
-
-#include "common/array.hpp"
-#include "common/as_core_type.hpp"
-#include "common/code_utils.hpp"
-#include "common/debug.hpp"
-#include "common/locator_getters.hpp"
-#include "common/log.hpp"
-#include "common/string.hpp"
 #include "instance/instance.hpp"
-#include "net/dns_types.hpp"
 
 namespace ot {
 namespace Trel {
@@ -271,14 +261,14 @@ Error Interface::ParsePeerInfoTxtData(const Peer::Info       &aInfo,
             continue;
         }
 
-        if (strcmp(entry.mKey, kTxtRecordExtAddressKey) == 0)
+        if (StringMatch(entry.mKey, kTxtRecordExtAddressKey))
         {
             VerifyOrExit(!parsedExtAddress, error = kErrorParse);
             VerifyOrExit(entry.mValueLength == sizeof(Mac::ExtAddress), error = kErrorParse);
             aExtAddress.Set(entry.mValue);
             parsedExtAddress = true;
         }
-        else if (strcmp(entry.mKey, kTxtRecordExtPanIdKey) == 0)
+        else if (StringMatch(entry.mKey, kTxtRecordExtPanIdKey))
         {
             VerifyOrExit(!parsedExtPanId, error = kErrorParse);
             VerifyOrExit(entry.mValueLength == sizeof(MeshCoP::ExtendedPanId), error = kErrorParse);

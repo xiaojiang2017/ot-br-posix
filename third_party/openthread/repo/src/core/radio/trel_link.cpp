@@ -34,10 +34,6 @@
 
 #if OPENTHREAD_CONFIG_RADIO_LINK_TREL_ENABLE
 
-#include "common/code_utils.hpp"
-#include "common/debug.hpp"
-#include "common/locator_getters.hpp"
-#include "common/log.hpp"
 #include "instance/instance.hpp"
 
 namespace ot {
@@ -475,10 +471,14 @@ const char *Link::StateToString(State aState)
         "Transmit", // (3) kStateTransmit
     };
 
-    static_assert(0 == kStateDisabled, "kStateDisabled value is incorrect");
-    static_assert(1 == kStateSleep, "kStateSleep value is incorrect");
-    static_assert(2 == kStateReceive, "kStateReceive value is incorrect");
-    static_assert(3 == kStateTransmit, "kStateTransmit value is incorrect");
+    struct EnumCheck
+    {
+        InitEnumValidatorCounter();
+        ValidateNextEnum(kStateDisabled);
+        ValidateNextEnum(kStateSleep);
+        ValidateNextEnum(kStateReceive);
+        ValidateNextEnum(kStateTransmit);
+    };
 
     return kStateStrings[aState];
 }
