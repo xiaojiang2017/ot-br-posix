@@ -125,7 +125,7 @@ jobs:
           ${TAGS} --file etc/docker/Dockerfile ." >> $GITHUB_OUTPUT
 
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
+      uses: docker/setup-qemu-action@v4
       with:
         platforms: all
 
