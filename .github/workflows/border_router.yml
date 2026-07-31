@@ -122,7 +122,7 @@ jobs:
       NAT64: ${{ matrix.internet }}
       MAX_JOBS: 3
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: true
     - name: Get Border Router Test ID
